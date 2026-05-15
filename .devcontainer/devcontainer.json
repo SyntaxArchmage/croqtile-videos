@@ -1,0 +1,50 @@
+{
+  "name": "croqtile-videos",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+
+  // ─── system packages ───────────────────────────────────────────────────────
+  // Remotion renderer needs Chromium (headless). The microsoft image ships
+  // Debian; install the Google-signed Chrome so Puppeteer finds it at the
+  // standard path and we avoid the "no usable sandbox" issue.
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+
+  "onCreateCommand": "bash .devcontainer/install-chrome.sh",
+
+  // ─── repo setup ────────────────────────────────────────────────────────────
+  // `npm ci` is intentional: reproduces the exact lockfile, not a loose install.
+  "postCreateCommand": "npm ci",
+
+  // ─── network ───────────────────────────────────────────────────────────────
+  "forwardPorts": [
+    3000,  // Next.js dev server
+    3001   // Remotion Studio
+  ],
+  "portsAttributes": {
+    "3000": { "label": "Next.js" },
+    "3001": { "label": "Remotion Studio" }
+  },
+
+  // ─── VS Code ───────────────────────────────────────────────────────────────
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "unifiedjs.vscode-mdx"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "typescript.preferences.importModuleSpecifier": "relative"
+      }
+    }
+  },
+
+  // ─── env ───────────────────────────────────────────────────────────────────
+  // Copy .env.example → .env on first open; never commits real secrets.
+  "initializeCommand": "[ -f .env ] || cp .env.example .env"
+}
