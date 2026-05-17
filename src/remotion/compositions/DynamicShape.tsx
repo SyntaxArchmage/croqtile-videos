@@ -10,7 +10,6 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Easing,
   interpolate,
   Sequence,
   spring,
@@ -26,7 +25,10 @@ const CYCLE_START = 120;
 const CYCLE_END = 600;
 const SLOT_FRAMES = 120;
 const TRITON_ENTER_START = 600;
-const TRITON_ENTER_END = 750;
+
+const CODE_SIZE = 46;
+const LABEL_SIZE = 22;
+const MONO_DIMS = 42;
 
 const PRESETS = [
   { label: "Small", M: 64, N: 64, K: 32 },
@@ -36,20 +38,68 @@ const PRESETS = [
 ] as const;
 
 function formatDims(p: (typeof PRESETS)[number]): string {
-  return `M × N × K  →  ${p.M.toLocaleString()} × ${p.N.toLocaleString()} × ${p.K.toLocaleString()}`;
+  return `${p.M.toLocaleString()} × ${p.N.toLocaleString()} × ${p.K.toLocaleString()}`;
 }
+
+const CROSSFADE = 28;
+
+const presetDimWeight = (j: number, cycleFrame: number): number => {
+  const enter =
+    j === 0
+      ? 1
+      : interpolate(
+          cycleFrame,
+          [j * SLOT_FRAMES - CROSSFADE, j * SLOT_FRAMES],
+          [0, 1],
+          { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+        );
+  const exit =
+    j === PRESETS.length - 1
+      ? 1
+      : interpolate(
+          cycleFrame,
+          [(j + 1) * SLOT_FRAMES - CROSSFADE, (j + 1) * SLOT_FRAMES],
+          [1, 0],
+          { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+        );
+  return enter * exit;
+};
+
+const PresetDimsLine: React.FC<{ preset: (typeof PRESETS)[number]; opacity: number }> = ({
+  preset,
+  opacity,
+}) => (
+  <div
+    style={{
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      fontFamily: THEME.fonts.mono,
+      fontSize: MONO_DIMS,
+      lineHeight: 1.35,
+      color: THEME.colors.textPrimary,
+      opacity,
+      whiteSpace: "nowrap",
+    }}
+  >
+    <span style={{ color: THEME.colors.textMuted }}>M × N × K → </span>
+    <span style={{ color: THEME.colors.primary }}>{formatDims(preset)}</span>
+  </div>
+);
 
 export const DynamicShape: React.FC = () => {
   const frame = useCurrentFrame();
   const fps = THEME.video.fps;
 
-  const codeSlide = interpolate(frame, [0, 120], [-88, 0], {
-    easing: Easing.out(Easing.cubic),
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const codeSlide = spring({
+    frame,
+    fps,
+    config: { damping: 22, stiffness: 140, mass: 0.85 },
+    from: -96,
+    to: 0,
   });
   const codeOpacity = interpolate(frame, [0, 96], [0, 1], {
-    easing: Easing.out(Easing.quad),
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -66,18 +116,7 @@ export const DynamicShape: React.FC = () => {
     PRESETS.length - 1,
     Math.floor(cycleT / SLOT_FRAMES)
   );
-  const intraSlot = cycleT - presetIndex * SLOT_FRAMES;
-  const dimsPulse = interpolate(
-    intraSlot,
-    [0, 16, 104, SLOT_FRAMES],
-    [0.92, 1, 1, 0.42],
-    {
-      easing: Easing.inOut(Easing.quad),
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-  const preset = PRESETS[presetIndex];
+
   const selectorOpacity = interpolate(frame, [120, 152], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
@@ -87,33 +126,38 @@ export const DynamicShape: React.FC = () => {
     frame: frame - CYCLE_START - presetIndex * SLOT_FRAMES,
     fps,
     config: { damping: 15, stiffness: 190, mass: 0.55 },
-    from: 0.9,
+    from: 0.94,
     to: 1,
   });
 
-  const leftPadRight = interpolate(frame, [594, 664], [0, 524], {
-    easing: Easing.out(Easing.cubic),
+  const leftShrink = interpolate(frame, [594, 668], [0, 540], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const dimGlow = interpolate(dimsPulse, [0.55, 1], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const mintGlow = interpolate(
+    presetDimWeight(presetIndex, cycleT),
+    [0.35, 1],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
 
-  const tritonX = interpolate(frame, [TRITON_ENTER_START, TRITON_ENTER_END], [110, 0], {
-    easing: Easing.out(Easing.cubic),
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+  const tritonSlide = spring({
+    frame: frame - TRITON_ENTER_START,
+    fps,
+    config: { damping: 24, stiffness: 110, mass: 1 },
+    from: 120,
+    to: 0,
   });
-  const tritonOpacity = interpolate(frame, [TRITON_ENTER_START, TRITON_ENTER_START + 72], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+  const tritonOpacity = interpolate(
+    frame,
+    [TRITON_ENTER_START, TRITON_ENTER_START + 72],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
 
   return (
-    <PageContainer tag="Flexibility" title="Write Once, Run Any Shape">
+    <PageContainer tag="Segment 05" title="Symbolic dimensions, one kernel">
       <div
         style={{
           flex: 1,
@@ -122,10 +166,11 @@ export const DynamicShape: React.FC = () => {
           position: "relative",
           display: "flex",
           flexDirection: "column",
+          maxHeight: 498,
         }}
       >
         <AbsoluteFill style={{ pointerEvents: "none" }}>
-          <NoiseOverlay opacity={0.032} />
+          <NoiseOverlay opacity={0.028} blendMode="soft-light" />
         </AbsoluteFill>
 
         <div
@@ -135,7 +180,7 @@ export const DynamicShape: React.FC = () => {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 28,
+            gap: 14,
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
@@ -145,14 +190,28 @@ export const DynamicShape: React.FC = () => {
                 transform: `translateX(${codeSlide}px) scale(${codeScale})`,
                 opacity: codeOpacity,
                 transformOrigin: "left center",
-                paddingRight: leftPadRight,
-                maxWidth: 1100,
+                paddingRight: leftShrink,
+                maxWidth: 1180,
               }}
             >
-              <DeviceShell title="matmul.croq" width={1000} height={296}>
+              <div
+                style={{
+                  fontFamily: THEME.fonts.sans,
+                  fontSize: LABEL_SIZE,
+                  fontWeight: 600,
+                  color: THEME.colors.primary,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  marginBottom: 6,
+                }}
+              >
+                CroqTile
+              </div>
+
+              <DeviceShell title="matmul.croq" width={1040} height={228}>
                 <div
                   style={{
-                    padding: "28px 32px",
+                    padding: "18px 26px",
                     height: "100%",
                     boxSizing: "border-box",
                     display: "flex",
@@ -166,31 +225,21 @@ export const DynamicShape: React.FC = () => {
                       whiteSpace: "pre-wrap",
                       wordBreak: "break-word",
                       fontFamily: THEME.fonts.mono,
-                      fontSize: THEME.fontSize.sm,
-                      lineHeight: 1.65,
+                      fontSize: CODE_SIZE,
+                      lineHeight: 1.55,
                       color: THEME.colors.textSecondary,
                     }}
                   >
-                    <span style={{ color: THEME.colors.textMuted }}>
-                      {"__co__ "}
-                    </span>
+                    <span style={{ color: THEME.colors.textMuted }}>{"__co__ "}</span>
                     <span style={{ color: THEME.colors.textCode }}>
                       {"auto matmul(global f16 ["}
-                      <span style={{ color: THEME.colors.primary }}>
-                        {"M"}
-                      </span>
+                      <span style={{ color: THEME.colors.primary }}>{"M"}</span>
                       <span>{", "}</span>
-                      <span style={{ color: THEME.colors.primary }}>
-                        {"K"}
-                      </span>
+                      <span style={{ color: THEME.colors.primary }}>{"K"}</span>
                       <span>{"] lhs, global f16 ["}</span>
-                      <span style={{ color: THEME.colors.primary }}>
-                        {"N"}
-                      </span>
+                      <span style={{ color: THEME.colors.primary }}>{"N"}</span>
                       <span>{", "}</span>
-                      <span style={{ color: THEME.colors.primary }}>
-                        {"K"}
-                      </span>
+                      <span style={{ color: THEME.colors.primary }}>{"K"}</span>
                       <span>{"] rhs) { ... }"}</span>
                     </span>
                   </pre>
@@ -202,44 +251,55 @@ export const DynamicShape: React.FC = () => {
                 durationInFrames={DURATION_FRAMES - CYCLE_START}
                 layout="none"
               >
-                <div style={{ marginTop: 22, opacity: selectorOpacity }}>
+                <div style={{ marginTop: 14, opacity: selectorOpacity }}>
+                  <div
+                    style={{
+                      fontFamily: THEME.fonts.sans,
+                      fontSize: LABEL_SIZE - 2,
+                      color: THEME.colors.textSecondary,
+                      marginBottom: 10,
+                    }}
+                  >
+                    Dimension preset
+                  </div>
                   <div
                     style={{
                       display: "flex",
                       flexWrap: "wrap",
-                      gap: 10,
-                      marginBottom: 16,
+                      gap: 12,
+                      marginBottom: 12,
                     }}
                   >
                     {PRESETS.map((p, i) => {
                       const active = i === presetIndex;
+                      const peak = active ? activePresetSpring : 1;
+
                       return (
                         <div
                           key={p.label}
                           style={{
-                            padding: "8px 18px",
+                            padding: "10px 20px",
                             borderRadius: THEME.radius.full,
                             fontFamily: THEME.fonts.mono,
-                            fontSize: THEME.fontSize.xs,
-                            letterSpacing: "0.06em",
+                            fontSize: THEME.fontSize.lg,
+                            letterSpacing: "0.04em",
                             textTransform: "uppercase",
-                            color: active
-                              ? THEME.colors.bgBase
-                              : THEME.colors.textSecondary,
-                            background: active
-                              ? `linear-gradient(135deg, ${THEME.colors.primary}, #34D399)`
-                              : THEME.colors.bgElevated,
                             border: `1px solid ${
                               active
-                                ? "rgba(110,231,183,0.65)"
+                                ? "rgba(110,231,183,0.55)"
                                 : "rgba(255,255,255,0.08)"
                             }`,
+                            color: active
+                              ? THEME.colors.textPrimary
+                              : THEME.colors.textMuted,
+                            background: active
+                              ? "linear-gradient(135deg, rgba(110,231,183,0.14) 0%, rgba(129,140,248,0.1) 100%)"
+                              : "rgba(17,24,39,0.65)",
                             boxShadow: active
-                              ? `${THEME.shadows.glowSm}, ${THEME.shadows.inset}`
-                              : "none",
-                            transform: active
-                              ? `scale(${activePresetSpring})`
-                              : "scale(1)",
+                              ? `${THEME.shadows.glowSm}, inset 0 1px 0 rgba(255,255,255,0.07)`
+                              : THEME.shadows.inset,
+                            opacity: active ? peak : 0.74,
+                            transform: `scale(${active ? peak : 0.98})`,
                           }}
                         >
                           {p.label}
@@ -250,34 +310,34 @@ export const DynamicShape: React.FC = () => {
 
                   <div
                     style={{
-                      padding: "18px 22px",
+                      padding: "14px 18px",
                       borderRadius: THEME.radius.md,
                       background: THEME.colors.bgCard,
-                      border: "1px solid rgba(110,231,183,0.18)",
-                      boxShadow: THEME.shadows.card,
+                      border: `1px solid rgba(110,231,183,0.22)`,
+                      boxShadow: `${THEME.shadows.card}, 0 0 ${Math.round(mintGlow * 36)}px rgba(110,231,183,0.12)`,
+                      position: "relative",
+                      minHeight: 62,
                     }}
                   >
                     <div
                       style={{
-                        fontFamily: THEME.fonts.mono,
-                        fontSize: THEME.fontSize.sm,
+                        fontFamily: THEME.fonts.sans,
+                        fontSize: LABEL_SIZE - 4,
                         color: THEME.colors.textMuted,
                         marginBottom: 8,
-                        letterSpacing: "0.04em",
+                        letterSpacing: "0.03em",
                       }}
                     >
                       Resolved launch shape
                     </div>
-                    <div
-                      style={{
-                        fontFamily: THEME.fonts.mono,
-                        fontSize: THEME.fontSize.base,
-                        color: THEME.colors.textPrimary,
-                        opacity: dimsPulse,
-                        textShadow: `0 0 ${Math.round(dimGlow * 14)}px rgba(110,231,183,0.45)`,
-                      }}
-                    >
-                      {formatDims(preset)}
+                    <div style={{ position: "relative", minHeight: MONO_DIMS * 1.35 }}>
+                      {PRESETS.map((p, j) => (
+                        <PresetDimsLine
+                          key={p.label}
+                          preset={p}
+                          opacity={presetDimWeight(j, cycleT)}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -295,45 +355,69 @@ export const DynamicShape: React.FC = () => {
                   position: "absolute",
                   top: 0,
                   right: 0,
-                  width: 500,
-                  transform: `translateX(${tritonX}px)`,
+                  width: 520,
+                  transform: `translateX(${tritonSlide}px)`,
                   opacity: tritonOpacity,
                   display: "flex",
-                  alignItems: "flex-start",
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  gap: 10,
                 }}
               >
-                <DeviceShell
-                  title="triton_compare.py"
-                  width={480}
-                  height={420}
+                <div
                   style={{
-                    boxShadow: `${THEME.shadows.card}, 0 0 0 1px rgba(129,140,248,0.22)`,
+                    fontFamily: THEME.fonts.sans,
+                    fontSize: LABEL_SIZE,
+                    fontWeight: 600,
+                    color: THEME.colors.textMuted,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    alignSelf: "flex-end",
+                    paddingRight: 8,
                   }}
                 >
-                  <div style={{ padding: "24px 26px", height: "100%" }}>
+                  Triton
+                </div>
+                <DeviceShell
+                  title="triton_compare.py"
+                  width={520}
+                  height={352}
+                  style={{
+                    background: THEME.colors.bgBase,
+                    boxShadow: `${THEME.shadows.card}, inset 0 1px 0 rgba(255,255,255,0.03)`,
+                    opacity: 0.94,
+                    filter: "saturate(0.82)",
+                  }}
+                >
+                  <div style={{ padding: "18px 22px", height: "100%", boxSizing: "border-box" }}>
                     <pre
                       style={{
                         margin: 0,
                         fontFamily: THEME.fonts.mono,
-                        fontSize: THEME.fontSize.sm,
-                        lineHeight: 1.7,
-                        color: THEME.colors.textSecondary,
+                        fontSize: 42,
+                        lineHeight: 1.58,
+                        color: THEME.colors.textMuted,
                       }}
                     >
                       <span style={{ color: THEME.colors.textMuted }}>
-                        {"# Triton: block size must be compile-time constant\n"}
+                        {"# Block sizes must be tl.constexpr\n"}
                       </span>
-                      <span style={{ color: THEME.colors.accentWarm }}>
-                        {"BLOCK_M"}
+                      <span style={{ color: THEME.colors.accentWarm }}>{"BLOCK_M"}</span>
+                      <span style={{ color: THEME.colors.textSecondary }}>
+                        {": tl.constexpr = "}
                       </span>
-                      <span>{": tl.constexpr  "}</span>
-                      <span style={{ color: THEME.colors.danger }}>
-                        {"# cannot be symbolic\n"}
+                      <span style={{ color: THEME.colors.textMuted }}>{"128"}</span>
+                      {"\n"}
+                      <span style={{ color: THEME.colors.accent }}>
+                        {"# Fixed at compile time — not symbolic\n"}
                       </span>
-                      <span style={{ color: THEME.colors.textMuted }}>
-                        {
-                          "# Each shape needs separate tuning and recompilation\n"
-                        }
+                      <span
+                        style={{
+                          color: THEME.colors.textMuted,
+                          opacity: 0.88,
+                        }}
+                      >
+                        {"# New shapes → retune & recompile\n"}
                       </span>
                     </pre>
                   </div>

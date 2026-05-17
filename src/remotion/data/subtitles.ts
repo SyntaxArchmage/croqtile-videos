@@ -163,27 +163,37 @@ export const SUBTITLES: SubtitleCue[] = [
   // ═══ 段 4: 编译时安全 (3542–4441) ═══
   {
     startFrame: 3562,
-    endFrame: 3832,
-    textCN: "在 CroqTile 里，shape 不匹配、DMA 越界、类型错误，全部在编译期被拦住。",
+    endFrame: 3770,
+    textCN: "除了易用性，调试体验也是影响计算核开发效率的重要因素。",
     textEN:
-      "In CroqTile, shape mismatches, DMA overflows, and type errors are all caught at compile time.",
-    highlights: ["编译期", "compile time", "shape 不匹配", "DMA"],
+      "Beyond usability, the debugging experience is a major factor in kernel development efficiency.",
+    highlights: ["调试体验", "debugging experience"],
   },
   {
-    startFrame: 3842,
-    endFrame: 4092,
-    textCN: "353 项编译时检查，1,319 项运行时断言——没有一个错误能溜到 GPU dispatch 之后。",
+    startFrame: 3773,
+    endFrame: 4002,
+    textCN:
+      "传统的调优过程经常出现运行时报错——定位一个 DMA 越界或 shape 不匹配往往要花上数小时甚至数天。",
     textEN:
-      "353 compile-time checks. 1,319 runtime assertions. Not a single error gets past GPU dispatch.",
-    highlights: ["353", "1,319"],
+      "Traditional tuning cycles are plagued by runtime errors — tracking down a DMA overflow or shape mismatch can take hours, even days.",
+    highlights: ["运行时报错", "runtime errors", "DMA", "shape"],
   },
   {
-    startFrame: 4102,
-    endFrame: 4422,
-    textCN: "DMA 类 bug 在 CUDA 里素来难以追踪，CroqTile 直接从语言层面消灭了这类问题。",
+    startFrame: 4005,
+    endFrame: 4222,
+    textCN: "CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。",
     textEN:
-      "DMA bugs that haunt CUDA codebases for days — CroqTile eliminates the entire class at the language level.",
-    highlights: ["语言层面", "language level"],
+      "CroqTile is the only next-generation kernel language with a purpose-built standalone compiler.",
+    highlights: ["唯一", "only", "独立编译模块", "standalone compiler"],
+  },
+  {
+    startFrame: 4225,
+    endFrame: 4441,
+    textCN:
+      "DMA 越界、shape 不匹配、同步错误——CroqTile 编译器在编译期就能优雅地拦截。",
+    textEN:
+      "DMA overflows, shape mismatches, sync errors — caught elegantly by the CroqTile compiler at compile time.",
+    highlights: ["编译期", "compile time", "DMA", "shape", "同步错误", "sync errors"],
   },
 
   // ═══ 段 5: 动态符号化维度 (4442–5341) ═══
@@ -223,11 +233,19 @@ export const SUBTITLES: SubtitleCue[] = [
   },
   {
     startFrame: 5582,
-    endFrame: 5791,
-    textCN: "用编程 Agent 搭配 CroqTile，这一切可以再乘以十。因为 CroqTile，从一开始就是为 AI-native 而设计的。",
+    endFrame: 5685,
+    textCN: "用编程 Agent 搭配 CroqTile，这一切可以再乘以十。",
     textEN:
-      "Pair CroqTile with a coding agent, and multiply that by ten. Because CroqTile was designed for AI-native from day one.",
-    highlights: ["编程 Agent", "coding agent", "AI-native", "乘以十", "multiply"],
+      "Pair CroqTile with a coding agent, and multiply that by ten.",
+    highlights: ["编程 Agent", "coding agent", "乘以十", "multiply"],
+  },
+  {
+    startFrame: 5688,
+    endFrame: 5791,
+    textCN: "因为 CroqTile，从一开始就是为 AI-native 而设计的。",
+    textEN:
+      "Because CroqTile was designed for AI-native from day one.",
+    highlights: ["AI-native"],
   },
 
   // ═══ 段 6B: 上下文精简 (5792–6541) ═══
@@ -371,10 +389,17 @@ export const SUBTITLES: SubtitleCue[] = [
   // ═══ 段 7: 结语 CTA (9992–10291) ═══
   {
     startFrame: 10032,
+    endFrame: 10160,
+    textCN: "欢迎来到计算编程的新时代。",
+    textEN: "Welcome to the new era of compute programming.",
+    highlights: ["新时代", "new era"],
+  },
+  {
+    startFrame: 10163,
     endFrame: 10291,
-    textCN: "欢迎来到计算编程的新时代。你的性能开发效率，值得被重新定义。",
+    textCN: "你的性能开发效率，值得被重新定义。",
     textEN:
-      "Welcome to the new era of compute programming. Your kernel development productivity deserves to be redefined.",
-    highlights: ["新时代", "new era", "重新定义", "redefined"],
+      "Your kernel development productivity deserves to be redefined.",
+    highlights: ["重新定义", "redefined"],
   },
 ];

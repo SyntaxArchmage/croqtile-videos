@@ -26,6 +26,19 @@ import { DeviceShell } from "../components/DeviceShell";
 
 const FADE_FRAMES = 24;
 
+/** Body stacks below PageContainer header; keep primary visuals above ~y=700 for subtitle safe zone */
+const BODY_MAX_HEIGHT = 432;
+
+/** Typography — Segment 6 (42–58px body, 18–28px labels) */
+const FS = {
+  main: 48,
+  mainAccent: 52,
+  label: 22,
+  labelSm: 18,
+  mono: 20,
+  monoLg: 24,
+} as const;
+
 const SEG = {
   A: { seqFrom: 0, seqDur: 450, start: 0, end: 450 },
   B: { seqFrom: 426, seqDur: 774, start: 450, end: 1200 },
@@ -43,15 +56,21 @@ const SegmentWrap: React.FC<{
   const fadeIn = interpolate(frame, [0, FADE_FRAMES], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
+    easing: Easing.out(Easing.cubic),
   });
   const fadeOut = interpolate(
     frame,
     [duration - FADE_FRAMES, duration],
     [1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.in(Easing.cubic),
+    },
   );
   return (
     <AbsoluteFill style={{ opacity: Math.min(fadeIn, fadeOut) }}>
+      <NoiseOverlay opacity={0.028} blendMode="soft-light" />
       {children}
     </AbsoluteFill>
   );
@@ -175,7 +194,7 @@ const AgentBadge: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
         />
         <div
           style={{
-            fontSize: THEME.fontSize.xs,
+            fontSize: FS.labelSm,
             fontFamily: THEME.fonts.mono,
             color: THEME.colors.textCode,
             fontWeight: 600,
@@ -226,9 +245,10 @@ const Sub6A: React.FC = () => {
   return (
     <SegmentWrap duration={SEG.A.seqDur}>
       <PageContainer
-        tag="Segment 6A"
+        tag="Segment 06"
         title="From easy to AI-native"
         subtitle="One stack that grows with your agent"
+        style={{ pointerEvents: "none" }}
       >
         <div
           style={{
@@ -236,17 +256,18 @@ const Sub6A: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 64,
+            gap: 48,
             minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT,
           }}
         >
           <div style={{ flex: 1, maxWidth: 1100 }}>
             <div
               style={{
-                fontSize: THEME.fontSize.xl,
+                fontSize: FS.main,
                 fontFamily: THEME.fonts.sans,
                 color: THEME.colors.textSecondary,
-                lineHeight: 1.5,
+                lineHeight: 1.45,
                 opacity: line1,
                 transform: `translateY(${interpolate(line1, [0, 1], [12, 0])}px)`,
               }}
@@ -265,8 +286,8 @@ const Sub6A: React.FC = () => {
             </div>
             <div
               style={{
-                marginTop: 28,
-                fontSize: THEME.fontSize["2xl"],
+                marginTop: 22,
+                fontSize: FS.mainAccent,
                 fontFamily: THEME.fonts.mono,
                 color: THEME.colors.accentWarm,
                 opacity: line2,
@@ -308,7 +329,7 @@ const Sub6A: React.FC = () => {
             <AgentBadge />
             <span
               style={{
-                fontSize: THEME.fontSize.sm,
+                fontSize: FS.labelSm,
                 color: THEME.colors.textMuted,
                 fontFamily: THEME.fonts.mono,
                 letterSpacing: "0.08em",
@@ -326,89 +347,108 @@ const Sub6A: React.FC = () => {
 
 const Sub6B: React.FC = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const t = frame;
 
-  const croqLines = Math.round(
-    interpolate(t, [20, 90], [1, 36], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-      easing: Easing.out(Easing.cubic),
-    }),
-  );
-  const croqTokens = Math.round(
-    interpolate(t, [40, 110], [0, 500], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-    }),
-  );
-  const cudaLines = Math.round(
-    interpolate(t, [130, 220], [1, 180], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-      easing: Easing.out(Easing.cubic),
-    }),
-  );
-  const cudaTokLow = Math.round(
-    interpolate(t, [220, 300], [0, 2000], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-    }),
-  );
-  const cudaTokHigh = Math.round(
-    interpolate(t, [220, 300], [0, 4000], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-    }),
-  );
+  const croqLinesF = spring({
+    frame: t - 12,
+    fps,
+    config: { damping: 18, stiffness: 95 },
+    from: 0,
+    to: 1,
+  });
+  const croqLines = Math.round(interpolate(croqLinesF, [0, 1], [1, 36]));
 
-  const windowPulse = interpolate(
-    t,
-    [60, 200],
-    [0, 1],
-    { extrapolateRight: "clamp", extrapolateLeft: "clamp" },
-  );
+  const croqTokF = spring({
+    frame: t - 28,
+    fps,
+    config: { damping: 16, stiffness: 88 },
+    from: 0,
+    to: 1,
+  });
+  const croqTokens = Math.round(interpolate(croqTokF, [0, 1], [0, 500]));
 
-  const overflow = interpolate(t, [160, 280], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const cudaLinesF = spring({
+    frame: t - 100,
+    fps,
+    config: { damping: 17, stiffness: 85 },
+    from: 0,
+    to: 1,
+  });
+  const cudaLines = Math.round(interpolate(cudaLinesF, [0, 1], [1, 180]));
+
+  const cudaTokF = spring({
+    frame: t - 160,
+    fps,
+    config: { damping: 16, stiffness: 82 },
+    from: 0,
+    to: 1,
+  });
+  const cudaTokLow = Math.round(interpolate(cudaTokF, [0, 1], [0, 2000]));
+  const cudaTokHigh = Math.round(interpolate(cudaTokF, [0, 1], [0, 4000]));
+
+  const windowPulse = spring({
+    frame: t - 40,
+    fps,
+    config: { damping: 14, stiffness: 70 },
+    from: 0,
+    to: 1,
   });
 
-  const innerScaleCroq = interpolate(t, [80, 200], [0.92, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const overflow = spring({
+    frame: t - 150,
+    fps,
+    config: { damping: 18, stiffness: 72 },
+    from: 0,
+    to: 1,
   });
 
-  const innerScaleCuda = interpolate(t, [100, 240], [0.75, 1.45], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const innerScaleCroq = spring({
+    frame: t - 55,
+    fps,
+    config: { damping: 16, stiffness: 78 },
+    from: 0.92,
+    to: 1,
+  });
+
+  const innerScaleCuda = spring({
+    frame: t - 130,
+    fps,
+    config: { damping: 14, stiffness: 68 },
+    from: 0.78,
+    to: 1.42,
   });
 
   const redEdge = interpolate(overflow, [0, 1], [0, 0.95]);
 
+  const shellH = 392;
+
   return (
     <SegmentWrap duration={SEG.B.seqDur}>
       <PageContainer
-        tag="Segment 6B"
+        tag="Segment 06"
         title="Ultra-compact context"
         subtitle="More reasoning budget for strategy, less for boilerplate"
+        style={{ pointerEvents: "none" }}
       >
         <div
           style={{
             flex: 1,
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 56,
+            gap: 40,
             alignItems: "stretch",
             minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT,
           }}
         >
-          <DeviceShell title="tokens-per-kernel.tsx" width="100%" height={620}>
+          <DeviceShell title="tokens-per-kernel.tsx" width="100%" height={shellH}>
             <div
               style={{
-                padding: 28,
+                padding: 22,
                 display: "flex",
                 flexDirection: "column",
-                gap: 28,
+                gap: 18,
                 height: "100%",
                 boxSizing: "border-box",
                 background: THEME.colors.bgBase,
@@ -417,17 +457,17 @@ const Sub6B: React.FC = () => {
               <div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize.sm,
+                    fontSize: FS.labelSm,
                     color: THEME.colors.textMuted,
                     fontFamily: THEME.fonts.mono,
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}
                 >
                   CroqTile kernel
                 </div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize["3xl"],
+                    fontSize: FS.mainAccent,
                     fontFamily: THEME.fonts.mono,
                     color: THEME.colors.primary,
                     fontWeight: 700,
@@ -437,8 +477,9 @@ const Sub6B: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    marginTop: 6,
-                    fontSize: THEME.fontSize.xl,
+                    marginTop: 4,
+                    fontSize: FS.monoLg,
+                    fontFamily: THEME.fonts.mono,
                     color: THEME.colors.textCode,
                   }}
                 >
@@ -449,23 +490,23 @@ const Sub6B: React.FC = () => {
                 style={{
                   height: 1,
                   background: "rgba(255,255,255,0.08)",
-                  margin: "8px 0",
+                  margin: "6px 0",
                 }}
               />
               <div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize.sm,
+                    fontSize: FS.labelSm,
                     color: THEME.colors.textMuted,
                     fontFamily: THEME.fonts.mono,
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}
                 >
                   CUDA + CuTe surface
                 </div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize["3xl"],
+                    fontSize: FS.mainAccent,
                     fontFamily: THEME.fonts.mono,
                     color: THEME.colors.textSecondary,
                     fontWeight: 700,
@@ -475,8 +516,9 @@ const Sub6B: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    marginTop: 6,
-                    fontSize: THEME.fontSize.xl,
+                    marginTop: 4,
+                    fontSize: FS.monoLg,
+                    fontFamily: THEME.fonts.mono,
                     color: THEME.colors.accentWarm,
                   }}
                 >
@@ -486,7 +528,8 @@ const Sub6B: React.FC = () => {
               <div
                 style={{
                   marginTop: "auto",
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: FS.labelSm,
+                  fontFamily: THEME.fonts.sans,
                   color: THEME.colors.textMuted,
                   lineHeight: 1.45,
                 }}
@@ -503,17 +546,18 @@ const Sub6B: React.FC = () => {
               borderRadius: THEME.radius.lg,
               background: THEME.colors.bgCard,
               boxShadow: THEME.shadows.card,
-              padding: 32,
+              padding: 24,
               display: "flex",
               flexDirection: "column",
-              gap: 20,
+              gap: 14,
               border: `1px solid rgba(255,255,255,0.06)`,
             }}
           >
             <div
               style={{
-                fontSize: THEME.fontSize.lg,
+                fontSize: FS.label,
                 color: THEME.colors.textPrimary,
+                fontFamily: THEME.fonts.sans,
                 fontWeight: 600,
               }}
             >
@@ -527,15 +571,15 @@ const Sub6B: React.FC = () => {
                 background: THEME.colors.bgBase,
                 overflow: "hidden",
                 border: `1px solid rgba(129,140,248,0.35)`,
-                minHeight: 420,
+                minHeight: 280,
               }}
             >
               <div
                 style={{
                   position: "absolute",
-                  inset: 18,
+                  inset: 16,
                   borderRadius: THEME.radius.sm,
-                  border: `${2 + windowPulse}px solid rgba(110,231,183,${0.35 + 0.35 * windowPulse})`,
+                  border: `${2 + windowPulse * 2}px solid rgba(110,231,183,${0.32 + 0.38 * windowPulse})`,
                   boxShadow: THEME.shadows.glowSm,
                   display: "flex",
                   alignItems: "center",
@@ -547,10 +591,10 @@ const Sub6B: React.FC = () => {
                 <span
                   style={{
                     fontFamily: THEME.fonts.mono,
-                    fontSize: THEME.fontSize.base,
+                    fontSize: FS.mono,
                     color: THEME.colors.primary,
                     textAlign: "center",
-                    padding: 16,
+                    padding: 12,
                   }}
                 >
                   CroqTile kernel
@@ -583,7 +627,7 @@ const Sub6B: React.FC = () => {
                       [0, 1],
                       [0, 1.8],
                     )}deg)`,
-                    opacity: interpolate(t, [120, 200], [0, 1], {
+                    opacity: interpolate(t, [70, 130], [0, 1], {
                       extrapolateLeft: "clamp",
                       extrapolateRight: "clamp",
                     }),
@@ -592,10 +636,10 @@ const Sub6B: React.FC = () => {
                 <span
                   style={{
                     position: "absolute",
-                    bottom: 28,
-                    right: 32,
-                    fontFamily: THEME.fonts.mono,
-                    fontSize: THEME.fontSize.sm,
+                    bottom: 20,
+                    right: 22,
+                    fontFamily: THEME.fonts.sans,
+                    fontSize: FS.labelSm,
                     color: THEME.colors.danger,
                     opacity: overflow,
                   }}
@@ -638,20 +682,30 @@ const highlightBox = (
 
 const Sub6C: React.FC = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const t = frame;
 
-  const instrOp = interpolate(t, [0, 36], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const instrOp = spring({
+    frame: t - 8,
+    fps,
+    config: { damping: 17, stiffness: 105 },
+    from: 0,
+    to: 1,
   });
 
-  const showCroq = interpolate(t, [40, 80], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const showCroq = spring({
+    frame: t - 55,
+    fps,
+    config: { damping: 16, stiffness: 100 },
+    from: 0,
+    to: 1,
   });
-  const showCuda = interpolate(t, [110, 160], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const showCuda = spring({
+    frame: t - 130,
+    fps,
+    config: { damping: 16, stiffness: 95 },
+    from: 0,
+    to: 1,
   });
 
   const cudaSites = [
@@ -664,30 +718,33 @@ const Sub6C: React.FC = () => {
     { top: 266, left: 14, w: 220, h: 18 },
   ];
 
+  const shellH = 388;
+
   return (
     <SegmentWrap duration={SEG.C.seqDur}>
       <PageContainer
-        tag="Segment 6C"
+        tag="Segment 06"
         title="Zero context waste"
         subtitle="Agents edit intent-sized regions — not constellation surgery"
+        style={{ pointerEvents: "none" }}
       >
         <div
           style={{
             opacity: instrOp,
             transform: `translateY(${interpolate(instrOp, [0, 1], [14, 0])}px)`,
-            marginBottom: 28,
-            padding: `16px ${THEME.radius.lg}px`,
+            marginBottom: 18,
+            padding: "16px 24px",
             borderRadius: THEME.radius.md,
             background: THEME.colors.bgElevated,
             border: `1px solid rgba(129,140,248,0.35)`,
             alignSelf: "flex-start",
-            maxWidth: 900,
+            maxWidth: 920,
             boxShadow: THEME.shadows.card,
           }}
         >
           <span
             style={{
-              fontSize: THEME.fontSize.sm,
+              fontSize: FS.labelSm,
               color: THEME.colors.accent,
               fontFamily: THEME.fonts.mono,
               textTransform: "uppercase",
@@ -699,7 +756,7 @@ const Sub6C: React.FC = () => {
           <span
             style={{
               marginLeft: 8,
-              fontSize: THEME.fontSize.lg,
+              fontSize: FS.label,
               color: THEME.colors.textPrimary,
               fontFamily: THEME.fonts.mono,
             }}
@@ -713,18 +770,19 @@ const Sub6C: React.FC = () => {
             flex: 1,
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 48,
+            gap: 36,
             minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT,
           }}
         >
-          <DeviceShell title="croqtile_gemm.ct" width="100%" height={540}>
+          <DeviceShell title="croqtile_gemm.ct" width="100%" height={shellH}>
             <div
               style={{
                 position: "relative",
-                padding: "20px 24px",
+                padding: "18px 22px",
                 fontFamily: THEME.fonts.mono,
-                fontSize: THEME.fontSize.sm,
-                lineHeight: 1.7,
+                fontSize: FS.mono,
+                lineHeight: 1.65,
                 color: THEME.colors.textSecondary,
                 background: THEME.colors.bgBase,
                 height: "100%",
@@ -746,20 +804,21 @@ const Sub6C: React.FC = () => {
                 <span style={{ color: THEME.colors.textMuted }}>
                   {"// tuned for SRAM banks"}
                 </span>
-                {showCroq > 0.2 &&
-                  highlightBox(138, 70, 44, 22, THEME.colors.primary, showCroq)}
+                {showCroq > 0.08 &&
+                  highlightBox(132, 68, 44, 22, THEME.colors.primary, showCroq)}
               </div>
               <div>{"  "}...</div>
 
               <div
                 style={{
                   position: "absolute",
-                  left: 20,
-                  bottom: 18,
-                  fontSize: THEME.fontSize.base,
+                  left: 18,
+                  bottom: 14,
+                  fontSize: FS.monoLg,
+                  fontFamily: THEME.fonts.mono,
                   color: THEME.colors.primary,
                   fontWeight: 700,
-                  opacity: interpolate(showCroq, [0.5, 1], [0, 1]),
+                  opacity: interpolate(showCroq, [0.45, 1], [0, 1]),
                 }}
               >
                 1 change site
@@ -767,14 +826,14 @@ const Sub6C: React.FC = () => {
             </div>
           </DeviceShell>
 
-          <DeviceShell title="cuda_cute_attn.cuh" width="100%" height={540}>
+          <DeviceShell title="cuda_cute_attn.cuh" width="100%" height={shellH}>
             <div
               style={{
                 position: "relative",
-                padding: "20px 24px",
+                padding: "18px 22px",
                 fontFamily: THEME.fonts.mono,
-                fontSize: THEME.fontSize.sm,
-                lineHeight: 1.65,
+                fontSize: FS.mono,
+                lineHeight: 1.62,
                 color: THEME.colors.textSecondary,
                 background: THEME.colors.bgBase,
                 height: "100%",
@@ -807,12 +866,13 @@ const Sub6C: React.FC = () => {
               <div
                 style={{
                   position: "absolute",
-                  left: 20,
-                  bottom: 18,
-                  fontSize: THEME.fontSize.base,
+                  left: 18,
+                  bottom: 14,
+                  fontSize: FS.monoLg,
+                  fontFamily: THEME.fonts.mono,
                   color: THEME.colors.danger,
                   fontWeight: 700,
-                  opacity: interpolate(showCuda, [0.55, 1], [0, 1]),
+                  opacity: interpolate(showCuda, [0.5, 1], [0, 1]),
                 }}
               >
                 7 change sites
@@ -832,8 +892,8 @@ const Sub6D: React.FC = () => {
 
   const rows = [
     { label: "CroqTile", value: 3.5, color: THEME.colors.primary },
-    { label: "Triton", value: 7.5, color: "#5EEAD4" },
-    { label: "CUDA", value: 10.0, color: "#60A5FA" },
+    { label: "Triton", value: 7.5, color: THEME.colors.accent },
+    { label: "CUDA", value: 10.0, color: THEME.colors.textCode },
     { label: "Helion", value: 23.3, color: THEME.colors.textMuted },
   ];
 
@@ -841,50 +901,80 @@ const Sub6D: React.FC = () => {
 
   const barProgress = rows.map((_, i) =>
     spring({
-      frame: t - 24 - i * 10,
+      frame: t - 20 - i * 14,
       fps,
-      config: { damping: 16, stiffness: 140 },
+      config: { damping: 15, stiffness: 155 },
       from: 0,
       to: 1,
     }),
   );
 
-  const loopReveal = interpolate(t, [320, 400], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const loopReveal = spring({
+    frame: t - 285,
+    fps,
+    config: { damping: 17, stiffness: 82 },
+    from: 0,
+    to: 1,
   });
 
-  const croqtileScan = interpolate(t, [400, 520], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const croqtileScan = spring({
+    frame: t - 340,
+    fps,
+    config: { damping: 16, stiffness: 88 },
+    from: 0,
+    to: 1,
   });
 
-  const otherRuntime = interpolate(t, [430, 650], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const otherRuntime = spring({
+    frame: t - 365,
+    fps,
+    config: { damping: 17, stiffness: 74 },
+    from: 0,
+    to: 1,
   });
 
-  const tick = (t % 45) / 45;
+  const tick = 0.5 + 0.5 * Math.sin(t * 0.29);
+
+  const barGradient = (label: string, base: string) => {
+    if (label === "CroqTile") {
+      return `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`;
+    }
+    if (label === "Helion") {
+      return `linear-gradient(90deg, ${THEME.colors.textMuted}, ${THEME.colors.textSecondary})`;
+    }
+    return `linear-gradient(90deg, ${base}, ${THEME.colors.accent})`;
+  };
 
   return (
     <SegmentWrap duration={SEG.D.seqDur}>
       <PageContainer
-        tag="Segment 6D"
+        tag="Segment 06"
         title="Lowest compile failure rate"
         subtitle="Fast feedback beats long GPU tails"
+        style={{ pointerEvents: "none" }}
       >
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 36 }}>
-          <div style={{ flex: 1.1, minHeight: 0 }}>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 22,
+            minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT,
+          }}
+        >
+          <div style={{ flex: 1.05, minHeight: 0 }}>
             <div
               style={{
-                fontSize: THEME.fontSize.sm,
+                fontSize: FS.labelSm,
+                fontFamily: THEME.fonts.sans,
                 color: THEME.colors.textMuted,
-                marginBottom: 16,
+                marginBottom: 12,
               }}
             >
               Compile failures per attempt (%)
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {rows.map((row, i) => {
                 const w = (row.value / maxPct) * 100 * barProgress[i];
                 return (
@@ -892,23 +982,23 @@ const Sub6D: React.FC = () => {
                     key={row.label}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "120px 1fr 80px",
+                      gridTemplateColumns: "128px 1fr 88px",
                       alignItems: "center",
-                      gap: 16,
+                      gap: 14,
                     }}
                   >
                     <span
                       style={{
                         fontFamily: THEME.fonts.mono,
                         color: THEME.colors.textSecondary,
-                        fontSize: THEME.fontSize.sm,
+                        fontSize: FS.mono,
                       }}
                     >
                       {row.label}
                     </span>
                     <div
                       style={{
-                        height: 22,
+                        height: 24,
                         borderRadius: THEME.radius.full,
                         background: THEME.colors.bgElevated,
                         overflow: "hidden",
@@ -920,12 +1010,7 @@ const Sub6D: React.FC = () => {
                           width: `${w}%`,
                           height: "100%",
                           borderRadius: THEME.radius.full,
-                          background:
-                            row.label === "CroqTile"
-                              ? `linear-gradient(90deg, ${THEME.colors.primary}, #34D399)`
-                              : row.label === "Helion"
-                                ? "linear-gradient(90deg, #6B7280, #9CA3AF)"
-                                : `linear-gradient(90deg, ${row.color}, ${THEME.colors.accent})`,
+                          background: barGradient(row.label, row.color),
                           boxShadow:
                             row.label === "CroqTile" ? THEME.shadows.glowSm : undefined,
                         }}
@@ -935,6 +1020,7 @@ const Sub6D: React.FC = () => {
                       style={{
                         fontFamily: THEME.fonts.mono,
                         color: THEME.colors.textPrimary,
+                        fontSize: FS.mono,
                         textAlign: "right",
                       }}
                     >
@@ -950,19 +1036,20 @@ const Sub6D: React.FC = () => {
             style={{
               borderRadius: THEME.radius.lg,
               background: THEME.colors.bgCard,
-              padding: 28,
+              padding: 22,
               border: `1px solid rgba(255,255,255,0.06)`,
               boxShadow: THEME.shadows.card,
               opacity: loopReveal,
-              transform: `translateY(${interpolate(loopReveal, [0, 1], [20, 0])}px)`,
+              transform: `translateY(${interpolate(loopReveal, [0, 1], [18, 0])}px)`,
             }}
           >
             <div
               style={{
-                fontSize: THEME.fontSize.lg,
+                fontSize: FS.label,
+                fontFamily: THEME.fonts.sans,
                 fontWeight: 600,
                 color: THEME.colors.textPrimary,
-                marginBottom: 20,
+                marginBottom: 16,
               }}
             >
               Feedback loop latency
@@ -971,16 +1058,16 @@ const Sub6D: React.FC = () => {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                gap: 32,
+                gap: 28,
               }}
             >
               <div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize.sm,
+                    fontSize: FS.labelSm,
                     color: THEME.colors.primary,
                     fontFamily: THEME.fonts.mono,
-                    marginBottom: 12,
+                    marginBottom: 10,
                   }}
                 >
                   CroqTile compiler
@@ -1006,15 +1093,15 @@ const Sub6D: React.FC = () => {
                       width: `${croqtileScan * 100}%`,
                       height: "100%",
                       borderRadius: THEME.radius.full,
-                      background: `linear-gradient(90deg, ${THEME.colors.primary}, #34D399)`,
+                      background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`,
                       boxShadow: THEME.shadows.glowSm,
                     }}
                   />
                 </div>
                 <div
                   style={{
-                    marginTop: 10,
-                    fontSize: THEME.fontSize["2xl"],
+                    marginTop: 8,
+                    fontSize: FS.mainAccent,
                     fontFamily: THEME.fonts.mono,
                     color: THEME.colors.primary,
                     fontWeight: 700,
@@ -1022,7 +1109,13 @@ const Sub6D: React.FC = () => {
                 >
                   ≈ 3s
                 </div>
-                <div style={{ fontSize: THEME.fontSize.sm, color: THEME.colors.textMuted }}>
+                <div
+                  style={{
+                    fontSize: FS.labelSm,
+                    fontFamily: THEME.fonts.sans,
+                    color: THEME.colors.textMuted,
+                  }}
+                >
                   Static guarantees + deterministic errors · iterate like a linter
                 </div>
               </div>
@@ -1030,10 +1123,10 @@ const Sub6D: React.FC = () => {
               <div>
                 <div
                   style={{
-                    fontSize: THEME.fontSize.sm,
+                    fontSize: FS.labelSm,
                     color: THEME.colors.textMuted,
                     fontFamily: THEME.fonts.mono,
-                    marginBottom: 12,
+                    marginBottom: 10,
                   }}
                 >
                   Typical GPU-first DSL iteration
@@ -1052,22 +1145,22 @@ const Sub6D: React.FC = () => {
                       width: `${otherRuntime * 100}%`,
                       height: "100%",
                       borderRadius: THEME.radius.full,
-                      background: `linear-gradient(90deg, ${THEME.colors.danger}, #FB923C)`,
-                      opacity: 0.85,
+                      background: `linear-gradient(90deg, ${THEME.colors.danger}, ${THEME.colors.accentWarm})`,
+                      opacity: 0.88,
                     }}
                   />
                   <div
                     style={{
                       position: "absolute",
                       inset: 0,
-                      background: `linear-gradient(90deg, transparent, transparent 92%, rgba(248,113,113,${0.15 + 0.35 * tick}))`,
+                      background: `linear-gradient(90deg, transparent, transparent 92%, rgba(248,113,113,${0.12 + 0.38 * tick}))`,
                     }}
                   />
                 </div>
                 <div
                   style={{
-                    marginTop: 10,
-                    fontSize: THEME.fontSize["2xl"],
+                    marginTop: 8,
+                    fontSize: FS.mainAccent,
                     fontFamily: THEME.fonts.mono,
                     color: THEME.colors.danger,
                     fontWeight: 700,
@@ -1075,7 +1168,13 @@ const Sub6D: React.FC = () => {
                 >
                   ~30s GPU path
                 </div>
-                <div style={{ fontSize: THEME.fontSize.sm, color: THEME.colors.textMuted }}>
+                <div
+                  style={{
+                    fontSize: FS.labelSm,
+                    fontFamily: THEME.fonts.sans,
+                    color: THEME.colors.textMuted,
+                  }}
+                >
                   Kernel launch + synchronization + profiler round-trips
                 </div>
               </div>
@@ -1092,24 +1191,25 @@ const Sub6E: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
+  /** Stack floats strictly bottom→top: each layer springs after the previous beat */
   const l1 = spring({
-    frame: t - 10,
+    frame: t - 18,
     fps,
-    config: { damping: 18, stiffness: 100 },
+    config: { damping: 17, stiffness: 102 },
     from: 0,
     to: 1,
   });
   const l2 = spring({
-    frame: t - 120,
+    frame: t - 145,
     fps,
-    config: { damping: 18, stiffness: 95 },
+    config: { damping: 17, stiffness: 98 },
     from: 0,
     to: 1,
   });
   const l3 = spring({
-    frame: t - 240,
+    frame: t - 275,
     fps,
-    config: { damping: 18, stiffness: 90 },
+    config: { damping: 17, stiffness: 94 },
     from: 0,
     to: 1,
   });
@@ -1120,6 +1220,7 @@ const Sub6E: React.FC = () => {
     progress: number,
     bg: string,
     border: string,
+    labelMono: string,
     title: string,
     subtitle: string,
   ) => {
@@ -1135,23 +1236,42 @@ const Sub6E: React.FC = () => {
           boxShadow: THEME.shadows.card,
           transform: `translateY(${rise}px)`,
           opacity: op,
-          padding: "18px 22px",
+          padding: "16px 22px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          gap: 6,
+          gap: 8,
         }}
       >
         <div
           style={{
-            fontSize: THEME.fontSize.lg,
+            fontSize: FS.labelSm,
+            fontFamily: THEME.fonts.mono,
+            color: THEME.colors.primary,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          {labelMono}
+        </div>
+        <div
+          style={{
+            fontSize: FS.main,
             fontWeight: 700,
+            fontFamily: THEME.fonts.sans,
             color: THEME.colors.textPrimary,
           }}
         >
           {title}
         </div>
-        <div style={{ fontSize: THEME.fontSize.sm, color: THEME.colors.textSecondary }}>
+        <div
+          style={{
+            fontSize: FS.labelSm,
+            fontFamily: THEME.fonts.sans,
+            color: THEME.colors.textSecondary,
+            lineHeight: 1.45,
+          }}
+        >
           {subtitle}
         </div>
       </div>
@@ -1161,9 +1281,10 @@ const Sub6E: React.FC = () => {
   return (
     <SegmentWrap duration={SEG.E.seqDur}>
       <PageContainer
-        tag="Segment 6E"
+        tag="Segment 06"
         title="Extra guardrail layers"
         subtitle="Compiler truth + on-device evidence + packaged playbooks"
+        style={{ pointerEvents: "none" }}
       >
         <div
           style={{
@@ -1171,15 +1292,17 @@ const Sub6E: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            paddingTop: 12,
+            paddingTop: 6,
+            maxHeight: BODY_MAX_HEIGHT,
+            minHeight: 0,
           }}
         >
           <div
             style={{
-              width: 720,
+              width: 760,
               display: "flex",
               flexDirection: "column",
-              gap: 18,
+              gap: 16,
               position: "relative",
             }}
           >
@@ -1187,40 +1310,43 @@ const Sub6E: React.FC = () => {
               style={{
                 position: "absolute",
                 left: "50%",
-                top: -40,
+                top: -36,
                 transform: "translateX(-50%)",
                 width: 2,
-                height: 520,
-                background: "linear-gradient(180deg, transparent, rgba(110,231,183,0.35))",
-                opacity: 0.7,
+                height: 468,
+                background: `linear-gradient(180deg, transparent, ${THEME.colors.primaryGlow})`,
+                opacity: 0.75,
               }}
             />
             {layer(
-              110,
-              40,
+              108,
+              48,
               l1,
               THEME.colors.bgElevated,
               "rgba(156,163,175,0.45)",
-              "Layer 1 · Compiler guardrail",
-              "Types + tile contracts catch mistakes before they become silent wrong answers",
+              "Layer 01",
+              "Compiler Guardrail",
+              "Types + tile contracts catch mistakes before they become silent wrong answers.",
             )}
             {layer(
-              120,
-              55,
+              118,
+              58,
               l2,
               `linear-gradient(135deg, rgba(110,231,183,0.18), ${THEME.colors.bgCard})`,
               "rgba(110,231,183,0.55)",
-              "Layer 2 · Integrated profiler CLI",
-              "ncu + DSA profilers unified — evidence travels with the kernel",
+              "Layer 02",
+              "Profiler CLI",
+              "ncu + DSA profilers unified — evidence travels with the kernel.",
             )}
             {layer(
-              130,
-              70,
+              126,
+              68,
               l3,
               `linear-gradient(135deg, rgba(252,211,77,0.2), ${THEME.colors.bgCard})`,
               "rgba(252,211,77,0.55)",
-              "Layer 3 · CroqTile Skills",
-              "Docs + templates + patterns — agents ship structure, not just snippets",
+              "Layer 03",
+              "CroqTile Skills",
+              "Docs + templates + patterns — agents ship structure, not just snippets.",
             )}
           </div>
         </div>
@@ -1235,63 +1361,101 @@ const Sub6F: React.FC = () => {
   const t = frame;
 
   const points = [671, 784, 902, 1051, 1127];
-  const progress = spring({
-    frame: t - 30,
+  const STAGGER = 46;
+
+  const yForTflops = (v: number) =>
+    interpolate(v, [660, 1140], [328, 62], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+
+  const xs = points.map(
+    (_, i) => 80 + (i * (900 - 80)) / (points.length - 1),
+  );
+  const ys = points.map((v) => yForTflops(v));
+
+  const segLens = points.slice(0, -1).map((_, i) => {
+    const dx = xs[i + 1] - xs[i];
+    const dy = ys[i + 1] - ys[i];
+    return Math.max(1, Math.hypot(dx, dy));
+  });
+
+  const segmentSprings = segLens.map((_, i) =>
+    spring({
+      frame: t - 26 - i * STAGGER,
+      fps,
+      config: { damping: 16, stiffness: 112 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const pointSprings = points.map((_, i) =>
+    spring({
+      frame: t - 22 - i * STAGGER,
+      fps,
+      config: { damping: 14, stiffness: 130 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const fillReveal = spring({
+    frame: t - 22 - (points.length - 1) * STAGGER - 28,
     fps,
-    config: { damping: 20, stiffness: 80 },
+    config: { damping: 18, stiffness: 92 },
     from: 0,
     to: 1,
   });
 
   const compilePass = spring({
-    frame: t - 10,
+    frame: t - 12,
     fps,
     config: { damping: 16, stiffness: 120 },
     from: 0,
     to: 1,
   });
 
-  const agentType = interpolate(t, [20, 90], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const agentType = spring({
+    frame: t - 28,
+    fps,
+    config: { damping: 17, stiffness: 96 },
+    from: 0,
+    to: 1,
   });
 
-  const bottomOp = interpolate(t, [280, 360], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
+  const bottomOp = spring({
+    frame: t - 210,
+    fps,
+    config: { damping: 18, stiffness: 84 },
+    from: 0,
+    to: 1,
   });
-
-  const yForTflops = (v: number) =>
-    interpolate(v, [660, 1140], [360, 76], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
 
   const pathD = points
-    .map((v, i) => {
-      const x = 80 + (i * (920 - 80)) / (points.length - 1);
-      const y = yForTflops(v);
-      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-    })
+    .map((_, i) =>
+      `${i === 0 ? "M" : "L"} ${xs[i]} ${ys[i]}`,
+    )
     .join(" ");
 
-  const strokeDash = 1400;
-  const strokeOffset = interpolate(progress, [0, 1], [strokeDash, 0]);
+  const shellH = 312;
 
   return (
     <SegmentWrap duration={SEG.F.seqDur}>
       <PageContainer
-        tag="Segment 6F"
+        tag="Segment 06"
         title="Real results · new paradigm"
         subtitle="Upstream AI exploration with human review — not downstream patchwork"
+        style={{ pointerEvents: "none" }}
       >
         <div
           style={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            gap: 28,
+            gap: 16,
             minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT - 12,
           }}
         >
           <div
@@ -1299,23 +1463,23 @@ const Sub6F: React.FC = () => {
               flex: 1,
               display: "grid",
               gridTemplateColumns: "0.95fr 1.05fr",
-              gap: 40,
+              gap: 32,
               minHeight: 0,
             }}
           >
-            <DeviceShell title="agent_session.log" width="100%" height={460}>
+            <DeviceShell title="agent_session.log" width="100%" height={shellH}>
               <div
                 style={{
-                  padding: 24,
+                  padding: 20,
                   fontFamily: THEME.fonts.mono,
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: FS.mono,
                   color: THEME.colors.textSecondary,
                   background: THEME.colors.bgBase,
                   height: "100%",
                   boxSizing: "border-box",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 12,
+                  gap: 10,
                 }}
               >
                 <div style={{ color: THEME.colors.textMuted }}>
@@ -1327,7 +1491,6 @@ const Sub6F: React.FC = () => {
                     opacity: agentType,
                   }}
                 >
-                  {" "}
                   ▸ applying patch to `gemm_kernel.ct` (layout + policy)
                 </div>
                 <div style={{ color: THEME.colors.textMuted, opacity: agentType }}>
@@ -1342,7 +1505,9 @@ const Sub6F: React.FC = () => {
                     background: `rgba(110,231,183,${0.12 + 0.18 * compilePass})`,
                     border: `1px solid rgba(110,231,183,0.45)`,
                     color: THEME.colors.primary,
+                    fontFamily: THEME.fonts.mono,
                     fontWeight: 700,
+                    fontSize: FS.label,
                     transform: `scale(${0.96 + 0.04 * compilePass})`,
                     opacity: compilePass,
                     boxShadow: THEME.shadows.glowSm,
@@ -1359,27 +1524,29 @@ const Sub6F: React.FC = () => {
                 background: THEME.colors.bgCard,
                 border: `1px solid rgba(255,255,255,0.06)`,
                 boxShadow: THEME.shadows.card,
-                padding: "20px 24px 12px",
+                padding: "18px 22px 10px",
                 display: "flex",
                 flexDirection: "column",
+                minHeight: 0,
               }}
             >
               <div
                 style={{
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: FS.labelSm,
+                  fontFamily: THEME.fonts.sans,
                   color: THEME.colors.textMuted,
-                  marginBottom: 8,
+                  marginBottom: 6,
                 }}
               >
-                Throughput climb (TFLOPS) · 68 iterations · +67.9%
+                Tuning convergence · throughput (TFLOPS) · 671 → 1127
               </div>
               <svg
-                viewBox="0 0 960 420"
-                style={{ width: "100%", flex: 1 }}
+                viewBox="0 0 960 380"
+                style={{ width: "100%", height: 270 }}
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="seg06CurveFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={THEME.colors.primary} stopOpacity="0.35" />
                     <stop offset="100%" stopColor={THEME.colors.primary} stopOpacity="0" />
                   </linearGradient>
@@ -1387,56 +1554,55 @@ const Sub6F: React.FC = () => {
                 {[0, 1, 2, 3, 4].map((i) => (
                   <line
                     key={i}
-                    x1={60}
-                    x2={900}
-                    y1={60 + i * 80}
-                    y2={60 + i * 80}
+                    x1={56}
+                    x2={908}
+                    y1={52 + i * 72}
+                    y2={52 + i * 72}
                     stroke="rgba(255,255,255,0.06)"
                     strokeWidth={1}
                   />
                 ))}
                 <path
-                  d={`${pathD} L 900 400 L 80 400 Z`}
-                  fill="url(#curveFill)"
-                  opacity={progress}
+                  d={`${pathD} L ${xs[xs.length - 1]} 348 L ${xs[0]} 348 Z`}
+                  fill="url(#seg06CurveFill)"
+                  opacity={fillReveal}
                 />
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke={THEME.colors.primary}
-                  strokeWidth={4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeDasharray={strokeDash}
-                  strokeDashoffset={strokeOffset}
-                  style={{ filter: `drop-shadow(${THEME.shadows.glowSm})` }}
-                />
+                {segLens.map((len, i) => {
+                  const d = `M ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]}`;
+                  const p = segmentSprings[i];
+                  return (
+                    <path
+                      key={i}
+                      d={d}
+                      fill="none"
+                      stroke={THEME.colors.primary}
+                      strokeWidth={4}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeDasharray={len}
+                      strokeDashoffset={len * (1 - p)}
+                      style={{ filter: `drop-shadow(${THEME.shadows.glowSm})` }}
+                    />
+                  );
+                })}
                 {points.map((v, i) => {
-                  const x = 80 + (i * (920 - 80)) / (points.length - 1);
-                  const y = yForTflops(v);
-                  const dot = spring({
-                    frame: t - 60 - i * 18,
-                    fps,
-                    config: { damping: 12, stiffness: 140 },
-                    from: 0,
-                    to: 1,
-                  });
+                  const dot = pointSprings[i];
                   return (
                     <g key={i} opacity={dot}>
                       <circle
-                        cx={x}
-                        cy={y}
-                        r={6 + 3 * dot}
+                        cx={xs[i]}
+                        cy={ys[i]}
+                        r={5 + 4 * dot}
                         fill={THEME.colors.bgBase}
                         stroke={THEME.colors.primary}
                         strokeWidth={2}
                       />
                       <text
-                        x={x}
-                        y={y - 14}
+                        x={xs[i]}
+                        y={ys[i] - 14}
                         textAnchor="middle"
                         fill={THEME.colors.textPrimary}
-                        fontSize={13}
+                        fontSize={FS.mono}
                         fontFamily={THEME.fonts.mono}
                       >
                         {v}
@@ -1452,32 +1618,33 @@ const Sub6F: React.FC = () => {
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
-              gap: 24,
+              gap: 20,
               opacity: bottomOp,
-              transform: `translateY(${interpolate(bottomOp, [0, 1], [16, 0])}px)`,
+              transform: `translateY(${interpolate(bottomOp, [0, 1], [14, 0])}px)`,
             }}
           >
             <div
               style={{
                 borderRadius: THEME.radius.md,
-                padding: 20,
+                padding: 18,
                 background: THEME.colors.bgElevated,
                 border: `1px solid rgba(248,113,113,0.35)`,
               }}
             >
               <div
                 style={{
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: FS.labelSm,
                   color: THEME.colors.danger,
                   fontFamily: THEME.fonts.mono,
-                  marginBottom: 8,
+                  marginBottom: 6,
                 }}
               >
                 Current default
               </div>
               <div
                 style={{
-                  fontSize: THEME.fontSize.lg,
+                  fontSize: FS.label,
+                  fontFamily: THEME.fonts.sans,
                   color: THEME.colors.textPrimary,
                   lineHeight: 1.45,
                 }}
@@ -1489,7 +1656,7 @@ const Sub6F: React.FC = () => {
             <div
               style={{
                 borderRadius: THEME.radius.md,
-                padding: 20,
+                padding: 18,
                 background: `linear-gradient(135deg, rgba(110,231,183,0.14), ${THEME.colors.bgElevated})`,
                 border: `1px solid rgba(110,231,183,0.45)`,
                 boxShadow: THEME.shadows.glowSm,
@@ -1497,17 +1664,18 @@ const Sub6F: React.FC = () => {
             >
               <div
                 style={{
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: FS.labelSm,
                   color: THEME.colors.primary,
                   fontFamily: THEME.fonts.mono,
-                  marginBottom: 8,
+                  marginBottom: 6,
                 }}
               >
                 CroqTile workflow
               </div>
               <div
                 style={{
-                  fontSize: THEME.fontSize.lg,
+                  fontSize: FS.label,
+                  fontFamily: THEME.fonts.sans,
                   color: THEME.colors.textPrimary,
                   lineHeight: 1.45,
                 }}
@@ -1527,7 +1695,6 @@ const Sub6F: React.FC = () => {
 export const AINative: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: THEME.colors.bgBase }}>
-      <NoiseOverlay />
       <Sequence from={SEG.A.seqFrom} durationInFrames={SEG.A.seqDur}>
         <Sub6A />
       </Sequence>

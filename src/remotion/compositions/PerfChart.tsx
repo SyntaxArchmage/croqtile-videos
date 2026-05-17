@@ -18,18 +18,51 @@ const PHASE_B_START = 250;
 const PHASE_B_END = 499;
 const PHASE_C_START = 500;
 
+/** Bars extending roughly beyond absolute ~700 overlap subtitles — reserve band */
+const SAFE_BOTTOM_PADDING = 360;
+
 const LOC_ROWS: {
   label: string;
   loc: number;
   color: string;
   mintGlow: boolean;
 }[] = [
-  { label: "CroqTile-Python", loc: 30, color: "#6EE7B7", mintGlow: true },
-  { label: "CroqTile", loc: 36, color: "#6EE7B7", mintGlow: true },
-  { label: "TileLang", loc: 70, color: "#6B7280", mintGlow: false },
-  { label: "Triton", loc: 80, color: "#6B7280", mintGlow: false },
-  { label: "CUDA + CuTe", loc: 182, color: "#FCD34D", mintGlow: false },
-  { label: "CUTLASS", loc: 280, color: "#FCD34D", mintGlow: false },
+  {
+    label: "CroqTile-Python",
+    loc: 30,
+    color: THEME.colors.primary,
+    mintGlow: true,
+  },
+  {
+    label: "CroqTile",
+    loc: 36,
+    color: THEME.colors.primary,
+    mintGlow: true,
+  },
+  {
+    label: "TileLang",
+    loc: 70,
+    color: THEME.colors.textSecondary,
+    mintGlow: false,
+  },
+  {
+    label: "Triton",
+    loc: 80,
+    color: THEME.colors.textSecondary,
+    mintGlow: false,
+  },
+  {
+    label: "CUDA + CuTe",
+    loc: 182,
+    color: THEME.colors.accentWarm,
+    mintGlow: false,
+  },
+  {
+    label: "CUTLASS",
+    loc: 280,
+    color: THEME.colors.accentWarm,
+    mintGlow: false,
+  },
 ];
 
 const MAX_LOC = 280;
@@ -37,16 +70,51 @@ const CROQ_TFLOPS = 471.3;
 const TORCH_TFLOPS = 447.5;
 
 const SCATTER = [
-  { id: "croq", label: "CroqTile", x: 7.8, y: 471, color: THEME.colors.primary, large: true },
-  { id: "triton", label: "Triton", x: 3.5, y: 430, color: "#6B7280", large: false },
-  { id: "tilelang", label: "TileLang", x: 4.0, y: 420, color: "#6B7280", large: false },
-  { id: "cuda", label: "CUDA+CuTe", x: 1.5, y: 447, color: "#6B7280", large: false },
-  { id: "cutlass", label: "CUTLASS", x: 1.0, y: 447, color: "#6B7280", large: false },
+  {
+    id: "croq",
+    label: "CroqTile",
+    x: 7.8,
+    y: 471,
+    color: THEME.colors.primary,
+    large: true,
+  },
+  {
+    id: "triton",
+    label: "Triton",
+    x: 3.5,
+    y: 430,
+    color: THEME.colors.textSecondary,
+    large: false,
+  },
+  {
+    id: "tilelang",
+    label: "TileLang",
+    x: 4.0,
+    y: 420,
+    color: THEME.colors.textSecondary,
+    large: false,
+  },
+  {
+    id: "cuda",
+    label: "CUDA+CuTe",
+    x: 1.5,
+    y: 447,
+    color: THEME.colors.textSecondary,
+    large: false,
+  },
+  {
+    id: "cutlass",
+    label: "CUTLASS",
+    x: 1.0,
+    y: 447,
+    color: THEME.colors.textSecondary,
+    large: false,
+  },
 ] as const;
 
-const LABEL_W = 200;
-const MAX_BAR_W = 720;
-const ROW_H = 56;
+const LABEL_W = 240;
+const MAX_BAR_W = 740;
+const ROW_H = 62;
 
 export const PerfChart: React.FC = () => {
   const frame = Math.min(useCurrentFrame(), TOTAL_FRAMES - 1);
@@ -54,7 +122,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseAOpacity = interpolate(
     frame,
-    [Math.max(0, PHASE_A_END - 29), PHASE_B_START],
+    [Math.max(0, PHASE_A_END - 32), PHASE_B_START],
     [1, 0],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -65,7 +133,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseBFadeOut = interpolate(
     frame,
-    [PHASE_B_END - 19, PHASE_B_END + 11],
+    [PHASE_B_END - 22, PHASE_B_END + 16],
     [1, 0],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -74,7 +142,7 @@ export const PerfChart: React.FC = () => {
     },
   );
 
-  const phaseBFadeIn = interpolate(frame, [235, 265], [0, 1], {
+  const phaseBFadeIn = interpolate(frame, [228, 268], [0, 1], {
     easing: Easing.bezier(0.4, 0, 0.2, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -84,7 +152,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseCOpacity = interpolate(
     frame,
-    [PHASE_C_START - 20, PHASE_C_START + 15],
+    [PHASE_C_START - 24, PHASE_C_START + 18],
     [0, 1],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -96,7 +164,7 @@ export const PerfChart: React.FC = () => {
   const bFrame = Math.max(0, frame - PHASE_B_START);
 
   const titleSpring = spring({
-    frame: Math.max(0, bFrame - 8),
+    frame: Math.max(0, bFrame - 6),
     fps,
     config: { damping: 16, stiffness: 100, mass: 0.85 },
     from: 0,
@@ -104,7 +172,7 @@ export const PerfChart: React.FC = () => {
   });
 
   const comparisonSpring = spring({
-    frame: Math.max(0, bFrame - 28),
+    frame: Math.max(0, bFrame - 26),
     fps,
     config: { damping: 18, stiffness: 95, mass: 0.8 },
     from: 0,
@@ -112,7 +180,7 @@ export const PerfChart: React.FC = () => {
   });
 
   const badgeSpring = spring({
-    frame: Math.max(0, bFrame - 52),
+    frame: Math.max(0, bFrame - 48),
     fps,
     config: { damping: 14, stiffness: 130, mass: 0.65 },
     from: 0.75,
@@ -120,7 +188,7 @@ export const PerfChart: React.FC = () => {
   });
 
   const barGrowth = spring({
-    frame: Math.max(0, bFrame - 40),
+    frame: Math.max(0, bFrame - 38),
     fps,
     config: { damping: 15, stiffness: 100, mass: 0.82 },
     from: 0,
@@ -133,16 +201,25 @@ export const PerfChart: React.FC = () => {
   const torchBarH =
     Math.max(0, barGrowth) * maxBarPx * (TORCH_TFLOPS / CROQ_TFLOPS);
 
-  const valueFade = interpolate(
-    frame,
-    [PHASE_B_START + 55, PHASE_B_START + 78],
-    [0, 1],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-  );
+  const valueSpring = spring({
+    frame: Math.max(0, bFrame - 52),
+    fps,
+    config: { damping: 17, stiffness: 88, mass: 0.82 },
+    from: 0,
+    to: 1,
+  });
+
+  const torchValueSpring = spring({
+    frame: Math.max(0, bFrame - 62),
+    fps,
+    config: { damping: 17, stiffness: 88, mass: 0.82 },
+    from: 0,
+    to: 1,
+  });
 
   const scatterMorph = interpolate(
     frame,
-    [PHASE_C_START - 22, PHASE_C_START + 12],
+    [PHASE_C_START - 26, PHASE_C_START + 14],
     [0, 1],
     {
       easing: Easing.inOut(Easing.quad),
@@ -153,11 +230,11 @@ export const PerfChart: React.FC = () => {
 
   const cFrame = Math.max(0, frame - PHASE_C_START);
 
-  const plotW = 860;
-  const plotH = 420;
+  const plotW = 880;
+  const plotH = 380;
   const padL = 72;
-  const padB = 48;
-  const padT = 28;
+  const padB = 44;
+  const padT = 36;
   const xMin = 0;
   const xMax = 9;
   const yMin = 400;
@@ -170,8 +247,11 @@ export const PerfChart: React.FC = () => {
 
   const pulse = 0.55 + 0.45 * Math.sin(frame * 0.14);
 
+  const titleShadow =
+    "0 0 28px rgba(110,231,183,0.22), 0 2px 24px rgba(0,0,0,0.55)";
+
   return (
-    <PageContainer tag="Performance">
+    <PageContainer tag="Segment 03">
       <div
         style={{
           flex: 1,
@@ -180,12 +260,14 @@ export const PerfChart: React.FC = () => {
           position: "relative",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           alignItems: "center",
+          paddingBottom: SAFE_BOTTOM_PADDING,
+          paddingTop: 8,
         }}
       >
         <AbsoluteFill style={{ pointerEvents: "none" }}>
-          <NoiseOverlay opacity={0.035} />
+          <NoiseOverlay opacity={0.028} blendMode="soft-light" />
         </AbsoluteFill>
 
         <div
@@ -193,13 +275,14 @@ export const PerfChart: React.FC = () => {
             position: "relative",
             zIndex: 1,
             width: "100%",
-            maxWidth: 1200,
+            maxWidth: 1400,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "flex-start",
           }}
         >
+          {/* ─── Phase A — LOC bar chart ─── */}
           <div
             style={{
               position: "absolute",
@@ -207,7 +290,8 @@ export const PerfChart: React.FC = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "flex-start",
+              paddingTop: 16,
               opacity: phaseAOpacity,
               pointerEvents: phaseAOpacity < 0.02 ? "none" : "auto",
             }}
@@ -215,30 +299,48 @@ export const PerfChart: React.FC = () => {
             <h2
               style={{
                 margin: 0,
-                marginBottom: 36,
+                marginBottom: 40,
                 fontFamily: THEME.fonts.sans,
-                fontSize: THEME.fontSize.xl,
+                fontSize: 48,
                 fontWeight: 700,
                 color: THEME.colors.textPrimary,
                 textAlign: "center",
+                letterSpacing: "-0.02em",
+                textShadow:
+                  "0 0 40px rgba(110,231,183,0.18), 0 4px 32px rgba(0,0,0,0.45)",
               }}
             >
               Lines of Code — Persistent GEMM Kernel
             </h2>
             <div
               style={{
-                width: LABEL_W + MAX_BAR_W + 48,
+                width: LABEL_W + MAX_BAR_W + 56,
               }}
             >
               {LOC_ROWS.map((row, i) => {
-                const p = spring({
-                  frame: Math.max(0, frame - 8 - i * 16),
+                const barSpring = spring({
+                  frame: Math.max(0, frame - 10 - i * 14),
                   fps,
-                  config: { damping: 17, stiffness: 88, mass: 0.9 },
+                  config: { damping: 17, stiffness: 92, mass: 0.88 },
                   from: 0,
                   to: 1,
                 });
-                const w = (row.loc / MAX_LOC) * MAX_BAR_W * Math.max(0, p);
+                const rowOpacity = interpolate(barSpring, [0, 1], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const barStretch = interpolate(barSpring, [0, 1], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const w =
+                  (row.loc / MAX_LOC) *
+                  MAX_BAR_W *
+                  Math.max(0, barStretch);
+                const slideY = interpolate(barSpring, [0, 1], [14, 0], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
                 return (
                   <div
                     key={row.label}
@@ -247,7 +349,9 @@ export const PerfChart: React.FC = () => {
                       flexDirection: "row",
                       alignItems: "center",
                       height: ROW_H,
-                      marginBottom: 6,
+                      marginBottom: 8,
+                      opacity: rowOpacity,
+                      transform: `translateY(${slideY}px)`,
                     }}
                   >
                     <div
@@ -255,11 +359,11 @@ export const PerfChart: React.FC = () => {
                         width: LABEL_W,
                         flexShrink: 0,
                         fontFamily: THEME.fonts.sans,
-                        fontSize: THEME.fontSize.sm,
+                        fontSize: 18,
                         fontWeight: 600,
                         color: THEME.colors.textSecondary,
                         textAlign: "right",
-                        paddingRight: 16,
+                        paddingRight: 18,
                       }}
                     >
                       {row.label}
@@ -267,10 +371,10 @@ export const PerfChart: React.FC = () => {
                     <div
                       style={{
                         flex: 1,
-                        height: 28,
+                        height: 34,
                         borderRadius: THEME.radius.sm,
                         background:
-                          "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.12))",
+                          "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.14))",
                         boxShadow: THEME.shadows.inset,
                         position: "relative",
                         overflow: "hidden",
@@ -286,18 +390,20 @@ export const PerfChart: React.FC = () => {
                           borderRadius: THEME.radius.sm,
                           background: `linear-gradient(90deg, ${row.color}, ${row.color}cc)`,
                           boxShadow: row.mintGlow
-                            ? `${THEME.shadows.glow}, 0 0 20px rgba(110,231,183,0.45)`
-                            : "0 4px 16px rgba(0,0,0,0.35)",
+                            ? `${THEME.shadows.glow}, 0 0 24px rgba(110,231,183,0.42)`
+                            : "0 4px 18px rgba(0,0,0,0.42)",
                         }}
                       />
                     </div>
                     <div
                       style={{
-                        marginLeft: 14,
-                        width: 44,
+                        marginLeft: 16,
+                        minWidth: 52,
                         fontFamily: THEME.fonts.mono,
-                        fontSize: THEME.fontSize.sm,
+                        fontSize: THEME.fontSize.base,
+                        fontWeight: 600,
                         color: THEME.colors.textMuted,
+                        letterSpacing: "-0.02em",
                       }}
                     >
                       {row.loc}
@@ -308,29 +414,33 @@ export const PerfChart: React.FC = () => {
             </div>
           </div>
 
+          {/* ─── Phase B — Zero-cost abstraction + GEMM bars ─── */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              gap: 28,
+              justifyContent: "flex-start",
+              paddingTop: 8,
+              gap: 26,
               opacity: phaseBVisible,
               pointerEvents: phaseBVisible < 0.02 ? "none" : "auto",
             }}
           >
             <div
               style={{
-                transform: `scale(${0.92 + titleSpring * 0.08}) translateY(${
-                  interpolate(titleSpring, [0, 1], [24, 0])
-                }px)`,
-                opacity: titleSpring * phaseBVisible,
+                transform: `scale(${0.92 + titleSpring * 0.08}) translateY(${interpolate(titleSpring, [0, 1], [28, 0])}px)`,
+                opacity: interpolate(titleSpring, [0, 1], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                }) * phaseBVisible,
                 fontFamily: THEME.fonts.sans,
-                fontSize: THEME.fontSize["3xl"],
+                fontSize: 56,
                 fontWeight: 800,
                 color: THEME.colors.textPrimary,
                 textAlign: "center",
-                letterSpacing: "-0.02em",
+                letterSpacing: "-0.025em",
+                textShadow: titleShadow,
               }}
             >
               Zero-Cost Abstraction
@@ -338,28 +448,51 @@ export const PerfChart: React.FC = () => {
 
             <div
               style={{
-                opacity: comparisonSpring * phaseBVisible,
-                transform: `translateY(${interpolate(comparisonSpring, [0, 1], [18, 0])}px)`,
+                opacity:
+                  interpolate(comparisonSpring, [0, 1], [0, 1], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  }) * phaseBVisible,
+                transform: `translateY(${interpolate(comparisonSpring, [0, 1], [22, 0])}px)`,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 20,
+                gap: 22,
               }}
             >
               <div
                 style={{
-                  transform: `scale(${badgeSpring})`,
-                  padding: "10px 22px",
-                  borderRadius: THEME.radius.md,
-                  background:
-                    "linear-gradient(135deg, rgba(110,231,183,0.18), rgba(129,140,248,0.12))",
-                  border: "1px solid rgba(110,231,183,0.35)",
-                  boxShadow: `${THEME.shadows.glowSm}, ${THEME.shadows.inset}`,
                   fontFamily: THEME.fonts.mono,
                   fontSize: THEME.fontSize.lg,
+                  fontWeight: 600,
+                  color: THEME.colors.accent,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  textShadow: "0 0 18px rgba(129,140,248,0.35)",
+                }}
+              >
+                GEMM FP16
+              </div>
+              <div
+                style={{
+                  transform: `scale(${badgeSpring})`,
+                  opacity: interpolate(badgeSpring, [0.75, 1], [0, 1], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  }),
+                  padding: "12px 26px",
+                  borderRadius: THEME.radius.md,
+                  background:
+                    "linear-gradient(135deg, rgba(110,231,183,0.22), rgba(129,140,248,0.14))",
+                  border: "1px solid rgba(110,231,183,0.42)",
+                  boxShadow: `${THEME.shadows.glowSm}, ${THEME.shadows.inset}, 0 0 36px rgba(129,140,248,0.12)`,
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: THEME.fontSize.xl,
                   fontWeight: 700,
                   color: THEME.colors.primary,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.06em",
+                  textShadow:
+                    "0 0 18px rgba(110,231,183,0.55), 0 2px 12px rgba(0,0,0,0.35)",
                 }}
               >
                 +5.3%
@@ -370,7 +503,7 @@ export const PerfChart: React.FC = () => {
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "flex-end",
-                  gap: 120,
+                  gap: 130,
                 }}
               >
                 <div
@@ -378,24 +511,31 @@ export const PerfChart: React.FC = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    width: 200,
+                    width: 220,
                   }}
                 >
                   <div
                     style={{
-                      opacity: valueFade,
-                      marginBottom: 12,
+                      opacity:
+                        interpolate(valueSpring, [0, 1], [0, 1], {
+                          extrapolateLeft: "clamp",
+                          extrapolateRight: "clamp",
+                        }),
+                      transform: `translateY(${interpolate(valueSpring, [0, 1], [12, 0])}px) scale(${0.94 + valueSpring * 0.06})`,
+                      marginBottom: 14,
                       fontFamily: THEME.fonts.mono,
-                      fontSize: THEME.fontSize["2xl"],
+                      fontSize: 46,
                       fontWeight: 700,
                       color: THEME.colors.textPrimary,
+                      textShadow:
+                        "0 0 22px rgba(110,231,183,0.35), 0 2px 14px rgba(0,0,0,0.35)",
                     }}
                   >
                     {CROQ_TFLOPS.toFixed(1)}
                     <span
                       style={{
-                        marginLeft: 8,
-                        fontSize: THEME.fontSize.sm,
+                        marginLeft: 10,
+                        fontSize: THEME.fontSize.lg,
                         color: THEME.colors.textMuted,
                         fontWeight: 500,
                       }}
@@ -406,13 +546,13 @@ export const PerfChart: React.FC = () => {
                   <div
                     style={{
                       height: maxBarPx,
-                      width: 120,
+                      width: 124,
                       display: "flex",
                       alignItems: "flex-end",
                       justifyContent: "center",
                       borderRadius: THEME.radius.md,
                       background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.18))",
+                        "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18))",
                       boxShadow: THEME.shadows.inset,
                     }}
                   >
@@ -422,18 +562,20 @@ export const PerfChart: React.FC = () => {
                         height: croqBarH,
                         borderRadius: THEME.radius.md,
                         background: `linear-gradient(180deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`,
-                        boxShadow: `${THEME.shadows.glow}, 0 12px 40px rgba(110,231,183,0.22)`,
-                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.15]),
+                        boxShadow: `${THEME.shadows.glow}, 0 14px 44px rgba(110,231,183,0.26)`,
+                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.12]),
                       }}
                     />
                   </div>
                   <div
                     style={{
-                      marginTop: 16,
+                      marginTop: 18,
                       fontFamily: THEME.fonts.sans,
-                      fontSize: THEME.fontSize.lg,
-                      fontWeight: 600,
+                      fontSize: THEME.fontSize.xl,
+                      fontWeight: 700,
                       color: THEME.colors.primary,
+                      textShadow:
+                        "0 0 16px rgba(110,231,183,0.35)",
                     }}
                   >
                     CroqTile
@@ -445,24 +587,30 @@ export const PerfChart: React.FC = () => {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    width: 200,
+                    width: 220,
                   }}
                 >
                   <div
                     style={{
-                      opacity: valueFade,
-                      marginBottom: 12,
+                      opacity:
+                        interpolate(torchValueSpring, [0, 1], [0, 1], {
+                          extrapolateLeft: "clamp",
+                          extrapolateRight: "clamp",
+                        }),
+                      transform: `translateY(${interpolate(torchValueSpring, [0, 1], [12, 0])}px) scale(${0.94 + torchValueSpring * 0.06})`,
+                      marginBottom: 14,
                       fontFamily: THEME.fonts.mono,
-                      fontSize: THEME.fontSize["2xl"],
+                      fontSize: 46,
                       fontWeight: 700,
                       color: THEME.colors.textSecondary,
+                      textShadow: "0 2px 14px rgba(0,0,0,0.35)",
                     }}
                   >
                     {TORCH_TFLOPS.toFixed(1)}
                     <span
                       style={{
-                        marginLeft: 8,
-                        fontSize: THEME.fontSize.sm,
+                        marginLeft: 10,
+                        fontSize: THEME.fontSize.lg,
                         color: THEME.colors.textMuted,
                         fontWeight: 500,
                       }}
@@ -473,13 +621,13 @@ export const PerfChart: React.FC = () => {
                   <div
                     style={{
                       height: maxBarPx,
-                      width: 120,
+                      width: 124,
                       display: "flex",
                       alignItems: "flex-end",
                       justifyContent: "center",
                       borderRadius: THEME.radius.md,
                       background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.2))",
+                        "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.22))",
                       boxShadow: THEME.shadows.inset,
                     }}
                   >
@@ -488,17 +636,17 @@ export const PerfChart: React.FC = () => {
                         width: "100%",
                         height: torchBarH,
                         borderRadius: THEME.radius.md,
-                        background: "linear-gradient(180deg, #6B7280, #374151)",
-                        boxShadow: "0 8px 28px rgba(0,0,0,0.45)",
-                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.12]),
+                        background: `linear-gradient(180deg, ${THEME.colors.textMuted}, #273041)`,
+                        boxShadow: "0 10px 32px rgba(0,0,0,0.48)",
+                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.1]),
                       }}
                     />
                   </div>
                   <div
                     style={{
-                      marginTop: 16,
+                      marginTop: 18,
                       fontFamily: THEME.fonts.sans,
-                      fontSize: THEME.fontSize.lg,
+                      fontSize: THEME.fontSize.xl,
                       fontWeight: 600,
                       color: THEME.colors.textSecondary,
                     }}
@@ -512,52 +660,61 @@ export const PerfChart: React.FC = () => {
             <p
               style={{
                 margin: 0,
-                marginTop: 8,
-                opacity: interpolate(
+                marginTop: 4,
+                opacity:
+                  interpolate(
+                    frame,
+                    [PHASE_B_START + 58, PHASE_B_START + 86],
+                    [0, 1],
+                    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+                  ) * phaseBVisible,
+                transform: `translateY(${interpolate(
                   frame,
-                  [PHASE_B_START + 60, PHASE_B_START + 88],
-                  [0, 1],
+                  [PHASE_B_START + 58, PHASE_B_START + 86],
+                  [10, 0],
                   { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-                ) * phaseBVisible,
+                )}px)`,
                 fontFamily: THEME.fonts.sans,
-                fontSize: THEME.fontSize.base,
+                fontSize: THEME.fontSize.lg,
                 color: THEME.colors.textSecondary,
                 textAlign: "center",
-                maxWidth: 640,
-                lineHeight: 1.45,
+                maxWidth: 720,
+                lineHeight: 1.5,
               }}
             >
               Higher abstraction, less code — but no performance loss
             </p>
           </div>
 
+          {/* ─── Phase C — scatter plot ─── */}
           <div
             style={{
               position: "absolute",
               inset: 0,
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               justifyContent: "center",
+              paddingTop: 48,
               opacity: phaseCOpacity,
               pointerEvents: phaseCOpacity < 0.02 ? "none" : "auto",
             }}
           >
             <svg
-              width={Math.min(plotW + 120, 1100)}
-              height={plotH + 56}
-              viewBox={`0 0 ${plotW + 120} ${plotH + 56}`}
+              width={Math.min(plotW + 130, 1120)}
+              height={plotH + 72}
+              viewBox={`0 0 ${plotW + 130} ${plotH + 72}`}
               style={{ overflow: "visible" }}
             >
               <defs>
                 <filter
                   id="croqGlow"
-                  x="-80%"
-                  y="-80%"
-                  width="260%"
-                  height="260%"
+                  x="-120%"
+                  y="-120%"
+                  width="340%"
+                  height="340%"
                 >
                   <feGaussianBlur
-                    stdDeviation={8 + pulse * 6}
+                    stdDeviation={10 + pulse * 8}
                     result="b"
                   />
                   <feMerge>
@@ -568,27 +725,29 @@ export const PerfChart: React.FC = () => {
               </defs>
               <text
                 x={padL + (plotW - padL) / 2}
-                y={20}
+                y={26}
                 textAnchor="middle"
                 fill={THEME.colors.textSecondary}
                 style={{
                   fontFamily: THEME.fonts.sans,
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: 18,
                   fontWeight: 600,
+                  textShadow: "0 1px 10px rgba(0,0,0,0.45)",
                 }}
               >
-                Simplicity →
+                Simplicity → (simpler →)
               </text>
               <text
-                x={18}
-                y={padT + plotH / 2 - 40}
+                x={22}
+                y={padT + plotH / 2}
                 textAnchor="middle"
                 fill={THEME.colors.textSecondary}
-                transform={`rotate(-90, 18, ${padT + plotH / 2 - 40})`}
+                transform={`rotate(-90, 22, ${padT + plotH / 2})`}
                 style={{
                   fontFamily: THEME.fonts.sans,
-                  fontSize: THEME.fontSize.sm,
+                  fontSize: 18,
                   fontWeight: 600,
+                  textShadow: "0 1px 10px rgba(0,0,0,0.45)",
                 }}
               >
                 Performance (TFLOPS) ↑
@@ -596,10 +755,10 @@ export const PerfChart: React.FC = () => {
               <line
                 x1={padL}
                 y1={plotH - padB}
-                x2={plotW - 8}
+                x2={plotW}
                 y2={plotH - padB}
                 stroke={THEME.colors.textMuted}
-                strokeOpacity={0.5}
+                strokeOpacity={0.55}
                 strokeWidth={1}
               />
               <line
@@ -608,52 +767,81 @@ export const PerfChart: React.FC = () => {
                 x2={padL}
                 y2={plotH - padB}
                 stroke={THEME.colors.textMuted}
-                strokeOpacity={0.5}
+                strokeOpacity={0.55}
                 strokeWidth={1}
               />
               {SCATTER.map((pt, i) => {
                 const cx = toSx(pt.x);
                 const cy = toSy(pt.y);
                 const appear = spring({
-                  frame: Math.max(0, cFrame - 6 - i * 10),
+                  frame: Math.max(0, cFrame - 8 - i * 12),
                   fps,
-                  config: { damping: 16, stiffness: 85, mass: 0.85 },
+                  config: { damping: 16, stiffness: 88, mass: 0.82 },
                   from: 0,
                   to: 1,
                 });
-                const r = pt.large ? 15 + pulse * 3 : 9;
-                const fo = appear * phaseCOpacity;
+                const pop = interpolate(appear, [0, 1], [0, 1], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
+                const rBase = pt.large ? 17 + pulse * 3 : 10;
+                const r = rBase * (0.35 + 0.65 * pop);
+                const fo =
+                  interpolate(appear, [0, 1], [0, 1], {
+                    extrapolateLeft: "clamp",
+                    extrapolateRight: "clamp",
+                  }) * phaseCOpacity;
+                const labelYOffset = interpolate(appear, [0, 1], [10, 0], {
+                  extrapolateLeft: "clamp",
+                  extrapolateRight: "clamp",
+                });
                 return (
                   <g key={pt.id} opacity={fo}>
                     {pt.large && (
-                      <circle
-                        cx={cx}
-                        cy={cy}
-                        r={r + 18 * pulse}
-                        fill={THEME.colors.primary}
-                        fillOpacity={0.12 + 0.1 * pulse}
-                      />
+                      <>
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={(r + 36) * (0.4 + 0.6 * pop)}
+                          fill={THEME.colors.primary}
+                          fillOpacity={0.06 + 0.08 * pulse}
+                        />
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={(r + 22 * pulse) * pop}
+                          fill={THEME.colors.primary}
+                          fillOpacity={0.14 + 0.12 * pulse}
+                        />
+                      </>
                     )}
                     <circle
                       cx={cx}
                       cy={cy}
-                      r={r}
+                      r={Math.max(0.001, r)}
                       fill={pt.color}
                       stroke={
-                        pt.large ? THEME.colors.primaryDark : "rgba(0,0,0,0.35)"
+                        pt.large ? THEME.colors.primaryDark : "rgba(0,0,0,0.4)"
                       }
-                      strokeWidth={pt.large ? 2 : 1}
+                      strokeWidth={pt.large ? 2.5 : 1}
                       filter={pt.large ? "url(#croqGlow)" : undefined}
                     />
                     <text
                       x={cx}
-                      y={cy + r + 18}
+                      y={cy + rBase + 22 - labelYOffset}
                       textAnchor="middle"
-                      fill={THEME.colors.textPrimary}
+                      fill={
+                        pt.large
+                          ? THEME.colors.textPrimary
+                          : THEME.colors.textSecondary
+                      }
                       style={{
                         fontFamily: THEME.fonts.sans,
-                        fontSize: pt.large ? 14 : 12,
+                        fontSize: pt.large ? 17 : 14,
                         fontWeight: pt.large ? 700 : 600,
+                        textShadow: pt.large
+                          ? "0 0 14px rgba(110,231,183,0.55), 0 2px 12px rgba(0,0,0,0.55)"
+                          : "0 2px 10px rgba(0,0,0,0.55)",
                       }}
                     >
                       {pt.label}
