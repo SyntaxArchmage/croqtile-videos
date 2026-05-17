@@ -27,7 +27,7 @@ export type { SubtitleCue, SubtitleProps };
 
 const HIGHLIGHT_SHADOW = `0 0 12px ${THEME.colors.primaryGlow}, 0 0 4px rgba(110,231,183,0.85)`;
 
-const FADE_FRAMES = 15;
+const FADE_FRAMES = 8;
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

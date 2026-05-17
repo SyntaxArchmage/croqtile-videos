@@ -3,14 +3,14 @@
  * 完整视频 — 将所有段落按脚本顺序拼接
  *
  * 时间轴 (v2):
- *   0:00–0:14    段 0  PainPoint       (424f)  前两句话
- *   0:14–0:57    段 1  IterativeDev    (1273f) 迭代开发 + CroqTile揭晓
- *   0:57–1:44    段 2  FeatureSpotlight(1410f)
- *   1:44–1:54    段 3  PerfChart       (300f)
- *   1:54–2:24    段 4  CompileTimeSafety(900f)
- *   2:24–2:54    段 5  DynamicShape    (900f)
- *   2:54–5:29    段 6  AINative        (4650f)
- *   5:29–5:39    段 7  OutroCTA        (300f)
+ *   0:00–0:14    段 0  PainPoint       (439f)  前两句话
+ *   0:14–1:01    段 1  IterativeDev    (1393f) 迭代开发 + CroqTile揭晓
+ *   1:01–1:47    段 2  FeatureSpotlight(1390f)
+ *   1:47–2:12    段 3  PerfChart       (750f)
+ *   2:13–2:43    段 4  CompileTimeSafety(900f)
+ *   2:43–3:13    段 5  DynamicShape    (900f)
+ *   3:13–5:48    段 6  AINative        (4650f)
+ *   5:48–5:58    段 7  OutroCTA        (300f)
  */
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
@@ -29,9 +29,9 @@ import { getVoiceoverCues } from "../data/voiceover";
 
 const SEGMENTS = [
   { id: "PainPoint", component: PainPoint, duration: 439 },
-  { id: "IterativeDev", component: IterativeDev, duration: 1311 },
-  { id: "FeatureSpotlight", component: FeatureSpotlight, duration: 1410 },
-  { id: "PerfChart", component: PerfChart, duration: 300 },
+  { id: "IterativeDev", component: IterativeDev, duration: 1393 },
+  { id: "FeatureSpotlight", component: FeatureSpotlight, duration: 1390 },
+  { id: "PerfChart", component: PerfChart, duration: 750 },
   { id: "CompileTimeSafety", component: CompileTimeSafety, duration: 900 },
   { id: "DynamicShape", component: DynamicShape, duration: 900 },
   { id: "AINative", component: AINative, duration: 4650 },

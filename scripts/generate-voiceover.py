@@ -24,16 +24,13 @@ CUES = [
     ("seg1-04", "这些门槛，大大限制了计算核的开发效率。", "These barriers severely limit kernel development efficiency."),
     ("seg1-05", "所以我们造了 CroqTile——新一代 GPU 和 DSA 内核编程语言，5 倍生产力，为 AI 时代而生。", "So we built CroqTile — the next-generation GPU and DSA kernel programming language. 5 times productivity, designed for the AI era."),
 
-    ("seg2a-01", "在 CroqTile 里，声明一个张量只需要三件事：内存位置、数据类型、形状。", "In CroqTile, declaring a tensor requires only three things: memory specifier, data type, and shape."),
-    ("seg2a-02", "不需要指针，不需要步长，不需要偏移量。", "No raw pointers. No strides. No offset arithmetic."),
-    ("seg2a-03", "要从一个大矩阵中取出本次计算需要的小块？你只需要描述它的位置。", "To pull a tile out of a large tensor for this iteration? Just describe where it is."),
-    ("seg2a-04", "并行结构用同一个 parallel by 关键字统一描述。再也不用手动组合 blockIdx 和 threadIdx。", "All parallelism is expressed through a single unified parallel by keyword."),
+    ("seg2-01", "传统内核语言如 CUDA、OpenCL，从线程视角编程。每个线程操作 buffer 和 offset，手动计算内存地址。想实现 data blocking？你必须拼出所有偏移量。", "Traditional kernel languages like CUDA and OpenCL program from the thread's view. Each thread works with raw buffers and offsets, manually computing memory addresses. Want data blocking? You piece together all the offset math yourself."),
+    ("seg2-02", "CroqTile 完全不同。它从宏观角度编程——数据是张量，不是 buffer。subspan 描述子区域，chunkat 按块切片，at 定位迭代位置。你描述取哪块，编译器生成所有地址计算。", "CroqTile is fundamentally different. It programs from the macro view — data is a tensor, not a buffer. Subspan describes a sub-region, chunkat slices by block, at locates the iteration. You describe what to take — the compiler generates all address math."),
+    ("seg2-03", "结果不仅是代码量减少 60%，而且代码变得极其直观——人类工程师和 AI agent 都能一眼读懂内核逻辑。", "The result is not only 60% less code, but code that's super intuitive — both human engineers and AI agents can understand kernel logic at a glance."),
 
-    ("seg2b-01", "TMA 数据搬运，一行。Tensor Core MMA 计算，一行。", "TMA data movement: one line. Tensor Core MMA: one line."),
-    ("seg2b-02", "CroqTile 总代码量是等效 CUDA 的 40%，但可读性和性能一个都没有丢。", "CroqTile uses just 40% of equivalent CUDA code — with no loss in readability or performance."),
-
-    ("seg3-01", "高层语法，厂商级性能。GEMM FP16，CroqTile 比 PyTorch 快 5.3%。", "High-level syntax. Vendor-library performance. On FP16 GEMM, CroqTile outperforms PyTorch by 5.3%."),
-    ("seg3-02", "这不是近似——这是零成本抽象。", "Not approximate — zero-cost abstraction."),
+    ("seg3-01", "和其他内核 DSL 相比，CroqTile 在相同计算核实现中展现了最少的代码量。", "Compared to other kernel DSLs, CroqTile shows the minimal lines of code for the same kernel implementation."),
+    ("seg3-02", "这种简洁性没有以性能为代价。零成本抽象是我们在语法设计中的第一原则。", "This level of simplicity comes without performance compromise. Zero-cost abstraction is our first design principle."),
+    ("seg3-03", "这使得 CroqTile 成为最简单、最直观，同时拥有顶级性能的内核编程语言。", "This makes CroqTile the most simple and intuitive kernel language — with still top-level performance."),
 
     ("seg4-01", "在 CroqTile 里，shape 不匹配、DMA 越界、类型错误，全部在编译期被拦住。", "In CroqTile, shape mismatches, DMA overflows, and type errors are all caught at compile time."),
     ("seg4-02", "353 项编译时检查，1319 项运行时断言——没有一个错误能溜到 GPU dispatch 之后。", "353 compile-time checks. 1,319 runtime assertions. Not a single error gets past GPU dispatch."),

@@ -32,8 +32,14 @@ import {
   Seg0PreviewEN,
   Seg1PreviewCN,
   Seg1PreviewEN,
+  Seg2PreviewCN,
+  Seg2PreviewEN,
+  Seg3PreviewCN,
+  Seg3PreviewEN,
   SEG0_DURATION,
   SEG1_DURATION,
+  SEG2_DURATION,
+  SEG3_DURATION,
 } from "./compositions/SegmentPreview";
 
 const { width, height, fps } = THEME.video;
@@ -138,6 +144,40 @@ export const RemotionRoot: React.FC = () => {
         height={height}
       />
 
+      <Composition
+        id="Seg2-Preview-CN"
+        component={Seg2PreviewCN}
+        durationInFrames={SEG2_DURATION}
+        fps={fps}
+        width={width}
+        height={height}
+      />
+      <Composition
+        id="Seg2-Preview-EN"
+        component={Seg2PreviewEN}
+        durationInFrames={SEG2_DURATION}
+        fps={fps}
+        width={width}
+        height={height}
+      />
+
+      <Composition
+        id="Seg3-Preview-CN"
+        component={Seg3PreviewCN}
+        durationInFrames={SEG3_DURATION}
+        fps={fps}
+        width={width}
+        height={height}
+      />
+      <Composition
+        id="Seg3-Preview-EN"
+        component={Seg3PreviewEN}
+        durationInFrames={SEG3_DURATION}
+        fps={fps}
+        width={width}
+        height={height}
+      />
+
       {/* ═══ 单段预览(无配音) ═══ */}
       <Composition
         id="PainPoint"
@@ -150,7 +190,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="IterativeDev"
         component={IterativeDev}
-        durationInFrames={1311}
+        durationInFrames={1393}
         fps={fps}
         width={width}
         height={height}
@@ -174,7 +214,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PerfChart"
         component={PerfChart}
-        durationInFrames={300}
+        durationInFrames={750}
         fps={fps}
         width={width}
         height={height}

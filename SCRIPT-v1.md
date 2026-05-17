@@ -58,16 +58,61 @@ For operators like FlashAttention and Blockscale Gemm, even top experts spend we
 
 ### 第 1 段 · 迭代开发的痛苦 + 解法揭晓
 
-**⏱ 0:15 – 0:59 | 44 秒 (1311 帧)**
+**⏱ 0:15 – 1:01 | 46 秒 (1393 帧)**
 
 ---
 
-**[画面]**
-展示一个完整的计算核开发迭代循环动画。中心是一个环形流程图，包含四个阶段：
-编写代码 → 编译调试 → 性能剖析 → 参数调优
-每一轮循环代表一次完整迭代。动画展示多轮循环逐渐加速旋转，每轮都有红色错误闪烁、性能曲线缓慢爬升，暗示过程漫长且痛苦。
-旁边显示迭代计数器 Iteration 1, 2, 3... 不断增长。
-最终画面收暗，CroqTile logo 从中央浮现，淡绿色光晕扩散，tagline 逐字出现。
+**[画面]** *(每句话的动画严格与语音内容对齐)*
+
+**句 1 — seg1-01 (0–163f, 5.4s)**
+*"这不仅仅是因为实现复杂、代码行数多。"*
+
+画面从 Seg 0 末尾（代码框）平滑暗转。屏幕中央出现一段简化的 CUDA 代码片段（约 8-10 行），
+代码在 0–60f 内快速打字出现。代码行数在右下角显示 `280 lines`（灰色，小字）。
+60–163f: 代码整体略缩小并向左移，右侧浮现一个大写的 `✕` 符号和文字 "Not just complexity"（或对应的视觉暗示：划线删除 `280 lines`），
+表达"不仅仅是因为复杂"。整体色调冷灰，情绪克制。
+
+**句 2 — seg1-02 (166–554f, 12.9s)**
+*"而是因为一个生产级计算核，需要经过多轮编写、编译调试、性能剖析、参数调优的完整迭代"*
+
+画面核心：环形迭代流程图（Code → Debug → Profile → Tune），占据屏幕中央 70%。
+- 166–220f: 四个阶段节点依次从透明淡入，每个节点带图标和标签。环形连接线在节点之间出现。
+- 220–300f: 第一轮迭代开始。高亮光环沿 Code → Debug → Profile → Tune 顺序旋转一圈。
+  中央显示 `Iteration 1`。每经过 Debug 节点时，有短暂的红色错误闪烁（`✕ CUDA error`）。
+- 300–420f: 迭代加速。Iteration 2, 3, 4... 数字递增。旋转速度逐渐加快。
+  每轮都有随机位置的错误消息闪烁（shape mismatch, DMA overflow, bank conflict 等）。
+- 420–554f: 继续加速到 Iteration 8-10。右下角开始出现一条缓慢爬升的性能曲线（TFLOPS），
+  曲线有锯齿波动，暗示每轮迭代只带来微小进步。上方出现虚线目标线 `target`。
+
+**句 3 — seg1-03 (557–845f, 9.6s)**
+*"这个过程不仅需要扎实的编程能力，还需要深厚的硬件知识与丰富的性能优化经验。"*
+
+迭代环继续缓慢旋转（背景化，透明度降低到 40%）。
+前景分三波浮现三组关键词（与语音节奏对齐）：
+- 557–640f: 屏幕左上角浮现 `🖥 Programming Skills`，带代码图标，字体大号，amber 色。
+- 640–730f: 屏幕右上角浮现 `🔧 Hardware Knowledge`，带芯片图标，amber 色。
+- 730–845f: 屏幕底部中央浮现 `📊 Optimization Experience`，带图表图标，amber 色。
+三组词形成三角布局，每组出现时有 scale-in + glow 动画。
+暗示这些都是 **门槛**。
+
+**句 4 — seg1-04 (848–991f, 4.8s)**
+*"这些门槛，大大限制了计算核的开发效率。"*
+
+三组关键词向屏幕中央汇聚收缩，同时变为红色（从 amber 渐变为 red）。
+汇聚后形成一个大字 `BARRIERS`（或 `门槛`），红色，带脉冲发光效果。
+中央下方出现 `↓ Development Efficiency ↓` 配合向下箭头，暗示效率被限制。
+迭代环和性能曲线在背景中 fade out。
+到 991f，画面几乎全暗，只剩 `BARRIERS` 字样在中央微微闪烁。
+
+**句 5 — seg1-05 (994–1373f, 12.6s) — CroqTile 揭晓**
+*"所以我们造了 CroqTile——新一代 GPU 和 DSA 内核编程语言，5 倍生产力，为 AI 时代而生。"*
+
+994f: `BARRIERS` 字样被一道 mint 绿光束从中间劈开/击碎，碎片向两侧消散。
+1000–1060f: CroqTile logo 从中央浮现（spring 弹性动画），mint 绿光晕扩散。
+1060–1120f: tagline 逐词出现：`5× Productivity.` → `GPU-native.` → `AI era.`
+1120–1180f: 副标题淡入 `Next-gen GPU & DSA kernel programming language`
+1180–1373f: 驻留展示。
+1373–1393f: 淡出。
 
 **[中]**
 这不仅仅是因为实现复杂、代码行数多。
@@ -95,131 +140,127 @@ So we built CroqTile — the next-generation GPU and DSA kernel programming lang
 
 ### 第 2 段 · 亮点一：简单易用
 
-**⏱ 0:48 – 1:35 | 47 秒**
+**⏱ 0:48 – 1:35 | 47 秒 (1410 帧 @ 30fps)**
 
 ---
 
-#### 2A · 更直观的编程抽象
+#### 叙事路线
 
-**⏱ 0:48 – 1:22 | 34 秒**
+> 传统语言（CUDA/OpenCL）→ 线程视角（buffer + offset）→ data blocking 难 →
+> CroqTile → 宏观视角（tensor + tile 操作原语）→ data blocking 自然 →
+> 结论：不仅 60% less LOC，而且 super intuitive · human & AI 可读
 
-**[画面]**
-屏幕左右分栏出现。左侧：CroqTile 代码；右侧：对应的 CUDA / Triton 代码。
-三个维度依次以动画高亮展示，每次高亮对应一行代码。
+#### 语音分段与帧时间
 
-**第 1 维度 — Tensor，不是 Buffer（高亮第 2-4 行）**
+| Cue ID | 帧范围（Seg内） | 时长 | 内容 |
+|--------|----------------|------|------|
+| seg2-01 | 0–519f | ~17s | 线程视角：CUDA/OpenCL → buffer+offset → data blocking 困难 |
+| seg2-02 | 520–1119f | ~20s | CroqTile 宏观视角：tensor + subspan/chunkat/.at() |
+| seg2-03 | 1120–1410f | ~10s | 结论：不仅 60% less code，而且 intuitive + human & AI 可读 |
 
-```choreo
-// CroqTile
-__co__ void matmul(global f16 [M, K] lhs, global f16 [N, K] rhs, global f16 [M, N] output)
-```
+#### 动画结构（与语音对齐）
 
-```cuda
-// CUDA + CuTe：同样的声明，但需要指针 + 步长
-void matmul(half* lhs, int lhs_stride0, int lhs_stride1,
-            half* rhs, int rhs_stride0, int rhs_stride1, ...)
-```
-
-**[中]**
-在 CroqTile 里，声明一个张量只需要三件事：内存位置、数据类型、形状。
-
-不需要指针，不需要步长，不需要偏移量。
-
-**[英]**
-In CroqTile, declaring a tensor requires only three things: memory specifier, data type, and shape.
-
-No raw pointers. No strides. No offset arithmetic.
-
----
-
-**第 2 维度 — 描述如何切片，不是计算偏移量（高亮 tiling 行）**
-
-```choreo
-// CroqTile：描述"从完整数据块中切出每次计算需要的小块"
-tma.copy lhs.subspan(WARP_M, TILE_K).at(bm, iv_k) => lhs_s;
-tma.copy rhs.chunkat(bn, iv_k) => rhs_s;
-```
-
-```cuda
-// CUDA：手动计算偏移，手动管理指针
-int offset_lhs = bm * WARP_M * lhs_stride + iv_k * TILE_K;
-cp.async.cg.shared.global [lhs_s], [lhs + offset_lhs], 16;
-```
-
-**[中]**
-要从一个大矩阵中取出本次计算需要的小块？你只需要描述它的位置，CroqTile 的 `chunkat` 和 `subspan` 帮你搞定所有切片逻辑。
-
-**[英]**
-To pull a tile out of a large tensor for this iteration? Just describe where it is. CroqTile's `chunkat` and `subspan` handle all the tiling logic.
-
----
-
-**第 3 维度 — Group-view，不是 SIMD 视角（高亮 parallel 行）**
-
-```choreo
-// CroqTile：一个关键字，覆盖所有并行层次
-parallel {block_m, block_n} by [cdiv(M, WARP_M), cdiv(N, WARP_N)] : block {
-  parallel p by 1 : group-4 {
-    ...
-  }
-}
-```
-
-```cuda
-// CUDA：需要手动拼 blockIdx、threadIdx、__syncthreads
-int bm = blockIdx.x;
-int bn = blockIdx.y;
-int tid = threadIdx.x;
-// warp group 需要额外的 cooperative groups API
-```
-
-**[中]**
-并行结构从 block 到 warp group 到 thread，用同一个 `parallel by` 关键字统一描述。再也不用手动组合 `blockIdx` 和 `threadIdx`。
-
-**[英]**
-From block-level down to warp-group and thread — all parallelism is expressed through a single unified `parallel by` keyword. No more manually composing `blockIdx` and `threadIdx`.
-
----
-
-#### 2B · 零样板代码：TMA 与 MMA
-
-**⏱ 1:22 – 1:35 | 13 秒**
-
-**[画面]**
-两个代码对比框快速弹入：TMA（左）和 MMA（右）。CroqTile 侧每行只有 1-2 行，CUDA/CuTe 侧有 6-10 行，行数差异通过高亮对比直观展示。
-
-```choreo
-// TMA 数据搬运：一行
-tma.copy.swiz<128> lhs.subspan(WARP_M, TILE_K).at(bm, iv_k) => lhs_s;
-
-// MMA 矩阵乘：一行，所有指令统一语义
-mma.row.row mc, ma, mb;
-```
-
-**[中]**
-TMA 数据搬运，一行。Tensor Core MMA 计算，一行。
-CroqTile 总代码量是等效 CUDA 的 40%，但可读性和性能一个都没有丢。
-
-**[英]**
-TMA data movement: one line. Tensor Core MMA: one line.
-CroqTile uses just 40% of equivalent CUDA code — with no loss in readability or performance.
-
----
-
-### 第 3 段 · 零成本抽象 · 性能数据
-
-**⏱ 1:35 – 1:45 | 10 秒**
+| 段落 | 帧范围 | 时长 | 对应语音 | 内容 |
+|------|--------|------|----------|------|
+| Phase A | 0–519f | ~17s | seg2-01 | Thread grid 混乱示意 + 地址越来越复杂 |
+| Phase B | 520–1119f | ~20s | seg2-02 | CroqTile vs CUDA 代码分屏 + subspan/chunkat/.at() 高亮 |
+| Phase C | 1120–1410f | ~10s | seg2-03 | 结论卡片：intuitive + AI-readable + 60% less code + LOC 对比条 |
 
 ---
 
 **[画面]**
-极简柱状图弹入：两根柱子并排。左柱：CroqTile（mint 色）471.3 TFLOPS；右柱：PyTorch（灰色）447.5 TFLOPS。标注 `+5.3%`。下方注：Hopper · GEMM FP16 · 8192×8192×8192。
+
+**Phase A (0–519f, ~17s) — 传统内核语言的困境**
+屏幕中央出现一个 4×4 GPU 线程网格示意图（thread grid）。
+每个线程格子内显示 `buffer[tid * stride + offset]` 的地址计算表达式。
+随着动画推进（60–400f），地址计算式变得越来越复杂（多级索引叠加），
+边框逐渐变红，表达混乱感。底部浮现 `Data blocking? Manual offset arithmetic everywhere.`
+
+**Phase B (520–1119f, ~20s) — CroqTile 的 tensor-view 对比**
+屏幕左右分栏。左侧：CroqTile 代码（mint 色调）；右侧：CUDA 代码（amber 色调）。
+三个维度依次高亮展示（每个维度约 200f）：
+1. Tensor declaration vs buffer + strides
+2. `subspan` / `chunkat` / `.at()` vs manual offset arithmetic（核心维度，最长停留）
+3. `parallel by` vs `blockIdx` / `threadIdx` plumbing
+
+**Phase C (1120–1410f, ~10s) — 结论卡片**
+代码对比淡出。屏幕中央浮现三行结论（逐行 spring-in）：
+1. `Super intuitive` — 代码即逻辑，无隐式偏移
+2. `Readable by human & AI` — 人和 AI agent 都能一眼理解
+3. `60% less code` — LOC 对比条动画（CroqTile 36 vs CUDA 280）
 
 **[中]**
-高层语法，厂商级性能。GEMM FP16，CroqTile 比 PyTorch 快 5.3%。这不是近似——这是零成本抽象。
+*(seg2-01)* 传统内核语言如 CUDA、OpenCL，从线程视角编程。每个线程操作 buffer 和 offset，手动计算内存地址。想实现 data blocking？你必须拼出所有偏移量。
+
+*(seg2-02)* CroqTile 完全不同。它从宏观角度编程——数据是张量，不是 buffer。`subspan` 描述子区域，`chunkat` 按块切片，`.at()` 定位迭代位置。你描述取哪块，编译器生成所有地址计算。
+
+*(seg2-03)* 结果不仅是代码量减少 60%，而且代码变得极其直观——人类工程师和 AI agent 都能一眼读懂内核逻辑。
 
 **[英]**
-High-level syntax. Vendor-library performance. On FP16 GEMM, CroqTile outperforms PyTorch by 5.3%. Not approximate — zero-cost abstraction.
+*(seg2-01)* Traditional kernel languages like CUDA and OpenCL program from the thread's view. Each thread works with raw buffers and offsets, manually computing memory addresses. Want data blocking? You piece together all the offset math yourself.
+
+*(seg2-02)* CroqTile is fundamentally different. It programs from the macro view — data is a tensor, not a buffer. Subspan describes a sub-region, chunkat slices by block, .at() locates the iteration. You describe what to take — the compiler generates all address math.
+
+*(seg2-03)* The result is not only 60% less code, but code that's super intuitive — both human engineers and AI agents can understand kernel logic at a glance.
+
+---
+
+### 第 3 段 · 零成本抽象 · 简单+性能
+
+**⏱ 1:35 – 2:05 | 30 秒 (900 帧 @ 30fps)**
+
+---
+
+#### 叙事路线
+
+> Seg 2 结尾 → LOC 对比（所有竞品中最少）→ 零成本抽象原则 → 简单性 vs 性能散点图（CroqTile 右上角）
+
+#### 语音分段与帧时间
+
+| Cue ID | 帧范围（Seg内） | 内容 |
+|--------|----------------|------|
+| seg3-01 | 0–?f | LOC 对比引出：compared to other DSLs, minimal LOC |
+| seg3-02 | ?–?f | 零成本抽象：simplicity without perf compromise |
+| seg3-03 | ?–end | 散点图结论：most simple + top performance |
+
+#### 动画结构
+
+| 段落 | 内容 |
+|------|------|
+| Phase A | LOC 横向柱状图（6 种语言，CroqTile 最短） |
+| Phase B | 零成本抽象 transition + TFLOPS 性能数据 |
+| Phase C | Simplicity vs Performance 散点图（X=简单性，Y=性能），CroqTile 在右上角 |
+
+---
+
+**[画面]**
+
+**Phase A — LOC 对比柱状图**
+从 Seg 2 结尾平滑衔接。横向柱状图弹入，6 种语言按 LOC 从小到大排列：
+CroqTile-Python 30L · CroqTile 36L · TileLang 70L · Triton 80L · CUDA+CuTe 182L · CUTLASS 280L
+CroqTile 柱高亮 mint 色，其他灰色。
+
+**Phase B — 零成本抽象过渡**
+柱状图淡出，浮现 "Zero-Cost Abstraction" 大字 + GEMM FP16 性能对比
+（CroqTile 471.3 TFLOPS vs PyTorch 447.5 TFLOPS, +5.3%）
+
+**Phase C — Simplicity vs Performance 散点图**
+性能数据变形为散点图。X 轴 = Simplicity（越右越简单），Y 轴 = Performance（TFLOPS）。
+各语言以圆点标注。CroqTile 位于右上角（最简单 + 最高性能），带发光效果。
+
+**[中]**
+*(seg3-01)* 和其他内核 DSL 相比，CroqTile 在相同计算核实现中展现了最少的代码量。
+
+*(seg3-02)* 这种简洁性没有以性能为代价。零成本抽象是我们在语法设计中的第一原则。
+
+*(seg3-03)* 这使得 CroqTile 成为最简单、最直观，同时拥有顶级性能的内核编程语言。
+
+**[英]**
+*(seg3-01)* Compared to other kernel DSLs, CroqTile shows the minimal lines of code for the same kernel implementation.
+
+*(seg3-02)* This level of simplicity comes without performance compromise. Zero-cost abstraction is our first design principle.
+
+*(seg3-03)* This makes CroqTile the most simple and intuitive kernel language — with still top-level performance.
 
 ---
 
