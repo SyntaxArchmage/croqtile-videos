@@ -30,38 +30,111 @@ const CX = W / 2;
 const CY = H / 2;
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SECTION 1 — Thread-view intro (0–300f)
- * Shows how SIMD / thread-view programming makes addresses complex
+ * SECTION 1 — Thread-view intro (0–510f)
+ * Continuous animation: code line → threadIdx + offset move out → horizontal
+ * thread row → offset row → mapping arrows to buffer
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-const THREAD_EXPRESSIONS = [
-  { label: "Thread 0", expr: "buf[0 * stride + 0]" },
-  { label: "Thread 1", expr: "buf[1 * stride + offset]" },
-  { label: "Thread 2", expr: "buf[bm * M + tid * K + iv_k]" },
-  { label: "Thread 3", expr: "buf[blockIdx.x * BM * stride + threadIdx.x * BK + iv_k * TILE_K]" },
+const BUFFER_CELLS = 16;
+const BUFFER_CELL_W = 72;
+const BUFFER_GAP = 3;
+const BUFFER_H = 40;
+const BUFFER_TOTAL_W = BUFFER_CELLS * BUFFER_CELL_W + (BUFFER_CELLS - 1) * BUFFER_GAP;
+
+const THREAD_IDS = [0, 1, 2, 3] as const;
+const THREAD_TARGETS = [2, 5, 9, 13];
+const THREAD_OFFSETS = [
+  "0*BK + 0*TK",
+  "1*BK + 0*TK",
+  "2*BK + 1*TK",
+  "3*BK + 1*TK",
 ];
+
+const THREAD_COL_W = 200;
+const THREADS_TOTAL_W = THREAD_IDS.length * THREAD_COL_W;
 
 const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
   frame,
   fps,
 }) => {
-  const titleOp = interpolate(frame, [0, 30], [0, 1], {
+  // --- Stage 1: code line + annotation tabs (0–140f) ---
+  const codeOp = interpolate(frame, [0, 30], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const gridOp = interpolate(frame, [20, 50], [0, 1], {
+  const annotTabOp = interpolate(frame, [30, 60], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const chaosProgress = interpolate(frame, [60, 400], [0, 1], {
+  const ptrBlinkRaw = interpolate(frame, [40, 100], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const ptrBlink = ptrBlinkRaw > 0 && ptrBlinkRaw < 1
+    ? 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frame * 0.35))
+    : ptrBlinkRaw >= 1 ? 1 : 0;
+
+  const offsetBlinkRaw = interpolate(frame, [80, 140], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const offsetBlink = offsetBlinkRaw > 0 && offsetBlinkRaw < 1
+    ? 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frame * 0.35))
+    : offsetBlinkRaw >= 1 ? 1 : 0;
+
+  // --- Transition (140–210f): continuous move ---
+  const t = interpolate(frame, [140, 210], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
 
-  const annotationOp = interpolate(frame, [300, 360], [0, 1], {
+  const extrasOp = 1 - t;
+
+  const CODE_Y = 260;
+  const HEADER_Y = 200;
+
+  // Transition threshold: when to switch from inline to absolute rendering
+  const inlineMode = t < 0.02;
+
+  const tidEndX = CX - THREADS_TOTAL_W / 2 - 200;
+  const tidStartX = CX - 210;
+  const tidX = interpolate(t, [0, 1], [tidStartX, tidEndX]);
+  const tidY = interpolate(t, [0, 1], [CODE_Y, HEADER_Y]);
+  const tidScale = interpolate(t, [0, 1], [1, 0.55]);
+
+  const OFFSET_ROW_Y = 270;
+  const offsetStartX = CX + 20;
+  const offsetEndX = CX - THREADS_TOTAL_W / 2;
+  const offsetMoveX = interpolate(t, [0, 1], [offsetStartX, offsetEndX]);
+  const offsetMoveY = interpolate(t, [0, 1], [CODE_Y, OFFSET_ROW_Y]);
+  const offsetScale = interpolate(t, [0, 1], [1, 0.48]);
+
+  // --- Stage 3: peer threads + individual offsets (200–300f) ---
+  const threadListOp = interpolate(frame, [200, 240], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const offsetExprOp = interpolate(frame, [240, 300], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // --- Buffer bar ---
+  const bufferOp = interpolate(frame, [180, 220], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // --- Stage 4: mapping arrows (300–440f) ---
+  const arrowsOp = interpolate(frame, [300, 340], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const annotationOp = interpolate(frame, [420, 460], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -71,147 +144,349 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
     extrapolateRight: "clamp",
   });
 
-  const COLS = 4;
-  const ROWS = 4;
-  const CELL_W = 340;
-  const CELL_H = 90;
-  const GAP = 16;
-  const gridW = COLS * CELL_W + (COLS - 1) * GAP;
-  const gridH = ROWS * CELL_H + (ROWS - 1) * GAP;
-  const gridLeft = CX - gridW / 2;
-  const gridTop = CY - gridH / 2 + 30;
+  const bufferTop = 540;
+  const bufferLeft = CX - BUFFER_TOTAL_W / 2;
+  const threadsLeft = CX - THREADS_TOTAL_W / 2;
 
   return (
     <AbsoluteFill style={{ opacity: fadeOut }}>
       <NoiseOverlay opacity={0.028} blendMode="soft-light" />
 
-      {/* Title */}
-      <div
+      {/* Annotation tabs — fade out during transition */}
+      <svg
         style={{
           position: "absolute",
-          top: 80,
-          width: W,
-          textAlign: "center",
-          opacity: titleOp,
+          left: 0, top: 0, width: W, height: H,
+          pointerEvents: "none",
+          opacity: annotTabOp * extrasOp,
         }}
       >
+        <g opacity={ptrBlink > 0.2 ? 0.5 + 0.5 * ptrBlink : 0.6}>
+          <rect x={CX - 310} y={CODE_Y - 90} width={160} height={32} rx={6}
+            fill="rgba(252,211,77,0.15)" stroke="rgba(252,211,77,0.4)" strokeWidth={1} />
+          <text x={CX - 230} y={CODE_Y - 70} fill="#FCD34D"
+            fontSize={17} fontFamily="'Inter', sans-serif" textAnchor="middle" fontWeight={600}>
+            buffer pointer
+          </text>
+          <line x1={CX - 230} y1={CODE_Y - 54} x2={CX - 230} y2={CODE_Y - 24}
+            stroke="rgba(252,211,77,0.5)" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#tabAA)" />
+        </g>
+        <g opacity={offsetBlink > 0.2 ? 0.5 + 0.5 * offsetBlink : 0.6}>
+          <rect x={CX + 60} y={CODE_Y - 90} width={100} height={32} rx={6}
+            fill="rgba(248,113,113,0.15)" stroke="rgba(248,113,113,0.4)" strokeWidth={1} />
+          <text x={CX + 110} y={CODE_Y - 70} fill="#F87171"
+            fontSize={17} fontFamily="'Inter', sans-serif" textAnchor="middle" fontWeight={600}>
+            offset
+          </text>
+          <line x1={CX + 110} y1={CODE_Y - 54} x2={CX + 110} y2={CODE_Y - 24}
+            stroke="rgba(248,113,113,0.5)" strokeWidth={1.5} strokeDasharray="4 3" markerEnd="url(#tabAR)" />
+        </g>
+        <defs>
+          <marker id="tabAA" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(252,211,77,0.6)" /></marker>
+          <marker id="tabAR" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="rgba(248,113,113,0.6)" /></marker>
+        </defs>
+      </svg>
+
+      {/* ── Stage 1 inline mode: full code as one seamless line ── */}
+      {inlineMode && (
         <div
           style={{
-            fontSize: 44,
-            fontWeight: 700,
-            fontFamily: THEME.fonts.sans,
-            color: THEME.colors.textPrimary,
+            position: "absolute",
+            top: CODE_Y,
+            width: W,
+            textAlign: "center",
+            opacity: codeOp,
+            pointerEvents: "none",
           }}
         >
-          Traditional SIMD Programming
+          <span style={{ fontSize: 58, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.3 }}>
+            <span style={{
+              color: "#FCD34D",
+              textShadow: ptrBlink > 0.3 ? `0 0 ${20 * ptrBlink}px rgba(252,211,77,${0.5 * ptrBlink})` : "none",
+              opacity: 0.5 + 0.5 * ptrBlink,
+            }}>A</span>
+            <span style={{ color: "rgba(255,255,255,0.35)" }}>[</span>
+            <span style={{
+              color: "#F87171",
+              textShadow: offsetBlink > 0.3 ? `0 0 ${18 * offsetBlink}px rgba(248,113,113,${0.45 * offsetBlink})` : "none",
+              opacity: 0.5 + 0.5 * offsetBlink,
+            }}>threadIdx.x*BK + iv_k*TILE_K</span>
+            <span style={{ color: "rgba(255,255,255,0.35)" }}>]</span>
+          </span>
         </div>
+      )}
+
+      {/* ── Transition mode: absolute elements moving to final positions ── */}
+      {!inlineMode && (
+        <>
+          {/* A[ ... ] scaffolding fades out */}
+          <div
+            style={{
+              position: "absolute",
+              top: CODE_Y,
+              width: W,
+              textAlign: "center",
+              opacity: codeOp * extrasOp,
+              pointerEvents: "none",
+            }}
+          >
+            <span style={{ fontSize: 58, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.3 }}>
+              <span style={{ color: "#FCD34D", opacity: 0.5 + 0.5 * ptrBlink }}>A</span>
+              <span style={{ color: "rgba(255,255,255,0.35)" }}>[</span>
+              <span style={{ visibility: "hidden" }}>threadIdx.x*BK + iv_k*TILE_K</span>
+              <span style={{ color: "rgba(255,255,255,0.35)" }}>]</span>
+            </span>
+          </div>
+
+          {/* threadIdx.x — moves from inline position to header */}
+          <div
+            style={{
+              position: "absolute",
+              left: tidX,
+              top: tidY,
+              transform: `scale(${tidScale})`,
+              transformOrigin: "left center",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 58,
+              fontWeight: 700,
+              color: "#F87171",
+              opacity: codeOp,
+              whiteSpace: "nowrap",
+            }}
+          >
+            threadIdx.x{t > 0.8 ? " =" : ""}
+          </div>
+
+          {/* offset tail — moves from inline to offset row, fades out by end */}
+          {t < 0.99 && (
+            <div
+              style={{
+                position: "absolute",
+                left: offsetMoveX,
+                top: offsetMoveY,
+                transform: `scale(${offsetScale})`,
+                transformOrigin: "left center",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 58,
+                color: "#F87171",
+                opacity: codeOp * (1 - Math.max((t - 0.6) / 0.4, 0)),
+                whiteSpace: "nowrap",
+              }}
+            >
+              *BK + iv_k*TILE_K
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Horizontal thread IDs row (after transition) */}
+      {t > 0.5 && (
         <div
           style={{
-            fontSize: 22,
-            fontFamily: THEME.fonts.sans,
-            color: THEME.colors.textSecondary,
-            marginTop: 12,
+            position: "absolute",
+            left: threadsLeft,
+            top: HEADER_Y,
+            display: "flex",
+            gap: 0,
+            width: THREADS_TOTAL_W,
           }}
         >
-          Every thread manually computes its own address
-        </div>
-      </div>
-
-      {/* Thread grid */}
-      <div
-        style={{
-          position: "absolute",
-          left: gridLeft,
-          top: gridTop,
-          width: gridW,
-          opacity: gridOp,
-        }}
-      >
-        {Array.from({ length: ROWS }).map((_, row) =>
-          Array.from({ length: COLS }).map((_, col) => {
-            const idx = row * COLS + col;
-            const exprIdx = Math.min(
-              Math.floor(chaosProgress * THREAD_EXPRESSIONS.length),
-              THREAD_EXPRESSIONS.length - 1,
-            );
-            const visibleIdx = Math.min(exprIdx, THREAD_EXPRESSIONS.length - 1);
-            const entry = THREAD_EXPRESSIONS[visibleIdx];
-
-            const cellDelay = (row + col) * 3;
-            const cellOp = interpolate(
-              frame,
-              [30 + cellDelay, 50 + cellDelay],
-              [0, 1],
-              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-            );
-
-            const exprScale =
-              1 + chaosProgress * 0.12 * Math.sin(idx * 1.7 + frame * 0.05);
-
-            const borderRed = interpolate(chaosProgress, [0.5, 1], [0, 0.6], {
+          {THREAD_IDS.map((tid, i) => {
+            const delay = i * 6;
+            const colOp = interpolate(frame, [200 + delay, 225 + delay], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             });
-
             return (
               <div
-                key={`${row}-${col}`}
+                key={tid}
                 style={{
-                  position: "absolute",
-                  left: col * (CELL_W + GAP),
-                  top: row * (CELL_H + GAP),
-                  width: CELL_W,
-                  height: CELL_H,
-                  borderRadius: THEME.radius.md,
-                  background: THEME.colors.bgCard,
-                  border: `1px solid rgba(${
-                    borderRed > 0.3 ? "248,113,113" : "255,255,255"
-                  },${0.1 + borderRed * 0.3})`,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  opacity: cellOp,
-                  transform: `scale(${exprScale})`,
-                  overflow: "hidden",
+                  width: THREAD_COL_W,
+                  textAlign: "center",
+                  opacity: colOp * threadListOp,
+                  transform: `translateY(${interpolate(colOp, [0, 1], [15, 0])}px)`,
                 }}
               >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.textMuted,
-                    marginBottom: 6,
-                  }}
-                >
-                  Thread {idx}
-                </div>
-                <div
-                  style={{
-                    fontSize: Math.max(11, 15 - entry.expr.length * 0.08),
-                    fontFamily: THEME.fonts.mono,
-                    color:
-                      chaosProgress > 0.6
-                        ? THEME.colors.danger
-                        : THEME.colors.textCode,
-                    textAlign: "center",
-                    padding: "0 8px",
-                    wordBreak: "break-all",
-                  }}
-                >
-                  {entry.expr}
+                <div style={{
+                  fontSize: 28,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 700,
+                  color: "#FCD34D",
+                }}>
+                  {tid}
                 </div>
               </div>
             );
-          }),
-        )}
-      </div>
+          })}
+        </div>
+      )}
 
-      {/* Annotation */}
+      {/* Horizontal offset expressions row */}
+      {t > 0.8 && (
+        <div
+          style={{
+            position: "absolute",
+            left: threadsLeft,
+            top: OFFSET_ROW_Y,
+            display: "flex",
+            gap: 0,
+            width: THREADS_TOTAL_W,
+          }}
+        >
+          {THREAD_IDS.map((tid, i) => {
+            const delay = i * 8;
+            const colOp = interpolate(frame, [250 + delay, 280 + delay], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            return (
+              <div
+                key={tid}
+                style={{
+                  width: THREAD_COL_W,
+                  textAlign: "center",
+                  opacity: colOp * offsetExprOp,
+                  transform: `translateY(${interpolate(colOp, [0, 1], [20, 0])}px)`,
+                }}
+              >
+                <div style={{
+                  fontSize: 20,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "#F87171",
+                }}>
+                  {THREAD_OFFSETS[i]}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Buffer bar */}
       <div
         style={{
           position: "absolute",
-          bottom: 130,
+          left: bufferLeft,
+          top: bufferTop,
+          display: "flex",
+          gap: BUFFER_GAP,
+          opacity: bufferOp,
+        }}
+      >
+        {Array.from({ length: BUFFER_CELLS }).map((_, i) => {
+          const isTarget = THREAD_TARGETS.includes(i);
+          const targetIdx = THREAD_TARGETS.indexOf(i);
+          const glowStr = isTarget && arrowsOp > 0.5
+            ? interpolate(frame, [340 + targetIdx * 15, 380 + targetIdx * 15], [0, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })
+            : 0;
+
+          return (
+            <div
+              key={i}
+              style={{
+                width: BUFFER_CELL_W,
+                height: BUFFER_H,
+                borderRadius: 6,
+                background: isTarget && glowStr > 0.2
+                  ? `rgba(248,113,113,${0.18 + 0.3 * glowStr})`
+                  : "rgba(255,255,255,0.10)",
+                border: `1px solid ${
+                  isTarget && glowStr > 0.2
+                    ? `rgba(248,113,113,${0.5 + 0.4 * glowStr})`
+                    : "rgba(255,255,255,0.18)"
+                }`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: isTarget && glowStr > 0.5
+                  ? `0 0 18px rgba(248,113,113,${0.35 * glowStr})`
+                  : "none",
+              }}
+            >
+              <span style={{
+                fontSize: 13,
+                fontFamily: "'JetBrains Mono', monospace",
+                color: isTarget && glowStr > 0.5 ? "#F9FAFB" : "rgba(255,255,255,0.5)",
+              }}>
+                {`0x${(i * 256).toString(16).toUpperCase().padStart(3, "0")}`}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Buffer label */}
+      <div
+        style={{
+          position: "absolute",
+          left: bufferLeft,
+          top: bufferTop + BUFFER_H + 8,
+          width: BUFFER_TOTAL_W,
+          textAlign: "center",
+          opacity: bufferOp,
+        }}
+      >
+        <span style={{ fontSize: 16, fontFamily: "'JetBrains Mono', monospace", color: "rgba(255,255,255,0.45)", letterSpacing: "0.08em" }}>
+          Memory View as Buffer
+        </span>
+      </div>
+
+      {/* Mapping arrows from offset row → buffer */}
+      {arrowsOp > 0.01 && (
+        <svg
+          style={{
+            position: "absolute",
+            left: 0, top: 0, width: W, height: H,
+            pointerEvents: "none",
+            opacity: arrowsOp,
+          }}
+        >
+          <defs>
+            <marker id="mapArr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#F87171" opacity={0.8} />
+            </marker>
+          </defs>
+          {THREAD_IDS.map((tid, i) => {
+            const delay = i * 15;
+            const lineOp = interpolate(frame, [320 + delay, 370 + delay], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            const fromX = threadsLeft + i * THREAD_COL_W + THREAD_COL_W / 2;
+            const fromY = OFFSET_ROW_Y + 30;
+            const toX = bufferLeft + THREAD_TARGETS[i] * (BUFFER_CELL_W + BUFFER_GAP) + BUFFER_CELL_W / 2;
+            const toY = bufferTop - 4;
+            const currentX = fromX + (toX - fromX) * lineOp;
+            const currentY = fromY + (toY - fromY) * lineOp;
+
+            return (
+              <line
+                key={tid}
+                x1={fromX}
+                y1={fromY}
+                x2={currentX}
+                y2={currentY}
+                stroke="#F87171"
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                markerEnd="url(#mapArr)"
+                opacity={0.7 * lineOp}
+              />
+            );
+          })}
+        </svg>
+      )}
+
+      {/* Annotation banner */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 160,
           width: W,
           textAlign: "center",
           opacity: annotationOp,
@@ -222,22 +497,19 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
             display: "inline-flex",
             alignItems: "center",
             gap: 14,
-            padding: "14px 36px",
-            borderRadius: THEME.radius.lg,
+            padding: "12px 32px",
+            borderRadius: 20,
             background: "rgba(248,113,113,0.12)",
             border: "1px solid rgba(248,113,113,0.3)",
           }}
         >
-          <span style={{ fontSize: 28 }}>!</span>
-          <span
-            style={{
-              fontSize: 22,
-              fontFamily: THEME.fonts.sans,
-              color: THEME.colors.danger,
-              fontWeight: 600,
-            }}
-          >
-            Data blocking? Manual offset arithmetic everywhere.
+          <span style={{
+            fontSize: 24,
+            fontFamily: "'Inter', sans-serif",
+            color: "#F87171",
+            fontWeight: 600,
+          }}>
+            Every thread manually computes memory addresses
           </span>
         </div>
       </div>
@@ -513,143 +785,269 @@ const DimensionPills: React.FC<{ localFrame: number }> = ({ localFrame }) => (
 
 const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
   localFrame,
-  fps,
 }) => {
-  const enterL = spring({
-    frame: localFrame - 4,
-    fps,
-    config: { damping: 17, stiffness: 110, mass: 0.75 },
-    from: -110,
-    to: 0,
-  });
-  const enterR = spring({
-    frame: localFrame - 14,
-    fps,
-    config: { damping: 17, stiffness: 110, mass: 0.75 },
-    from: 110,
-    to: 0,
-  });
-  const fade = spring({
-    frame: localFrame,
-    fps,
-    config: { damping: 24, stiffness: 90, mass: 1 },
-    from: 0,
-    to: 1,
-  });
+  const GRID_ROWS = 12;
+  const GRID_COLS = 12;
+  const CELL = 30;
+  const GAP = 2;
+  const GRID_W = GRID_COLS * CELL + (GRID_COLS - 1) * GAP;
+  const GRID_H = GRID_ROWS * CELL + (GRID_ROWS - 1) * GAP;
+  const GRID_LEFT = CX - GRID_W / 2;
+  const GRID_TOP = 310;
+  const CODE_B_Y = 200;
+  const AXIS_PAD = 28;
 
-  const glowPulse = interpolate(
-    localFrame % 120,
-    [0, 30, 90, 120],
-    [0.55, 1, 0.65, 0.55],
-    { extrapolateRight: "clamp" },
-  );
+  // --- 3-stage cycle ---
+  type Stage = 0 | 1 | 2;
+  const stage: Stage = localFrame < 200 ? 0 : localFrame < 400 ? 1 : 2;
 
-  const dims: DimIndex[] = [0, 1, 2];
+  const stageOp = (s: Stage) => {
+    if (s === 0) return interpolate(localFrame, [0, 30, 170, 200], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    if (s === 1) return interpolate(localFrame, [200, 230, 370, 400], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    return interpolate(localFrame, [400, 430, 560, 590], [0, 1, 1, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  };
+
+  const currentOp = stageOp(stage);
+
+  const stageCode = [
+    { pre: "tile = ", obj: "lhs", call: ".subspan(WARP_M, TILE_K)" },
+    { pre: "tma.copy ", obj: "rhs", call: ".chunkat(bn, iv_k)" },
+    { pre: "tma.copy tile", obj: "", call: ".at(bm, iv_k)" },
+  ] as const;
+
+  const stageLabels = [
+    { name: "subspan", desc: "describe a sub-region" },
+    { name: "chunkat", desc: "slice by block index" },
+    { name: ".at()", desc: "locate iteration position" },
+  ] as const;
+
+  const stageAnnot = [
+    { tabLabel: "tensor", sliceLabel: "sub-region" },
+    { tabLabel: "tensor", sliceLabel: "block slice" },
+    { tabLabel: "tile", sliceLabel: "position" },
+  ] as const;
+
+  // Grid highlight pattern per stage
+  const isHighlighted = (r: number, c: number): number => {
+    if (stage === 0) {
+      const inSub = r >= 2 && r <= 6 && c >= 3 && c <= 8;
+      return inSub ? currentOp : 0;
+    }
+    if (stage === 1) {
+      const chunkIdx = Math.floor(c / 3);
+      const activeChunk = Math.floor(interpolate(localFrame, [230, 360], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      return chunkIdx === activeChunk ? currentOp : 0;
+    }
+    const targetR = 4;
+    const targetC = 7;
+    if (r !== targetR || c !== targetC) return 0;
+    const pulse = 0.88 + 0.12 * (0.5 + 0.5 * Math.sin(localFrame * 0.15));
+    return currentOp * pulse;
+  };
+
+  // Bounding box per stage
+  const boundingBox = () => {
+    if (stage === 0) return { r0: 2, r1: 6, c0: 3, c1: 8 };
+    if (stage === 1) {
+      const activeChunk = Math.floor(interpolate(localFrame, [230, 360], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      return { r0: 0, r1: GRID_ROWS - 1, c0: activeChunk * 3, c1: Math.min(activeChunk * 3 + 2, GRID_COLS - 1) };
+    }
+    return { r0: 4, r1: 4, c0: 7, c1: 7 };
+  };
+
+  const bb = boundingBox();
+
+  const gridOp = interpolate(localFrame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const bbOp = interpolate(localFrame, [40, 70], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  // Pill tabs for operations
+  const pillOp = (s: number) => {
+    const o = stageOp(s as Stage);
+    return o > 0.3 ? 1 : 0.35;
+  };
+
+  const fadeAll = interpolate(localFrame, [0, 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const { pre, obj, call } = stageCode[stage];
+  const { tabLabel, sliceLabel } = stageAnnot[stage];
 
   return (
-    <div
-      style={{
-        flex: 1,
-        minHeight: 0,
+    <div style={{ flex: 1, minHeight: 0, position: "relative", opacity: fadeAll }}>
+      <NoiseOverlay opacity={0.02} blendMode="soft-light" />
+
+      {/* Operation pills */}
+      <div style={{
+        position: "absolute",
+        top: 10,
+        left: CX - 380,
         display: "flex",
-        flexDirection: "column",
-        opacity: fade,
-      }}
-    >
-      <DimensionPills localFrame={localFrame} />
+        gap: 12,
+      }}>
+        {stageLabels.map((sl, i) => (
+          <div key={sl.name} style={{
+            padding: "8px 18px",
+            borderRadius: 20,
+            fontSize: 14,
+            fontFamily: THEME.fonts.mono,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            border: `1px solid ${pillOp(i) > 0.5 ? "rgba(110,231,183,0.5)" : "rgba(255,255,255,0.08)"}`,
+            color: pillOp(i) > 0.5 ? "#E5E7EB" : "rgba(255,255,255,0.35)",
+            background: pillOp(i) > 0.5
+              ? "linear-gradient(135deg, rgba(110,231,183,0.12), rgba(129,140,248,0.08))"
+              : "rgba(17,24,39,0.5)",
+            opacity: pillOp(i),
+          }}>
+            {sl.name}
+          </div>
+        ))}
+      </div>
 
-      <div
-        style={{
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "row",
-          gap: 28,
-          alignItems: "stretch",
-          justifyContent: "center",
-        }}
-      >
-        {/* CroqTile panel */}
-        <div
-          style={{
-            transform: `translateX(${enterL}px)`,
-            filter: "drop-shadow(0 0 18px rgba(110,231,183,0.12))",
-          }}
-        >
-          <DeviceShell
-            width={PANEL_W}
-            height={PANEL_H}
-            title="croqtile KERNEL"
-            style={{ border: "1px solid rgba(110,231,183,0.18)" }}
-          >
-            <AbsoluteFill>
-              {dims.map((d) => {
-                const o = dimContentOpacity(d, localFrame);
-                if (o < 0.002) return null;
-                const rows = new Set(HIGHLIGHT_CROQ[d]);
-                return (
-                  <div
-                    key={d}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      opacity: o,
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <CodePane
-                      lines={CROQ_DIM[d]}
-                      highlightRows={rows}
-                      glow={glowPulse}
-                      accent="mint"
-                    />
-                  </div>
-                );
-              })}
-            </AbsoluteFill>
-          </DeviceShell>
-        </div>
+      {/* Annotation tabs */}
+      <svg style={{ position: "absolute", left: 0, top: 0, width: W, height: H, pointerEvents: "none", opacity: currentOp * 0.85 }}>
+        {obj && (
+          <g>
+            <rect x={CX - 280} y={CODE_B_Y - 70} width={90} height={28} rx={6}
+              fill="rgba(110,231,183,0.15)" stroke="rgba(110,231,183,0.4)" strokeWidth={1} />
+            <text x={CX - 235} y={CODE_B_Y - 52} fill="#6EE7B7"
+              fontSize={14} fontFamily="'Inter', sans-serif" textAnchor="middle" fontWeight={600}>
+              {tabLabel}
+            </text>
+            <line x1={CX - 235} y1={CODE_B_Y - 40} x2={CX - 235} y2={CODE_B_Y - 16}
+              stroke="rgba(110,231,183,0.5)" strokeWidth={1.5} strokeDasharray="4 3" />
+          </g>
+        )}
+        <g>
+          <rect x={CX + 40} y={CODE_B_Y - 70} width={130} height={28} rx={6}
+            fill="rgba(129,140,248,0.15)" stroke="rgba(129,140,248,0.4)" strokeWidth={1} />
+          <text x={CX + 105} y={CODE_B_Y - 52} fill="#818CF8"
+            fontSize={14} fontFamily="'Inter', sans-serif" textAnchor="middle" fontWeight={600}>
+            {sliceLabel}
+          </text>
+          <line x1={CX + 105} y1={CODE_B_Y - 40} x2={CX + 105} y2={CODE_B_Y - 16}
+            stroke="rgba(129,140,248,0.5)" strokeWidth={1.5} strokeDasharray="4 3" />
+        </g>
+      </svg>
 
-        {/* CUDA panel */}
-        <div
-          style={{
-            transform: `translateX(${enterR}px)`,
-            filter: "drop-shadow(0 0 18px rgba(252,211,77,0.08))",
-          }}
-        >
-          <DeviceShell
-            width={PANEL_W}
-            height={PANEL_H}
-            title="cuda + cute"
-            style={{ border: "1px solid rgba(252,211,77,0.14)" }}
-          >
-            <AbsoluteFill>
-              {dims.map((d) => {
-                const o = dimContentOpacity(d, localFrame);
-                if (o < 0.002) return null;
-                const rows = new Set(HIGHLIGHT_CUDA[d]);
-                return (
-                  <div
-                    key={d}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      opacity: o,
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <CodePane
-                      lines={CUDA_DIM[d]}
-                      highlightRows={rows}
-                      glow={glowPulse}
-                      accent="amber"
-                    />
-                  </div>
-                );
-              })}
-            </AbsoluteFill>
-          </DeviceShell>
-        </div>
+      {/* CroqTile code line */}
+      <div style={{
+        position: "absolute",
+        top: CODE_B_Y,
+        width: W,
+        textAlign: "center",
+        opacity: currentOp,
+      }}>
+        <span style={{ fontSize: 42, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.3 }}>
+          <span style={{ color: "rgba(255,255,255,0.45)" }}>{pre}</span>
+          {obj && <span style={{ color: "#6EE7B7" }}>{obj}</span>}
+          <span style={{ color: "#818CF8" }}>{call}</span>
+        </span>
+      </div>
+
+      {/* Description below code */}
+      <div style={{
+        position: "absolute",
+        top: CODE_B_Y + 58,
+        width: W,
+        textAlign: "center",
+        opacity: currentOp * 0.7,
+      }}>
+        <span style={{ fontSize: 16, fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>
+          {stageLabels[stage].desc}
+        </span>
+      </div>
+
+      {/* Axis labels */}
+      <div style={{
+        position: "absolute",
+        left: GRID_LEFT - AXIS_PAD - 20,
+        top: GRID_TOP + GRID_H / 2,
+        transform: "rotate(-90deg)",
+        transformOrigin: "center",
+        opacity: gridOp * 0.6,
+      }}>
+        <span style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: "#6EE7B7", letterSpacing: "0.1em" }}>
+          M (rows)
+        </span>
+      </div>
+      <div style={{
+        position: "absolute",
+        left: GRID_LEFT + GRID_W / 2,
+        top: GRID_TOP + GRID_H + 10,
+        transform: "translateX(-50%)",
+        opacity: gridOp * 0.6,
+      }}>
+        <span style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: "#818CF8", letterSpacing: "0.1em" }}>
+          K (cols)
+        </span>
+      </div>
+
+      {/* 2D tensor grid */}
+      <div style={{
+        position: "absolute",
+        left: GRID_LEFT,
+        top: GRID_TOP,
+        opacity: gridOp,
+      }}>
+        {Array.from({ length: GRID_ROWS }).map((_, r) =>
+          Array.from({ length: GRID_COLS }).map((_, c) => {
+            const hi = isHighlighted(r, c);
+            return (
+              <div
+                key={`${r}-${c}`}
+                style={{
+                  position: "absolute",
+                  left: c * (CELL + GAP),
+                  top: r * (CELL + GAP),
+                  width: CELL,
+                  height: CELL,
+                  borderRadius: 4,
+                  background: hi > 0.1
+                    ? `rgba(110,231,183,${0.08 + 0.28 * hi})`
+                    : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${
+                    hi > 0.1
+                      ? `rgba(110,231,183,${0.25 + 0.5 * hi})`
+                      : "rgba(255,255,255,0.08)"
+                  }`,
+                  boxShadow: hi > 0.5
+                    ? `0 0 10px rgba(110,231,183,${0.2 * hi})`
+                    : "none",
+                }}
+              />
+            );
+          })
+        )}
+
+        {/* Bounding box overlay */}
+        {bbOp > 0.05 && currentOp > 0.1 && (
+          <div style={{
+            position: "absolute",
+            left: bb.c0 * (CELL + GAP) - 3,
+            top: bb.r0 * (CELL + GAP) - 3,
+            width: (bb.c1 - bb.c0 + 1) * (CELL + GAP) - GAP + 6,
+            height: (bb.r1 - bb.r0 + 1) * (CELL + GAP) - GAP + 6,
+            border: `2px solid rgba(110,231,183,${0.55 * bbOp * currentOp})`,
+            borderRadius: 6,
+            boxShadow: `0 0 16px rgba(110,231,183,${0.2 * bbOp * currentOp})`,
+            pointerEvents: "none",
+            transition: "left 0.4s, top 0.4s, width 0.4s, height 0.4s",
+          }} />
+        )}
+      </div>
+
+      {/* Tensor label */}
+      <div style={{
+        position: "absolute",
+        left: GRID_LEFT,
+        top: GRID_TOP + GRID_H + 28,
+        width: GRID_W,
+        textAlign: "center",
+        opacity: gridOp * 0.5,
+      }}>
+        <span style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em" }}>
+          Tensor View — 2D semantic layout
+        </span>
       </div>
     </div>
   );

@@ -170,11 +170,19 @@ So we built CroqTile — the next-generation GPU and DSA kernel programming lang
 
 **[画面]**
 
-**Phase A (0–519f, ~17s) — 传统内核语言的困境**
-屏幕中央出现一个 4×4 GPU 线程网格示意图（thread grid）。
-每个线程格子内显示 `buffer[tid * stride + offset]` 的地址计算表达式。
-随着动画推进（60–400f），地址计算式变得越来越复杂（多级索引叠加），
-边框逐渐变红，表达混乱感。底部浮现 `Data blocking? Manual offset arithmetic everywhere.`
+**Phase A (0–510f, ~17s) — 传统内核语言的困境**
+四阶段动画：
+- (0–140f) 屏幕中央一行大号 CUDA 代码：`A[threadIdx.x*BK + iv_k*TILE_K]`。
+  上方两个标注 tab："buffer pointer"（amber）指向 `A`，"offset"（red）指向方括号内容。
+  `A` 以 amber 色闪烁，offset 部分以 red 色闪烁
+- (140–200f) 过渡：除 `threadIdx.x` 和完整 offset 外其余元素淡出。
+  `threadIdx.x` 飞到左上角，变小。下方淡入一维线性地址图（buffer bar）
+- (200–300f) `threadIdx.x` 右侧出现 4 个 thread ID（0, 1, 2, 3），
+  每行右边飞入各自的 offset 表达式（如 `0*BK + 0*TILE_K`、`1*BK + 0*TILE_K` …）
+- (300–440f) 从每个 thread 的 offset 行到 buffer bar 对应格子画 mapping 箭头（虚线动画），
+  目标格高亮变红，展示不同线程指向不同内存位置
+- (420–460f) 底部浮现注释条 `Every thread manually computes memory addresses`
+- (475–510f) 整体淡出过渡到 Phase B
 
 **Phase B (520–1119f, ~20s) — CroqTile 的 tensor-view 对比**
 屏幕左右分栏。左侧：CroqTile 代码（mint 色调）；右侧：CUDA 代码（amber 色调）。
@@ -190,14 +198,14 @@ So we built CroqTile — the next-generation GPU and DSA kernel programming lang
 3. `60% less code` — LOC 对比条动画（CroqTile 36 vs CUDA 280）
 
 **[中]**
-*(seg2-01)* 传统内核语言如 CUDA、OpenCL，从线程视角编程。每个线程操作 buffer 和 offset，手动计算内存地址。想实现 data blocking？你必须拼出所有偏移量。
+*(seg2-01)* 传统内核语言如 CUDA，从单个线程的视角编程。每个线程操作一个 buffer 指针加上 offset——你为一个线程写逻辑容易，但很难想象一组线程累积起来的数据全貌。想实现 data blocking？你必须手动拼出所有偏移量。
 
 *(seg2-02)* CroqTile 完全不同。它从宏观角度编程——数据是张量，不是 buffer。`subspan` 描述子区域，`chunkat` 按块切片，`.at()` 定位迭代位置。你描述取哪块，编译器生成所有地址计算。
 
 *(seg2-03)* 结果不仅是代码量减少 60%，而且代码变得极其直观——人类工程师和 AI agent 都能一眼读懂内核逻辑。
 
 **[英]**
-*(seg2-01)* Traditional kernel languages like CUDA and OpenCL program from the thread's view. Each thread works with raw buffers and offsets, manually computing memory addresses. Want data blocking? You piece together all the offset math yourself.
+*(seg2-01)* Traditional kernel languages like CUDA program from a single thread's view. Each thread works with a buffer pointer plus an offset — writing logic for one thread is easy, but it's hard to picture the accumulated data across a group of threads. Want data blocking? You piece together all the offset math yourself.
 
 *(seg2-02)* CroqTile is fundamentally different. It programs from the macro view — data is a tensor, not a buffer. Subspan describes a sub-region, chunkat slices by block, .at() locates the iteration. You describe what to take — the compiler generates all address math.
 
@@ -282,21 +290,22 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 ```
 
 **[中]**
-在现有的计算核编程语言中，Every DMA bug, shape mismatch, or sync error only surfaces after the GPU actually runs.
-在 CroqTile 里，shape 不匹配、DMA 越界、类型错误，全部在编译期被拦住。
+*(seg4-01)* 除了易用性，调试体验也是影响计算核开发效率的重要因素。
 
-353 项编译时检查，1,319 项运行时断言——没有一个错误能溜到 GPU dispatch 之后。
+*(seg4-02)* 传统的调优过程经常出现运行时报错——这类 bug 只在 GPU 上实际跑的时候才暴露，定位一个 DMA 越界或 shape 不匹配往往要花上数小时甚至数天。
 
-DMA 类 bug 在 CUDA 里素来难以追踪，CroqTile 直接从语言层面消灭了这类问题。
+*(seg4-03)* 而 CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。这使得 CroqTile 具备了独一无二的编译期静态检查能力。
+
+*(seg4-04)* DMA 越界、shape 不匹配、同步错误——这些传统内核开发中最难追踪的 runtime bug，CroqTile 编译器在编译期就能优雅地拦截。
 
 **[英]**
-在现有的计算核编程语言中，Every DMA bug, shape mismatch, or sync error only surfaces after the GPU actually runs.
+*(seg4-01)* Beyond usability, the debugging experience is a major factor in kernel development efficiency.
 
-In CroqTile, shape mismatches, DMA overflows, and type errors are all caught at compile time.
+*(seg4-02)* Traditional tuning cycles are plagued by runtime errors — bugs that only surface when the GPU actually runs. Tracking down a single DMA overflow or shape mismatch can take hours, even days.
 
-353 compile-time checks. 1,319 runtime assertions. Not a single error gets past GPU dispatch.
+*(seg4-03)* CroqTile is the only next-generation kernel language on the market with a purpose-built standalone compiler. This gives CroqTile unparalleled compile-time static analysis.
 
-DMA bugs that haunt CUDA codebases for days — CroqTile eliminates the entire class at the language level.
+*(seg4-04)* DMA overflows, shape mismatches, sync errors — the hardest runtime bugs to track in traditional kernel development are caught elegantly by the CroqTile compiler at compile time.
 
 ---
 

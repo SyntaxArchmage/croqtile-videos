@@ -79,19 +79,51 @@ export const SUBTITLES: SubtitleCue[] = [
   // ═══ 段 2: 简单易用 — thread-view vs tensor-view (1832–3221) ═══
   {
     startFrame: 1832,
-    endFrame: 2342,
-    textCN: "传统内核语言如 CUDA、OpenCL，从线程视角编程。每个线程操作 buffer 和 offset，手动计算内存地址。想实现 data blocking？你必须拼出所有偏移量。",
+    endFrame: 2002,
+    textCN: "传统内核语言如 CUDA、OpenCL，从线程视角编程。",
     textEN:
-      "Traditional kernel languages like CUDA and OpenCL program from the thread's view. Each thread works with raw buffers and offsets, manually computing memory addresses. Want data blocking? You piece together all the offset math yourself.",
-    highlights: ["buffer", "offset", "data blocking", "线程", "thread"],
+      "Traditional kernel languages like CUDA and OpenCL program from the thread's view.",
+    highlights: ["CUDA", "OpenCL", "线程", "thread"],
+  },
+  {
+    startFrame: 2005,
+    endFrame: 2175,
+    textCN: "每个线程操作 buffer 和 offset，手动计算内存地址。",
+    textEN:
+      "Each thread works with raw buffers and offsets, manually computing memory addresses.",
+    highlights: ["buffer", "offset", "内存地址", "memory addresses"],
+  },
+  {
+    startFrame: 2178,
+    endFrame: 2342,
+    textCN: "想实现 data blocking？你必须拼出所有偏移量。",
+    textEN:
+      "Want data blocking? You piece together all the offset math yourself.",
+    highlights: ["data blocking", "偏移量", "offset math"],
   },
   {
     startFrame: 2342,
-    endFrame: 2932,
-    textCN: "CroqTile 完全不同。它从宏观角度编程——数据是张量，不是 buffer。subspan 描述子区域，chunkat 按块切片，.at() 定位迭代位置。你描述取哪块，编译器生成所有地址计算。",
+    endFrame: 2540,
+    textCN: "CroqTile 完全不同。它从宏观角度编程——数据是张量，不是 buffer。",
     textEN:
-      "CroqTile is fundamentally different. It programs from the macro view — data is a tensor, not a buffer. Subspan describes a sub-region, chunkat slices by block, .at() locates the iteration. You describe what to take — the compiler generates all address math.",
-    highlights: ["subspan", "chunkat", ".at()", "张量", "tensor", "宏观"],
+      "CroqTile is fundamentally different. It programs from the macro view — data is a tensor, not a buffer.",
+    highlights: ["CroqTile", "张量", "tensor", "宏观", "macro"],
+  },
+  {
+    startFrame: 2543,
+    endFrame: 2738,
+    textCN: "subspan 描述子区域，chunkat 按块切片，.at() 定位迭代位置。",
+    textEN:
+      "Subspan describes a sub-region, chunkat slices by block, .at() locates the iteration.",
+    highlights: ["subspan", "chunkat", ".at()"],
+  },
+  {
+    startFrame: 2741,
+    endFrame: 2932,
+    textCN: "你描述取哪块，编译器生成所有地址计算。",
+    textEN:
+      "You describe what to take — the compiler generates all address math.",
+    highlights: ["编译器", "compiler", "地址计算", "address math"],
   },
   {
     startFrame: 2932,
