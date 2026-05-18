@@ -8,8 +8,8 @@ import { THEME } from "../theme";
 
 interface DeviceShellProps {
   children: React.ReactNode;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   title?: string;
   style?: React.CSSProperties;
 }

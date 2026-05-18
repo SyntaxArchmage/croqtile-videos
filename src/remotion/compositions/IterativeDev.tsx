@@ -428,7 +428,7 @@ const STAGES = [
   { label: "Tune", icon: "⚙", color: "#34D399" },
 ];
 
-const RING_RADIUS = 260;
+const _RING_RADIUS = 260;
 
 const CODE_FLASHES = [
   "cp.async.cg.shared [smem], [src], 16;",

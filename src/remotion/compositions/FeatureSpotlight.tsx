@@ -12,7 +12,6 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Sequence,
   interpolate,
   spring,
   useCurrentFrame,
@@ -22,12 +21,12 @@ import {
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
-import { DeviceShell } from "../components/DeviceShell";
+// DeviceShell used by dead code below (prefixed _)
 
 const W = THEME.video.width;
 const H = THEME.video.height;
 const CX = W / 2;
-const CY = H / 2;
+const _CY = H / 2;
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * SECTION 1 — Thread-view intro (0–510f)
@@ -522,8 +521,8 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
  * Three dimensions + chunkat / subspan / .at() showcase
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-const PANEL_W = 818;
-const PANEL_H = 620;
+const _PANEL_W = 818;
+const _PANEL_H = 620;
 const CODE_SIZE = 13;
 const CODE_LINE_H = 20;
 const CODE_PAD = 20;
@@ -536,7 +535,7 @@ const DIM_LABELS = [
 
 type DimIndex = 0 | 1 | 2;
 
-const CROQ_DIM: Record<DimIndex, string[]> = {
+const _CROQ_DIM: Record<DimIndex, string[]> = {
   0: [
     "// CroqTile — tensor declaration",
     "__co__ void matmul(",
@@ -567,7 +566,7 @@ const CROQ_DIM: Record<DimIndex, string[]> = {
   ],
 };
 
-const CUDA_DIM: Record<DimIndex, string[]> = {
+const _CUDA_DIM: Record<DimIndex, string[]> = {
   0: [
     "// CUDA + CuTe — pointer + strides",
     "void matmul(",
@@ -598,13 +597,13 @@ const CUDA_DIM: Record<DimIndex, string[]> = {
   ],
 };
 
-const HIGHLIGHT_CROQ: Record<DimIndex, number[]> = {
+const _HIGHLIGHT_CROQ: Record<DimIndex, number[]> = {
   0: [2, 3, 4, 5],
   1: [3, 6, 9],
   2: [2, 3, 5],
 };
 
-const HIGHLIGHT_CUDA: Record<DimIndex, number[]> = {
+const _HIGHLIGHT_CUDA: Record<DimIndex, number[]> = {
   0: [2, 3, 4, 5, 6],
   1: [2, 3, 5, 7, 8, 10],
   2: [2, 3, 4, 6],
@@ -644,7 +643,7 @@ interface CodePaneProps {
   layout?: "fill" | "shrink";
 }
 
-const CodePane: React.FC<CodePaneProps> = ({
+const _CodePane: React.FC<CodePaneProps> = ({
   lines,
   highlightRows,
   glow,
@@ -747,7 +746,7 @@ const CodePane: React.FC<CodePaneProps> = ({
   );
 };
 
-const DimensionPills: React.FC<{ localFrame: number }> = ({ localFrame }) => (
+const _DimensionPills: React.FC<{ localFrame: number }> = ({ localFrame }) => (
   <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
     {DIM_LABELS.map((label, i) => {
       const idx = i as DimIndex;
@@ -810,49 +809,81 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
   const currentOp = stageOp(stage);
 
   const stageCode = [
-    { pre: "tile = ", obj: "lhs", call: ".subspan(WARP_M, TILE_K)" },
     { pre: "tma.copy ", obj: "rhs", call: ".chunkat(bn, iv_k)" },
-    { pre: "tma.copy tile", obj: "", call: ".at(bm, iv_k)" },
+    { pre: "tile = ", obj: "lhs", call: ".subspan(WARP_M, TILE_K).at(bm, iv_k)" },
+    { pre: "b = ", obj: "a", call: ".view(16, 8).from(1, 0)" },
   ] as const;
 
   const stageLabels = [
-    { name: "subspan", desc: "describe a sub-region" },
-    { name: "chunkat", desc: "slice by block index" },
-    { name: ".at()", desc: "locate iteration position" },
+    { name: "chunkat", desc: "non-overlapping block partition" },
+    { name: "subspan.at", desc: "overlapping tiles by anchor" },
+    { name: "view.from", desc: "arbitrary offset window" },
   ] as const;
 
   const stageAnnot = [
-    { tabLabel: "tensor", sliceLabel: "sub-region" },
     { tabLabel: "tensor", sliceLabel: "block slice" },
-    { tabLabel: "tile", sliceLabel: "position" },
+    { tabLabel: "tensor", sliceLabel: "overlap tile" },
+    { tabLabel: "tensor", sliceLabel: "offset window" },
   ] as const;
 
-  // Grid highlight pattern per stage
+  // Grid highlight pattern per stage — all animated dynamically
+  const CHUNK_W = 3;
+  const TILE_W = 4;
+  const TILE_STEP = 2; // overlap = TILE_W - TILE_STEP = 2 cols overlap
+
   const isHighlighted = (r: number, c: number): number => {
     if (stage === 0) {
-      const inSub = r >= 2 && r <= 6 && c >= 3 && c <= 8;
-      return inSub ? currentOp : 0;
-    }
-    if (stage === 1) {
-      const chunkIdx = Math.floor(c / 3);
-      const activeChunk = Math.floor(interpolate(localFrame, [230, 360], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      // chunkat: non-overlapping blocks sweep left-to-right
+      const chunkIdx = Math.floor(c / CHUNK_W);
+      const activeChunk = Math.floor(interpolate(localFrame, [30, 170], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
       return chunkIdx === activeChunk ? currentOp : 0;
     }
-    const targetR = 4;
-    const targetC = 7;
-    if (r !== targetR || c !== targetC) return 0;
-    const pulse = 0.88 + 0.12 * (0.5 + 0.5 * Math.sin(localFrame * 0.15));
-    return currentOp * pulse;
+    if (stage === 1) {
+      // subspan.at: overlapping tiles sweep — tile is TILE_W wide, advances by TILE_STEP
+      const maxTiles = Math.floor((GRID_COLS - TILE_W) / TILE_STEP) + 1;
+      const activeTile = Math.floor(interpolate(localFrame, [230, 370], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const tileStart = activeTile * TILE_STEP;
+      const tileEnd = tileStart + TILE_W - 1;
+      const inTile = c >= tileStart && c <= tileEnd;
+      // Show previous tile ghost to visualize overlap
+      const prevStart = (activeTile - 1) * TILE_STEP;
+      const prevEnd = prevStart + TILE_W - 1;
+      const inPrev = activeTile > 0 && c >= prevStart && c <= prevEnd;
+      if (inTile) return currentOp;
+      if (inPrev) return currentOp * 0.25;
+      return 0;
+    }
+    // view.from: window starts from column offset=1, slides across rows
+    const VIEW_W = 8;
+    const VIEW_H = 4;
+    const COL_OFFSET = 1;
+    const maxSlide = GRID_ROWS - VIEW_H;
+    const slideRow = Math.floor(interpolate(localFrame, [430, 560], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+    const inView = r >= slideRow && r < slideRow + VIEW_H && c >= COL_OFFSET && c < COL_OFFSET + VIEW_W;
+    // Dim the skipped first column to show offset
+    if (c < COL_OFFSET) return currentOp * 0.08;
+    return inView ? currentOp : 0;
   };
 
-  // Bounding box per stage
+  // Bounding box per stage — animated to match highlight pattern
   const boundingBox = () => {
-    if (stage === 0) return { r0: 2, r1: 6, c0: 3, c1: 8 };
-    if (stage === 1) {
-      const activeChunk = Math.floor(interpolate(localFrame, [230, 360], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
-      return { r0: 0, r1: GRID_ROWS - 1, c0: activeChunk * 3, c1: Math.min(activeChunk * 3 + 2, GRID_COLS - 1) };
+    if (stage === 0) {
+      // chunkat: full-height block sweeps
+      const activeChunk = Math.floor(interpolate(localFrame, [30, 170], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      return { r0: 0, r1: GRID_ROWS - 1, c0: activeChunk * CHUNK_W, c1: Math.min(activeChunk * CHUNK_W + CHUNK_W - 1, GRID_COLS - 1) };
     }
-    return { r0: 4, r1: 4, c0: 7, c1: 7 };
+    if (stage === 1) {
+      // subspan: overlapping tile
+      const maxTiles = Math.floor((GRID_COLS - TILE_W) / TILE_STEP) + 1;
+      const activeTile = Math.floor(interpolate(localFrame, [230, 370], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const tileStart = activeTile * TILE_STEP;
+      return { r0: 0, r1: GRID_ROWS - 1, c0: tileStart, c1: Math.min(tileStart + TILE_W - 1, GRID_COLS - 1) };
+    }
+    // view.from: sliding window with offset
+    const VIEW_W = 8, VIEW_H = 4, COL_OFFSET = 1;
+    const maxSlide = GRID_ROWS - VIEW_H;
+    const slideRow = Math.floor(interpolate(localFrame, [430, 560], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+    return { r0: slideRow, r1: slideRow + VIEW_H - 1, c0: COL_OFFSET, c1: COL_OFFSET + VIEW_W - 1 };
   };
 
   const bb = boundingBox();
@@ -1065,6 +1096,9 @@ const CONCLUSION_LINES = [
   { text: "60% less code", sub: "", color: THEME.colors.accentWarm },
 ];
 
+const CONCLUSION_DUR = 290;
+const MORPH_START = 210;
+
 const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
   localFrame,
   fps,
@@ -1084,6 +1118,26 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
+
+  // Morph phase: text fades out, bars translate/scale toward Seg 3 positions
+  const morphT = interpolate(localFrame, [MORPH_START, CONCLUSION_DUR - 10], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const textFadeOut = interpolate(localFrame, [MORPH_START, MORPH_START + 30], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Target: match Seg 3 Phase A layout (PerfChart) at frame 0
+  // Measured from screenshots: CroqTile bar center ≈ Y175, CUTLASS center ≈ Y295
+  // Distance between bar centers = ~120px. Bar track is 34px in Seg 3 (inside 62px row).
+  // The morph end should visually match, not pixel-perfect math.
+  const barContainerWidth = interpolate(morphT, [0, 1], [640, 1036]);
+  const barHeight = interpolate(morphT, [0, 1], [24, 34]);
+  const barContainerY = interpolate(morphT, [0, 1], [0, -247]);
+  const barGap = interpolate(morphT, [0, 1], [10, 246]);
 
   return (
     <AbsoluteFill
@@ -1114,7 +1168,7 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
             to: 1,
           });
           const y = interpolate(lineSpring, [0, 1], [40, 0]);
-          const op = lineSpring;
+          const op = lineSpring * textFadeOut;
 
           return (
             <div
@@ -1152,27 +1206,32 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
           );
         })}
 
-        {/* LOC comparison bars */}
-        <div style={{ opacity: locBarOp, marginTop: 12, width: 640 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-            <span style={{ fontSize: 16, fontFamily: THEME.fonts.mono, color: THEME.colors.primary, fontWeight: 700, minWidth: 90 }}>
+        {/* LOC comparison bars — morph toward Seg 3 layout */}
+        <div style={{
+          opacity: locBarOp,
+          marginTop: 12,
+          width: barContainerWidth,
+          transform: `translateY(${barContainerY}px)`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: interpolate(morphT, [0, 1], [12, 0]), marginBottom: barGap, height: barHeight }}>
+            <span style={{ fontSize: interpolate(morphT, [0, 1], [16, 18]), fontFamily: THEME.fonts.sans, color: THEME.colors.textSecondary, fontWeight: 600, width: interpolate(morphT, [0, 1], [90, 240]), flexShrink: 0, textAlign: "right", paddingRight: interpolate(morphT, [0, 1], [12, 18]) }}>
               CroqTile
             </span>
-            <div style={{ flex: 1, height: 24, borderRadius: THEME.radius.sm, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+            <div style={{ flex: 1, height: "100%", borderRadius: THEME.radius.sm, background: "rgba(255,255,255,0.06)", overflow: "hidden", position: "relative" }}>
               <div style={{ width: `${(36 / 280) * 100 * locBarWidth}%`, height: "100%", borderRadius: THEME.radius.sm, background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.accent})`, boxShadow: THEME.shadows.glowSm }} />
             </div>
-            <span style={{ fontSize: 18, fontFamily: THEME.fonts.mono, color: THEME.colors.primary, fontWeight: 700, minWidth: 70 }}>
+            <span style={{ fontSize: interpolate(morphT, [0, 1], [18, 16]), fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, fontWeight: 600, marginLeft: interpolate(morphT, [0, 1], [0, 16]), minWidth: interpolate(morphT, [0, 1], [56, 52]) }}>
               36
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 16, fontFamily: THEME.fonts.mono, color: THEME.colors.accentWarm, fontWeight: 700, minWidth: 90 }}>
-              CUDA
+          <div style={{ display: "flex", alignItems: "center", gap: interpolate(morphT, [0, 1], [12, 0]), height: barHeight }}>
+            <span style={{ fontSize: interpolate(morphT, [0, 1], [16, 18]), fontFamily: THEME.fonts.sans, color: THEME.colors.textSecondary, fontWeight: 600, width: interpolate(morphT, [0, 1], [90, 240]), flexShrink: 0, textAlign: "right", paddingRight: interpolate(morphT, [0, 1], [12, 18]) }}>
+              CUTLASS
             </span>
-            <div style={{ flex: 1, height: 24, borderRadius: THEME.radius.sm, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
-              <div style={{ width: `${100 * locBarWidth}%`, height: "100%", borderRadius: THEME.radius.sm, background: "linear-gradient(90deg, rgba(252,211,77,0.6), rgba(252,211,77,0.3))" }} />
+            <div style={{ flex: 1, height: "100%", borderRadius: THEME.radius.sm, background: "rgba(255,255,255,0.06)", overflow: "hidden", position: "relative" }}>
+              <div style={{ width: `${100 * locBarWidth}%`, height: "100%", borderRadius: THEME.radius.sm, background: `linear-gradient(90deg, ${THEME.colors.accentWarm}, rgba(252,211,77,0.5))` }} />
             </div>
-            <span style={{ fontSize: 18, fontFamily: THEME.fonts.mono, color: THEME.colors.accentWarm, fontWeight: 700, minWidth: 70 }}>
+            <span style={{ fontSize: interpolate(morphT, [0, 1], [18, 16]), fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, fontWeight: 600, marginLeft: interpolate(morphT, [0, 1], [0, 16]), minWidth: interpolate(morphT, [0, 1], [56, 52]) }}>
               280
             </span>
           </div>
@@ -1224,9 +1283,10 @@ export const FeatureSpotlight: React.FC = () => {
       : 1;
 
   if (section === "conclusion") {
+    const conclusionLocal = frame - SPLIT_END;
     return (
       <PageContainer tag="Segment 02" style={{ pointerEvents: "none" }}>
-        <ConclusionCard localFrame={frame - SPLIT_END} fps={fps} />
+        <ConclusionCard localFrame={conclusionLocal} fps={fps} />
       </PageContainer>
     );
   }

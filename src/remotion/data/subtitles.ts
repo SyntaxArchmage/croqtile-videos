@@ -9,9 +9,9 @@
  *   段 2  FeatureSpotlight 1832–3221
  *   段 3  PerfChart        3222–3971
  *   段 4  CompileTimeSafety 3972–4871
- *   段 5  DynamicShape     4442–5341
- *   段 6  AINative         5342–9991
- *   段 7  OutroCTA         9992–10291
+ *   段 5  DynamicShape     4872–5771
+ *   段 6  AINative         5772–10421
+ *   段 7  OutroCTA         10422–10721
  */
 
 import type { SubtitleCue } from "../components/Subtitle";
@@ -160,18 +160,18 @@ export const SUBTITLES: SubtitleCue[] = [
     highlights: ["最简单", "most simple", "顶级性能", "top-level performance"],
   },
 
-  // ═══ 段 4: 编译时安全 (3542–4441) ═══
+  // ═══ 段 4: 编译时安全 (3992–4871) ═══
   {
-    startFrame: 3562,
-    endFrame: 3770,
+    startFrame: 3992,
+    endFrame: 4200,
     textCN: "除了易用性，调试体验也是影响计算核开发效率的重要因素。",
     textEN:
       "Beyond usability, the debugging experience is a major factor in kernel development efficiency.",
     highlights: ["调试体验", "debugging experience"],
   },
   {
-    startFrame: 3773,
-    endFrame: 4002,
+    startFrame: 4203,
+    endFrame: 4432,
     textCN:
       "传统的调优过程经常出现运行时报错——定位一个 DMA 越界或 shape 不匹配往往要花上数小时甚至数天。",
     textEN:
@@ -179,16 +179,16 @@ export const SUBTITLES: SubtitleCue[] = [
     highlights: ["运行时报错", "runtime errors", "DMA", "shape"],
   },
   {
-    startFrame: 4005,
-    endFrame: 4222,
+    startFrame: 4435,
+    endFrame: 4652,
     textCN: "CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。",
     textEN:
       "CroqTile is the only next-generation kernel language with a purpose-built standalone compiler.",
     highlights: ["唯一", "only", "独立编译模块", "standalone compiler"],
   },
   {
-    startFrame: 4225,
-    endFrame: 4441,
+    startFrame: 4655,
+    endFrame: 4871,
     textCN:
       "DMA 越界、shape 不匹配、同步错误——CroqTile 编译器在编译期就能优雅地拦截。",
     textEN:
@@ -196,207 +196,207 @@ export const SUBTITLES: SubtitleCue[] = [
     highlights: ["编译期", "compile time", "DMA", "shape", "同步错误", "sync errors"],
   },
 
-  // ═══ 段 5: 动态符号化维度 (4442–5341) ═══
+  // ═══ 段 5: 动态符号化维度 (4872–5771) ═══
   {
-    startFrame: 4462,
-    endFrame: 4732,
+    startFrame: 4892,
+    endFrame: 5162,
     textCN: "CroqTile 是同类工具中第一个支持符号化维度的内核语言。",
     textEN:
       "CroqTile is the first kernel language in its class to support symbolic dimensions.",
     highlights: ["符号化维度", "symbolic dimensions", "第一个", "first"],
   },
   {
-    startFrame: 4742,
-    endFrame: 4992,
+    startFrame: 5172,
+    endFrame: 5422,
     textCN: "一套代码，从小矩阵到 8K×16K，不需要重新编译，不需要模板特化。",
     textEN:
       "One kernel, any shape — from small tiles to 8K×16K matrices. No recompilation. No template specialization.",
     highlights: ["一套代码", "One kernel", "8K×16K"],
   },
   {
-    startFrame: 5002,
-    endFrame: 5322,
+    startFrame: 5432,
+    endFrame: 5752,
     textCN: "Triton 要求 block size 是编译期常量。CUDA 需要模板元编程。CroqTile 不需要。",
     textEN:
       "Triton requires compile-time constexpr block sizes. CUDA needs template metaprogramming. CroqTile doesn't.",
     highlights: ["Triton", "CUDA", "CroqTile 不需要", "CroqTile doesn't"],
   },
 
-  // ═══ 段 6A: 引子 (5342–5791) ═══
+  // ═══ 段 6A: 引子 (5772–6221) ═══
   {
-    startFrame: 5362,
-    endFrame: 5572,
+    startFrame: 5792,
+    endFrame: 6002,
     textCN: "借助 CroqTile 的这些进步，哪怕是入门级性能工程师，也能独立写出生产级内核。",
     textEN:
       "Thanks to CroqTile's advances, even an entry-level performance engineer can independently produce production-grade kernels.",
     highlights: ["入门级", "entry-level", "生产级", "production-grade"],
   },
   {
-    startFrame: 5582,
-    endFrame: 5685,
+    startFrame: 6012,
+    endFrame: 6115,
     textCN: "用编程 Agent 搭配 CroqTile，这一切可以再乘以十。",
     textEN:
       "Pair CroqTile with a coding agent, and multiply that by ten.",
     highlights: ["编程 Agent", "coding agent", "乘以十", "multiply"],
   },
   {
-    startFrame: 5688,
-    endFrame: 5791,
+    startFrame: 6118,
+    endFrame: 6221,
     textCN: "因为 CroqTile，从一开始就是为 AI-native 而设计的。",
     textEN:
       "Because CroqTile was designed for AI-native from day one.",
     highlights: ["AI-native"],
   },
 
-  // ═══ 段 6B: 上下文精简 (5792–6541) ═══
+  // ═══ 段 6B: 上下文精简 (6222–6971) ═══
   {
-    startFrame: 5812,
-    endFrame: 6092,
+    startFrame: 6242,
+    endFrame: 6522,
     textCN: "AI 的工作质量，和它能看到的上下文直接相关。",
     textEN:
       "The quality of AI work is directly tied to how much context it can see.",
     highlights: ["上下文", "context"],
   },
   {
-    startFrame: 6102,
-    endFrame: 6342,
+    startFrame: 6532,
+    endFrame: 6772,
     textCN: "CroqTile 只需要约 500 个 token，而 CUDA+CuTe 要消耗 2000 到 4000 个 token。",
     textEN:
       "CroqTile takes roughly 500 tokens versus 2,000 to 4,000 in CUDA plus CuTe.",
     highlights: ["500", "2000", "4000", "500 tokens"],
   },
   {
-    startFrame: 6352,
-    endFrame: 6541,
+    startFrame: 6782,
+    endFrame: 6971,
     textCN: "整个内核永远在上下文窗口里。AI 永远拥有完整的全局视图。",
     textEN:
       "The entire kernel always fits in the context window. The AI always has the full picture.",
     highlights: ["上下文窗口", "context window"],
   },
 
-  // ═══ 段 6C: 零 context 浪费 (6542–7291) ═══
+  // ═══ 段 6C: 零 context 浪费 (6972–7721) ═══
   {
-    startFrame: 6562,
-    endFrame: 6842,
+    startFrame: 6992,
+    endFrame: 7272,
     textCN: "CroqTile 让每一个逻辑变更，只对应一处代码修改。",
     textEN:
       "CroqTile ensures every logical change maps to exactly one code change site.",
     highlights: ["一处", "one"],
   },
   {
-    startFrame: 6852,
-    endFrame: 7092,
+    startFrame: 7282,
+    endFrame: 7522,
     textCN: "对 AI 来说，这意味着几乎零 context 浪费。",
     textEN:
       "For AI, this means nearly zero context waste.",
     highlights: ["零 context 浪费", "zero context waste"],
   },
   {
-    startFrame: 7102,
-    endFrame: 7291,
+    startFrame: 7532,
+    endFrame: 7721,
     textCN: "即便是复杂的结构调整，AI 也能在一步内完成，不会漏改。",
     textEN:
       "Even complex structural changes can be completed in a single step without missing anything.",
     highlights: ["一步", "single step"],
   },
 
-  // ═══ 段 6D: 编译失败率最低 (7292–8041) ═══
+  // ═══ 段 6D: 编译失败率最低 (7722–8471) ═══
   {
-    startFrame: 7312,
-    endFrame: 7542,
+    startFrame: 7742,
+    endFrame: 7972,
     textCN: "CroqTile 的编译失败率是所有对比 DSL 中最低的——只有 3.5%。",
     textEN:
       "CroqTile has the lowest compile failure rate among all compared DSLs — just 3.5%.",
     highlights: ["3.5%", "最低", "lowest"],
   },
   {
-    startFrame: 7552,
-    endFrame: 7812,
+    startFrame: 7982,
+    endFrame: 8242,
     textCN: "关键不在于 AI 犯更少的错误，而在于每一个错误都被更快地发现。",
     textEN:
       "The point isn't that AI makes fewer mistakes. It's that every mistake is caught faster.",
     highlights: ["更快地发现", "caught faster"],
   },
   {
-    startFrame: 7822,
-    endFrame: 8041,
+    startFrame: 8252,
+    endFrame: 8471,
     textCN: "结合 30–40% 配置空间预剪枝，调优循环比 profiler-only 方法快 5 倍。",
     textEN:
       "Combined with 30–40% configuration space pruning, the tuning loop converges 5× faster.",
     highlights: ["5 倍", "5×", "30–40%"],
   },
 
-  // ═══ 段 6E: 额外护栏层 (8042–8941) ═══
+  // ═══ 段 6E: 额外护栏层 (8472–9371) ═══
   {
-    startFrame: 8062,
-    endFrame: 8322,
+    startFrame: 8492,
+    endFrame: 8752,
     textCN: "除了编译器护栏，CroqTile 还提供两层额外的 AI 增强层。",
     textEN:
       "Beyond compiler guardrails, CroqTile provides two additional AI enhancement layers.",
     highlights: ["编译器护栏", "compiler guardrails", "AI 增强层"],
   },
   {
-    startFrame: 8332,
-    endFrame: 8622,
+    startFrame: 8762,
+    endFrame: 9052,
     textCN: "统一 profiler CLI：将 ncu 与其他 DSA profiler 的输出整合成一个统一界面。",
     textEN:
       "Unified profiler CLI — integrating NVIDIA ncu and other DSA profiler outputs into a single interface.",
     highlights: ["统一 profiler CLI", "Unified profiler CLI", "ncu"],
   },
   {
-    startFrame: 8632,
-    endFrame: 8941,
+    startFrame: 9062,
+    endFrame: 9371,
     textCN: "CroqTile Skills：为编程 Agent 预封装的语法规则、常用模式与代码模板。",
     textEN:
       "CroqTile Skills — pre-packaged syntax rules, common patterns, and code templates for coding agents.",
     highlights: ["CroqTile Skills", "代码模板", "code templates"],
   },
 
-  // ═══ 段 6F: 实测结果 (8942–9991) ═══
+  // ═══ 段 6F: 实测结果 (9372–10421) ═══
   {
-    startFrame: 8962,
-    endFrame: 9242,
+    startFrame: 9392,
+    endFrame: 9672,
     textCN: "CroqTile 上的 AI agent 能够自发完成复杂的结构代码变更。",
     textEN:
       "AI agents on CroqTile can autonomously make complex structural code changes.",
     highlights: ["AI agent", "结构代码变更", "structural code changes"],
   },
   {
-    startFrame: 9252,
-    endFrame: 9542,
+    startFrame: 9682,
+    endFrame: 9972,
     textCN: "AI 在 68 次迭代内将吞吐量从 671 提升到 1127 TFLOPS，达到 vendor library 水平。",
     textEN:
       "AI converges in 68 iterations, pushing FP8 sparse GEMM from 671 to 1,127 TFLOPS — matching vendor library performance.",
     highlights: ["671", "1127", "1,127", "68 次", "68 iterations"],
   },
   {
-    startFrame: 9552,
-    endFrame: 9832,
+    startFrame: 9982,
+    endFrame: 10262,
     textCN: "这开启了一个新的工作范式：AI 调优不再是下游的人工兜底，而是上游的主动探索引擎。",
     textEN:
       "This enables a fundamentally new paradigm: AI tuning as an upstream workflow, not a downstream safety net.",
     highlights: ["新的工作范式", "new paradigm", "上游", "upstream"],
   },
   {
-    startFrame: 9842,
-    endFrame: 9991,
+    startFrame: 10272,
+    endFrame: 10421,
     textCN: "CroqTile 已经把 AI 推上了驾驶位——这就是 AI-native 的真正含义。",
     textEN:
       "CroqTile has already put AI in the driver's seat — that's what AI-native truly means.",
     highlights: ["驾驶位", "driver's seat", "AI-native"],
   },
 
-  // ═══ 段 7: 结语 CTA (9992–10291) ═══
+  // ═══ 段 7: 结语 CTA (10422–10721) ═══
   {
-    startFrame: 10032,
-    endFrame: 10160,
+    startFrame: 10462,
+    endFrame: 10590,
     textCN: "欢迎来到计算编程的新时代。",
     textEN: "Welcome to the new era of compute programming.",
     highlights: ["新时代", "new era"],
   },
   {
-    startFrame: 10163,
-    endFrame: 10291,
+    startFrame: 10593,
+    endFrame: 10721,
     textCN: "你的性能开发效率，值得被重新定义。",
     textEN:
       "Your kernel development productivity deserves to be redefined.",

@@ -36,10 +36,22 @@ import {
   Seg2PreviewEN,
   Seg3PreviewCN,
   Seg3PreviewEN,
+  Seg4PreviewCN,
+  Seg4PreviewEN,
+  Seg5PreviewCN,
+  Seg5PreviewEN,
+  Seg6PreviewCN,
+  Seg6PreviewEN,
+  Seg7PreviewCN,
+  Seg7PreviewEN,
   SEG0_DURATION,
   SEG1_DURATION,
   SEG2_DURATION,
   SEG3_DURATION,
+  SEG4_DURATION,
+  SEG5_DURATION,
+  SEG6_DURATION,
+  SEG7_DURATION,
 } from "./compositions/SegmentPreview";
 
 const { width, height, fps } = THEME.video;
@@ -176,6 +188,74 @@ export const RemotionRoot: React.FC = () => {
         fps={fps}
         width={width}
         height={height}
+      />
+
+      <Composition
+        id="Seg4-Preview-CN"
+        component={Seg4PreviewCN}
+        durationInFrames={SEG4_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Seg4-Preview-EN"
+        component={Seg4PreviewEN}
+        durationInFrames={SEG4_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      <Composition
+        id="Seg5-Preview-CN"
+        component={Seg5PreviewCN}
+        durationInFrames={SEG5_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Seg5-Preview-EN"
+        component={Seg5PreviewEN}
+        durationInFrames={SEG5_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      <Composition
+        id="Seg6-Preview-CN"
+        component={Seg6PreviewCN}
+        durationInFrames={SEG6_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Seg6-Preview-EN"
+        component={Seg6PreviewEN}
+        durationInFrames={SEG6_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      <Composition
+        id="Seg7-Preview-CN"
+        component={Seg7PreviewCN}
+        durationInFrames={SEG7_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Seg7-Preview-EN"
+        component={Seg7PreviewEN}
+        durationInFrames={SEG7_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
       />
 
       {/* ═══ 单段预览(无配音) ═══ */}

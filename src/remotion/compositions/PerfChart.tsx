@@ -66,8 +66,12 @@ const LOC_ROWS: {
 ];
 
 const MAX_LOC = 280;
-const CROQ_TFLOPS = 471.3;
-const TORCH_TFLOPS = 447.5;
+const PERF_COMPARISONS = [
+  { kernel: "GEMM FP16", croq: 471.3, baseline: 447.5, baseLabel: "PyTorch", unit: "TFLOPS" },
+  { kernel: "GEMM FP8", croq: 262.7, baseline: 256.9, baseLabel: "CUTLASS", unit: "TFLOPS" },
+  { kernel: "SPMM FP16", croq: 630.5, baseline: 628.5, baseLabel: "cuSparseLt", unit: "TFLOPS" },
+  { kernel: "SPMM FP8", croq: 995.6, baseline: 952.1, baseLabel: "cuSparseLt", unit: "TFLOPS" },
+] as const;
 
 const SCATTER = [
   {
@@ -179,54 +183,7 @@ export const PerfChart: React.FC = () => {
     to: 1,
   });
 
-  const badgeSpring = spring({
-    frame: Math.max(0, bFrame - 48),
-    fps,
-    config: { damping: 14, stiffness: 130, mass: 0.65 },
-    from: 0.75,
-    to: 1,
-  });
 
-  const barGrowth = spring({
-    frame: Math.max(0, bFrame - 38),
-    fps,
-    config: { damping: 15, stiffness: 100, mass: 0.82 },
-    from: 0,
-    to: 1,
-  });
-
-  const maxBarPx = 320;
-  const croqBarH =
-    Math.max(0, barGrowth) * maxBarPx * (CROQ_TFLOPS / CROQ_TFLOPS);
-  const torchBarH =
-    Math.max(0, barGrowth) * maxBarPx * (TORCH_TFLOPS / CROQ_TFLOPS);
-
-  const valueSpring = spring({
-    frame: Math.max(0, bFrame - 52),
-    fps,
-    config: { damping: 17, stiffness: 88, mass: 0.82 },
-    from: 0,
-    to: 1,
-  });
-
-  const torchValueSpring = spring({
-    frame: Math.max(0, bFrame - 62),
-    fps,
-    config: { damping: 17, stiffness: 88, mass: 0.82 },
-    from: 0,
-    to: 1,
-  });
-
-  const scatterMorph = interpolate(
-    frame,
-    [PHASE_C_START - 26, PHASE_C_START + 14],
-    [0, 1],
-    {
-      easing: Easing.inOut(Easing.quad),
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    },
-  );
 
   const cFrame = Math.max(0, frame - PHASE_C_START);
 
@@ -308,6 +265,7 @@ export const PerfChart: React.FC = () => {
                 letterSpacing: "-0.02em",
                 textShadow:
                   "0 0 40px rgba(110,231,183,0.18), 0 4px 32px rgba(0,0,0,0.45)",
+                opacity: interpolate(frame, [0, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
               }}
             >
               Lines of Code — Persistent GEMM Kernel
@@ -318,13 +276,17 @@ export const PerfChart: React.FC = () => {
               }}
             >
               {LOC_ROWS.map((row, i) => {
-                const barSpring = spring({
-                  frame: Math.max(0, frame - 10 - i * 14),
-                  fps,
-                  config: { damping: 17, stiffness: 92, mass: 0.88 },
-                  from: 0,
-                  to: 1,
-                });
+                // CroqTile (i=1) and CUTLASS (i=5) arrive from Seg 2 morph — start visible
+                const isCarried = i === 1 || i === 5;
+                const barSpring = isCarried
+                  ? 1
+                  : spring({
+                      frame: Math.max(0, frame - 18 - i * 14),
+                      fps,
+                      config: { damping: 17, stiffness: 92, mass: 0.88 },
+                      from: 0,
+                      to: 1,
+                    });
                 const rowOpacity = interpolate(barSpring, [0, 1], [0, 1], {
                   extrapolateLeft: "clamp",
                   extrapolateRight: "clamp",
@@ -337,10 +299,12 @@ export const PerfChart: React.FC = () => {
                   (row.loc / MAX_LOC) *
                   MAX_BAR_W *
                   Math.max(0, barStretch);
-                const slideY = interpolate(barSpring, [0, 1], [14, 0], {
-                  extrapolateLeft: "clamp",
-                  extrapolateRight: "clamp",
-                });
+                const slideY = isCarried
+                  ? 0
+                  : interpolate(barSpring, [0, 1], [14, 0], {
+                      extrapolateLeft: "clamp",
+                      extrapolateRight: "clamp",
+                    });
                 return (
                   <div
                     key={row.label}
@@ -414,7 +378,7 @@ export const PerfChart: React.FC = () => {
             </div>
           </div>
 
-          {/* ─── Phase B — Zero-cost abstraction + GEMM bars ─── */}
+          {/* ─── Phase B — Zero-cost abstraction: multi-kernel comparison ─── */}
           <div
             style={{
               display: "flex",
@@ -422,7 +386,7 @@ export const PerfChart: React.FC = () => {
               alignItems: "center",
               justifyContent: "flex-start",
               paddingTop: 8,
-              gap: 26,
+              gap: 20,
               opacity: phaseBVisible,
               pointerEvents: phaseBVisible < 0.02 ? "none" : "auto",
             }}
@@ -435,7 +399,7 @@ export const PerfChart: React.FC = () => {
                   extrapolateRight: "clamp",
                 }) * phaseBVisible,
                 fontFamily: THEME.fonts.sans,
-                fontSize: 56,
+                fontSize: 52,
                 fontWeight: 800,
                 color: THEME.colors.textPrimary,
                 textAlign: "center",
@@ -446,215 +410,43 @@ export const PerfChart: React.FC = () => {
               Zero-Cost Abstraction
             </div>
 
-            <div
-              style={{
-                opacity:
-                  interpolate(comparisonSpring, [0, 1], [0, 1], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  }) * phaseBVisible,
-                transform: `translateY(${interpolate(comparisonSpring, [0, 1], [22, 0])}px)`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 22,
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: THEME.fonts.mono,
-                  fontSize: THEME.fontSize.lg,
-                  fontWeight: 600,
-                  color: THEME.colors.accent,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  textShadow: "0 0 18px rgba(129,140,248,0.35)",
-                }}
-              >
-                GEMM FP16
-              </div>
-              <div
-                style={{
-                  transform: `scale(${badgeSpring})`,
-                  opacity: interpolate(badgeSpring, [0.75, 1], [0, 1], {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                  }),
-                  padding: "12px 26px",
-                  borderRadius: THEME.radius.md,
-                  background:
-                    "linear-gradient(135deg, rgba(110,231,183,0.22), rgba(129,140,248,0.14))",
-                  border: "1px solid rgba(110,231,183,0.42)",
-                  boxShadow: `${THEME.shadows.glowSm}, ${THEME.shadows.inset}, 0 0 36px rgba(129,140,248,0.12)`,
-                  fontFamily: THEME.fonts.mono,
-                  fontSize: THEME.fontSize.xl,
-                  fontWeight: 700,
-                  color: THEME.colors.primary,
-                  letterSpacing: "0.06em",
-                  textShadow:
-                    "0 0 18px rgba(110,231,183,0.55), 0 2px 12px rgba(0,0,0,0.35)",
-                }}
-              >
-                +5.3%
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "flex-end",
-                  gap: 130,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: 220,
-                  }}
-                >
-                  <div
-                    style={{
-                      opacity:
-                        interpolate(valueSpring, [0, 1], [0, 1], {
-                          extrapolateLeft: "clamp",
-                          extrapolateRight: "clamp",
-                        }),
-                      transform: `translateY(${interpolate(valueSpring, [0, 1], [12, 0])}px) scale(${0.94 + valueSpring * 0.06})`,
-                      marginBottom: 14,
-                      fontFamily: THEME.fonts.mono,
-                      fontSize: 46,
-                      fontWeight: 700,
-                      color: THEME.colors.textPrimary,
-                      textShadow:
-                        "0 0 22px rgba(110,231,183,0.35), 0 2px 14px rgba(0,0,0,0.35)",
-                    }}
-                  >
-                    {CROQ_TFLOPS.toFixed(1)}
-                    <span
-                      style={{
-                        marginLeft: 10,
-                        fontSize: THEME.fontSize.lg,
-                        color: THEME.colors.textMuted,
-                        fontWeight: 500,
-                      }}
-                    >
-                      TFLOPS
-                    </span>
+            {/* Multi-kernel comparison rows */}
+            <div style={{ width: 1080, opacity: interpolate(comparisonSpring, [0, 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) * phaseBVisible }}>
+              {PERF_COMPARISONS.map((comp, i) => {
+                const rowSpring = spring({
+                  frame: Math.max(0, bFrame - 24 - i * 16),
+                  fps,
+                  config: { damping: 16, stiffness: 90, mass: 0.85 },
+                  from: 0,
+                  to: 1,
+                });
+                const maxVal = Math.max(comp.croq, comp.baseline);
+                const croqW = (comp.croq / maxVal) * 580 * rowSpring;
+                const baseW = (comp.baseline / maxVal) * 580 * rowSpring;
+                const pct = ((comp.croq / comp.baseline - 1) * 100).toFixed(1);
+                return (
+                  <div key={comp.kernel} style={{ display: "flex", alignItems: "center", marginBottom: 14, opacity: rowSpring, transform: `translateY(${interpolate(rowSpring, [0, 1], [12, 0])}px)` }}>
+                    <div style={{ width: 140, flexShrink: 0, fontFamily: THEME.fonts.mono, fontSize: 16, fontWeight: 600, color: THEME.colors.accent, textAlign: "right", paddingRight: 16 }}>
+                      {comp.kernel}
+                    </div>
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: croqW, height: 22, borderRadius: THEME.radius.sm, background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primary}cc)`, boxShadow: `${THEME.shadows.glowSm}, 0 0 16px rgba(110,231,183,0.3)` }} />
+                        <span style={{ fontFamily: THEME.fonts.mono, fontSize: 14, fontWeight: 700, color: THEME.colors.primary }}>{comp.croq}</span>
+                        <span style={{ fontFamily: THEME.fonts.mono, fontSize: 13, color: THEME.colors.primary, opacity: 0.7 }}>CroqTile</span>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: baseW, height: 22, borderRadius: THEME.radius.sm, background: `linear-gradient(90deg, ${THEME.colors.textMuted}, ${THEME.colors.textMuted}88)` }} />
+                        <span style={{ fontFamily: THEME.fonts.mono, fontSize: 14, fontWeight: 600, color: THEME.colors.textMuted }}>{comp.baseline}</span>
+                        <span style={{ fontFamily: THEME.fonts.mono, fontSize: 13, color: THEME.colors.textSecondary, opacity: 0.7 }}>{comp.baseLabel}</span>
+                      </div>
+                    </div>
+                    <div style={{ width: 70, flexShrink: 0, textAlign: "center", fontFamily: THEME.fonts.mono, fontSize: 18, fontWeight: 700, color: THEME.colors.primary, textShadow: "0 0 12px rgba(110,231,183,0.4)" }}>
+                      +{pct}%
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      height: maxBarPx,
-                      width: 124,
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      borderRadius: THEME.radius.md,
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18))",
-                      boxShadow: THEME.shadows.inset,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: croqBarH,
-                        borderRadius: THEME.radius.md,
-                        background: `linear-gradient(180deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`,
-                        boxShadow: `${THEME.shadows.glow}, 0 14px 44px rgba(110,231,183,0.26)`,
-                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.12]),
-                      }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 18,
-                      fontFamily: THEME.fonts.sans,
-                      fontSize: THEME.fontSize.xl,
-                      fontWeight: 700,
-                      color: THEME.colors.primary,
-                      textShadow:
-                        "0 0 16px rgba(110,231,183,0.35)",
-                    }}
-                  >
-                    CroqTile
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: 220,
-                  }}
-                >
-                  <div
-                    style={{
-                      opacity:
-                        interpolate(torchValueSpring, [0, 1], [0, 1], {
-                          extrapolateLeft: "clamp",
-                          extrapolateRight: "clamp",
-                        }),
-                      transform: `translateY(${interpolate(torchValueSpring, [0, 1], [12, 0])}px) scale(${0.94 + torchValueSpring * 0.06})`,
-                      marginBottom: 14,
-                      fontFamily: THEME.fonts.mono,
-                      fontSize: 46,
-                      fontWeight: 700,
-                      color: THEME.colors.textSecondary,
-                      textShadow: "0 2px 14px rgba(0,0,0,0.35)",
-                    }}
-                  >
-                    {TORCH_TFLOPS.toFixed(1)}
-                    <span
-                      style={{
-                        marginLeft: 10,
-                        fontSize: THEME.fontSize.lg,
-                        color: THEME.colors.textMuted,
-                        fontWeight: 500,
-                      }}
-                    >
-                      TFLOPS
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      height: maxBarPx,
-                      width: 124,
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      borderRadius: THEME.radius.md,
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.22))",
-                      boxShadow: THEME.shadows.inset,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        height: torchBarH,
-                        borderRadius: THEME.radius.md,
-                        background: `linear-gradient(180deg, ${THEME.colors.textMuted}, #273041)`,
-                        boxShadow: "0 10px 32px rgba(0,0,0,0.48)",
-                        opacity: interpolate(scatterMorph, [0, 1], [1, 0.1]),
-                      }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 18,
-                      fontFamily: THEME.fonts.sans,
-                      fontSize: THEME.fontSize.xl,
-                      fontWeight: 600,
-                      color: THEME.colors.textSecondary,
-                    }}
-                  >
-                    PyTorch
-                  </div>
-                </div>
-              </div>
+                );
+              })}
             </div>
 
             <p
@@ -664,13 +456,13 @@ export const PerfChart: React.FC = () => {
                 opacity:
                   interpolate(
                     frame,
-                    [PHASE_B_START + 58, PHASE_B_START + 86],
+                    [PHASE_B_START + 80, PHASE_B_START + 110],
                     [0, 1],
                     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
                   ) * phaseBVisible,
                 transform: `translateY(${interpolate(
                   frame,
-                  [PHASE_B_START + 58, PHASE_B_START + 86],
+                  [PHASE_B_START + 80, PHASE_B_START + 110],
                   [10, 0],
                   { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
                 )}px)`,

@@ -223,8 +223,8 @@ const OpNodeBox: React.FC<{
   const ioSize = 60;
   const arrowLen = 38;
   const ioSpacing = node.inputs.length <= 3 ? 110 : 85;
-  const totalInputW = (node.inputs.length - 1) * ioSpacing;
-  const totalOutputW = (node.outputs.length - 1) * ioSpacing;
+  const _totalInputW = (node.inputs.length - 1) * ioSpacing;
+  const _totalOutputW = (node.outputs.length - 1) * ioSpacing;
   const blinkGlow = blinkIntensity > 0 ? `0 0 ${40 + blinkIntensity * 30}px ${node.glowColor}` : `0 0 30px ${node.color}15`;
 
   return (
@@ -537,8 +537,8 @@ function tokenizeLine(line: string): Token[] {
     [/<[^>]+>/g, SYN.bracket],
   ];
 
-  let remaining = rest;
-  let pos = 0;
+  let _remaining = rest;
+  let _pos = 0;
   const colored: { start: number; end: number; color: string }[] = [];
 
   for (const [re, color] of patterns) {

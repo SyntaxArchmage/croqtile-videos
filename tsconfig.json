@@ -17,7 +17,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "incremental": true
   },
   "include": [

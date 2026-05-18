@@ -9,7 +9,6 @@ import {
   Sequence,
   staticFile,
   useCurrentFrame,
-  interpolate,
 } from "remotion";
 import { THEME } from "../theme";
 
