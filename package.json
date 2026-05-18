@@ -41,6 +41,7 @@
     "lint": "eslint .",
     "remotion": "remotion studio",
     "render": "remotion render",
-    "deploy": "node deploy.mjs"
+    "deploy": "node deploy.mjs",
+    "postinstall": "bash patches/fix-audio-waveform.sh"
   }
 }

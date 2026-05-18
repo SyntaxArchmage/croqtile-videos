@@ -2,15 +2,15 @@
  * remotion/compositions/FullVideo.tsx
  * 完整视频 — 将所有段落按脚本顺序拼接
  *
- * 时间轴 (v2):
- *   0:00–0:14    段 0  PainPoint       (439f)  前两句话
- *   0:14–1:01    段 1  IterativeDev    (1393f) 迭代开发 + CroqTile揭晓
- *   1:01–1:47    段 2  FeatureSpotlight(1390f)
- *   1:47–2:12    段 3  PerfChart       (750f)
- *   2:13–2:43    段 4  CompileTimeSafety(900f)
- *   2:43–3:13    段 5  DynamicShape    (900f)
- *   3:13–5:48    段 6  AINative        (4650f)
- *   5:48–5:58    段 7  OutroCTA        (300f)
+ * 时间轴 (v3 — aligned to SCRIPT-v1.md VO durations):
+ *   0:00–0:15    段 0  PainPoint        (460f)
+ *   0:15–1:04    段 1  IterativeDev     (1470f)
+ *   1:04–1:53    段 2  FeatureSpotlight (1470f)
+ *   1:53–2:19    段 3  PerfChart        (770f)
+ *   2:19–3:06    段 4  CompileTimeSafety(1430f)
+ *   3:06–3:36    段 5  DynamicShape     (890f)
+ *   3:36–5:59    段 6  AINative         (4300f)
+ *   5:59–6:10    段 7  OutroCTA         (300f)
  */
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
@@ -28,13 +28,13 @@ import { SUBTITLES } from "../data/subtitles";
 import { getVoiceoverCues } from "../data/voiceover";
 
 const SEGMENTS = [
-  { id: "PainPoint", component: PainPoint, duration: 439 },
-  { id: "IterativeDev", component: IterativeDev, duration: 1393 },
-  { id: "FeatureSpotlight", component: FeatureSpotlight, duration: 1390 },
-  { id: "PerfChart", component: PerfChart, duration: 750 },
-  { id: "CompileTimeSafety", component: CompileTimeSafety, duration: 900 },
-  { id: "DynamicShape", component: DynamicShape, duration: 900 },
-  { id: "AINative", component: AINative, duration: 4650 },
+  { id: "PainPoint", component: PainPoint, duration: 460 },
+  { id: "IterativeDev", component: IterativeDev, duration: 1470 },
+  { id: "FeatureSpotlight", component: FeatureSpotlight, duration: 1470 },
+  { id: "PerfChart", component: PerfChart, duration: 770 },
+  { id: "CompileTimeSafety", component: CompileTimeSafety, duration: 1430 },
+  { id: "DynamicShape", component: DynamicShape, duration: 890 },
+  { id: "AINative", component: AINative, duration: 4300 },
   { id: "OutroCTA", component: OutroCTA, duration: 300 },
 ] as const;
 

@@ -1,7 +1,7 @@
 /**
  * remotion/compositions/IterativeDev.tsx
  * 段 1 — 迭代开发的痛苦 + CroqTile 揭晓
- * 1393 帧 @30fps (~46.4s)
+ * 1470 帧 @30fps (~49.0s)
  *
  * 配音对齐 (相对帧号):
  *   0–163f      seg1-01 "不仅仅是因为复杂…"
@@ -10,6 +10,7 @@
  *   848–991f    seg1-04 "这些门槛大大限制了开发效率"
  *   994–1373f   seg1-05 "所以我们造了CroqTile"
  *   1373–1393f  淡出
+ *   1393–1470f  片段 padding（总时长对齐 FullVideo）
  *
  * 画面设计 (严格对齐每句话):
  *   Phase 1 (0–163f):    代码片段 + "不只是复杂" — 引出问题
@@ -32,6 +33,8 @@ import {
 } from "remotion";
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
+
+const TOTAL_FRAMES = 1470;
 
 const CX = 960;
 const CY = 440;

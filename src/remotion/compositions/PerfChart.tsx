@@ -11,7 +11,7 @@ import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 
-const TOTAL_FRAMES = 750;
+const TOTAL_FRAMES = 770;
 
 const PHASE_A_END = 249;
 const PHASE_B_START = 250;

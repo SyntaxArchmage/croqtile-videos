@@ -109,18 +109,41 @@ Discover actual paths by reading the project structure. Typical layout:
 
 ## Preview Server
 
-Always use `screen` for persistence:
+Always use `screen` for persistence — **never block the agent shell**:
 
 ```bash
-screen -dmS remotion-studio bash -c "cd $(pwd) && npx remotion studio --port=3000 2>&1 | tee /tmp/remotion-studio.log"
+# Kill any existing session first
+screen -S remotion-studio -X quit 2>/dev/null
+
+# Prefer the local binary (npx may be broken in some environments)
+screen -dmS remotion-studio bash -c "cd $(pwd) && ./node_modules/.bin/remotion studio --port=3000 2>&1 | tee /tmp/remotion-studio.log"
 ```
 
-Verify: `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000`
+Verify (poll up to 15s for cold start):
+```bash
+for i in $(seq 1 15); do
+  code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000 2>/dev/null)
+  [ "$code" = "200" ] && echo "Studio ready (HTTP $code)" && break
+  sleep 1
+done
+```
 
 Management:
 - Attach: `screen -r remotion-studio`
 - Kill: `screen -S remotion-studio -X quit`
 - List: `screen -ls`
+- Logs: `tail -20 /tmp/remotion-studio.log`
+
+### AudioWaveform Decode Workaround
+
+Remotion Studio 4.0.x uses `OfflineAudioContext` in a Web Worker to render
+timeline waveforms. Some browsers/environments fail to decode MP3 via this API,
+crashing the studio with "This audio track cannot be decoded by this browser".
+Actual `<audio>` playback is unaffected.
+
+Fix: `patches/fix-audio-waveform.sh` patches the error handler to `console.debug`
+instead of `setError`. Runs automatically via `postinstall` in `package.json`.
+After `npm install`, verify with `grep console.debug node_modules/@remotion/studio/dist/components/AudioWaveform.js`.
 
 ## Frame Offset Cascade
 

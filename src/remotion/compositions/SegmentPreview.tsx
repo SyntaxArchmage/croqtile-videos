@@ -102,27 +102,17 @@ function filterSubtitles(
       sub.startFrame < baseOffset + (cueIds[0].startsWith("seg0") ? SEG0_DURATION : SEG1_DURATION);
   }).map((sub) => ({
     ...sub,
-    startFrame: sub.startFrame - baseOffset,
-    endFrame: sub.endFrame - baseOffset,
+    startFrame: sub.startFrame - timelineStart,
+    endFrame: sub.endFrame - timelineStart,
   }));
 }
 
-const seg0Subs = filterSubtitles(SEG0_CUES, 0);
-const seg1Subs = filterSubtitles(SEG1_CUES, 439);
-const seg2Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 1832 && sub.startFrame < 1832 + SEG2_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - 1832,
-  endFrame: sub.endFrame - 1832,
-}));
-const seg3Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 3222 && sub.startFrame < 3222 + SEG3_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - 3222,
-  endFrame: sub.endFrame - 3222,
-}));
+const seg0Subs = sliceSubtitlesEarly(0, SEG0_DURATION);
+const seg1Subs = sliceSubtitlesEarly(SEG0_DURATION, SEG1_DURATION);
+const SEG2_TIMELINE_START = SEG0_DURATION + SEG1_DURATION;
+const SEG3_TIMELINE_START = SEG2_TIMELINE_START + SEG2_DURATION;
+const seg2Subs = sliceSubtitlesEarly(SEG2_TIMELINE_START, SEG2_DURATION);
+const seg3Subs = sliceSubtitlesEarly(SEG3_TIMELINE_START, SEG3_DURATION);
 
 const seg4Subs = SUBTITLES.filter(
   (sub) => sub.startFrame >= 3972 && sub.startFrame < 3972 + SEG4_DURATION,

@@ -177,18 +177,19 @@ Update state: all `consistency_check` fields.
 
 ### Phase 10: User Review (USER REVIEW GATE)
 
-1. Ensure persistent preview server:
+1. Ensure persistent preview server (non-blocking):
    ```bash
-   screen -dmS remotion-studio bash -c "cd $(pwd) && npx remotion studio --port=3000 2>&1 | tee /tmp/remotion-studio.log"
+   screen -S remotion-studio -X quit 2>/dev/null
+   screen -dmS remotion-studio bash -c "cd $(pwd) && ./node_modules/.bin/remotion studio --port=3000 2>&1 | tee /tmp/remotion-studio.log"
    ```
-2. Verify HTTP 200 on port 3000
+2. Poll for HTTP 200 on port 3000 (up to 15s for cold build)
 3. Present checkpoint to user: select `SegN-Preview-CN/EN`, press Play
 4. User feedback loops back to the relevant phase
 
 ## Anti-Patterns
 
 ### Process
-1. **Never block terminal** with `npx remotion studio` — always `screen -dmS` or `nohup &`
+1. **Never block agent shell** with `remotion studio` — always `screen -dmS` then poll for HTTP 200
 2. **Never iterate on FullVideo** — use per-segment preview compositions
 3. **Always verify VO duration fits** before starting animation work
 4. **Never invent narrative** — only structure what the user provides

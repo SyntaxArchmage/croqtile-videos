@@ -6,7 +6,15 @@ Outputs per-cue MP3 files to public/voiceover/cn/ and public/voiceover/en/.
 
 import asyncio
 import os
+import subprocess
+import tempfile
 import edge_tts
+
+try:
+    from imageio_ffmpeg import get_ffmpeg_exe
+    FFMPEG = get_ffmpeg_exe()
+except ImportError:
+    FFMPEG = "ffmpeg"
 
 VOICE_CN = "zh-CN-YunxiNeural"
 VOICE_EN = "en-GB-RyanNeural"
@@ -15,7 +23,7 @@ CUES = [
     # (id, cn_text, en_text)
     # ═══ Seg 0: 痛点开场（前两句）═══
     ("seg0-01", "写一个生产级 GPU 计算核，需要多长时间？", "How long does it take to write a production-grade GPU kernel?"),
-    ("seg0-02", "FlashAttention、Blockscale Gem 这样的算子，顶尖专家也要花上几个星期来实现与调优。", "For operators like FlashAttention and Blockscale Gem, even top experts spend weeks on implementation and tuning."),
+    ("seg0-02", "FlashAttention、Blockscale GEMM 这样的算子，顶尖专家也要花上几个星期来实现与调优。", "For operators like FlashAttention and Blockscale GEMM, even top experts spend weeks on implementation and tuning."),
 
     # ═══ Seg 1: 迭代开发痛苦 + CroqTile 揭晓 ═══
     ("seg1-01", "这不仅仅是因为实现复杂、代码行数多。", "It's not just because the implementation is complex or the code is long."),
@@ -32,9 +40,10 @@ CUES = [
     ("seg3-02", "这种简洁性没有以性能为代价。零成本抽象是我们在语法设计中的第一原则。", "This level of simplicity comes without performance compromise. Zero-cost abstraction is our first design principle."),
     ("seg3-03", "这使得 CroqTile 成为最简单、最直观，同时拥有顶级性能的内核编程语言。", "This makes CroqTile the most simple and intuitive kernel language — with still top-level performance."),
 
-    ("seg4-01", "在 CroqTile 里，shape 不匹配、DMA 越界、类型错误，全部在编译期被拦住。", "In CroqTile, shape mismatches, DMA overflows, and type errors are all caught at compile time."),
-    ("seg4-02", "353 项编译时检查，1319 项运行时断言——没有一个错误能溜到 GPU dispatch 之后。", "353 compile-time checks. 1,319 runtime assertions. Not a single error gets past GPU dispatch."),
-    ("seg4-03", "DMA 类 bug 在 CUDA 里素来难以追踪，CroqTile 直接从语言层面消灭了这类问题。", "DMA bugs that haunt CUDA codebases for days — CroqTile eliminates the entire class at the language level."),
+    ("seg4-01", "除了易用性，调试体验也是影响计算核开发效率的重要因素。", "Beyond usability, the debugging experience is a major factor in kernel development efficiency."),
+    ("seg4-02", "传统的调优过程经常出现运行时报错——这类 bug 只在 GPU 上实际跑的时候才暴露，定位一个 DMA 越界或 shape 不匹配往往要花上数小时甚至数天。", "Traditional tuning cycles are plagued by runtime errors — bugs that only surface when the GPU actually runs. Tracking down a single DMA overflow or shape mismatch can take hours, even days."),
+    ("seg4-03", "而 CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。这使得 CroqTile 具备了独一无二的编译期静态检查能力。", "CroqTile is the only next-generation kernel language on the market with a purpose-built standalone compiler. This gives CroqTile unparalleled compile-time static analysis."),
+    ("seg4-04", "DMA 越界、shape 不匹配、同步错误——这些传统内核开发中最难追踪的 runtime bug，CroqTile 编译器在编译期就能优雅地拦截。", "DMA overflows, shape mismatches, sync errors — the hardest runtime bugs to track in traditional kernel development are caught elegantly by the CroqTile compiler at compile time."),
 
     ("seg5-01", "CroqTile 是同类工具中第一个支持符号化维度的内核语言。", "CroqTile is the first kernel language in its class to support symbolic dimensions."),
     ("seg5-02", "一套代码，从小矩阵到 8K 乘 16K，不需要重新编译，不需要模板特化。", "One kernel, any shape — from small tiles to 8K times 16K matrices. No recompilation. No template specialization."),
@@ -68,6 +77,22 @@ CUES = [
 ]
 
 
+def _normalize_mp3(path: str) -> None:
+    """Re-encode to 44.1kHz/128kbps MP3v1 for browser compatibility."""
+    fd, tmp = tempfile.mkstemp(suffix=".mp3")
+    os.close(fd)
+    try:
+        subprocess.run(
+            [FFMPEG, "-y", "-i", path, "-codec:a", "libmp3lame",
+             "-b:a", "128k", "-ar", "44100", tmp],
+            check=True, capture_output=True,
+        )
+        os.replace(tmp, path)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        os.unlink(tmp)
+        pass  # keep the original if ffmpeg is unavailable
+
+
 async def generate_all():
     base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     cn_dir = os.path.join(base, "public", "voiceover", "cn")
@@ -83,6 +108,7 @@ async def generate_all():
             print(f"[CN] Generating {cue_id}...")
             comm = edge_tts.Communicate(cn_text, VOICE_CN, rate="-5%")
             await comm.save(cn_path)
+            _normalize_mp3(cn_path)
         else:
             print(f"[CN] Skipping {cue_id} (exists)")
 
@@ -90,6 +116,7 @@ async def generate_all():
             print(f"[EN] Generating {cue_id}...")
             comm = edge_tts.Communicate(en_text, VOICE_EN, rate="-5%")
             await comm.save(en_path)
+            _normalize_mp3(en_path)
         else:
             print(f"[EN] Skipping {cue_id} (exists)")
 

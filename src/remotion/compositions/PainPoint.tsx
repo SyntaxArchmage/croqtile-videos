@@ -1,6 +1,6 @@
 /**
  * remotion/compositions/PainPoint.tsx
- * 段 0 — 痛点开场（前两句）  439 帧 @30fps
+ * 段 0 — 痛点开场（前两句）  460 帧 @30fps
  *
  * 配音对齐 (0.1s gap, rate=-15%):
  *   0–162f     seg0-01: "写一个生产级GPU计算核…"  (5.38s)
@@ -17,6 +17,8 @@ import {
 } from "remotion";
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
+
+const TOTAL_FRAMES = 460;
 
 const CODE_LINES = [
   "  ...",

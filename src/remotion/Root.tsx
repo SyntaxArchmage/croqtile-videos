@@ -262,7 +262,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PainPoint"
         component={PainPoint}
-        durationInFrames={439}
+        durationInFrames={460}
         fps={fps}
         width={width}
         height={height}
@@ -270,7 +270,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="IterativeDev"
         component={IterativeDev}
-        durationInFrames={1393}
+        durationInFrames={1470}
         fps={fps}
         width={width}
         height={height}
@@ -286,7 +286,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="FeatureSpotlight"
         component={FeatureSpotlight}
-        durationInFrames={1410}
+        durationInFrames={1470}
         fps={fps}
         width={width}
         height={height}
@@ -294,7 +294,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PerfChart"
         component={PerfChart}
-        durationInFrames={750}
+        durationInFrames={770}
         fps={fps}
         width={width}
         height={height}
@@ -302,7 +302,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="CompileTimeSafety"
         component={CompileTimeSafety}
-        durationInFrames={900}
+        durationInFrames={1430}
         fps={fps}
         width={width}
         height={height}
@@ -310,7 +310,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="DynamicShape"
         component={DynamicShape}
-        durationInFrames={900}
+        durationInFrames={890}
         fps={fps}
         width={width}
         height={height}
@@ -318,7 +318,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="AINative"
         component={AINative}
-        durationInFrames={4650}
+        durationInFrames={4300}
         fps={fps}
         width={width}
         height={height}

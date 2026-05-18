@@ -1,6 +1,6 @@
 /**
  * remotion/compositions/AINative.tsx
- * Segment 6 — AI-native features (2:45–5:20 @ 30fps = 4650 frames)
+ * Segment 6 — AI-native features (3:36–5:59 @ 30fps = 4300 frames)
  *
  * 6A 0–450f   From Easy to AI-native
  * 6B 450–1200 Ultra-compact Context
@@ -23,6 +23,8 @@ import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 import { DeviceShell } from "../components/DeviceShell";
+
+const TOTAL_FRAMES = 4300;
 
 const FADE_FRAMES = 24;
 

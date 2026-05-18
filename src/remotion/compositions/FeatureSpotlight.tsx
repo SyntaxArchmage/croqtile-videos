@@ -1,13 +1,13 @@
 /**
  * remotion/compositions/FeatureSpotlight.tsx
- * Segment 2 — "Simple & Intuitive"  (46.3 s = 1390 frames @ 30fps)
+ * Segment 2 — "Simple & Intuitive"  (49.0 s = 1470 frames @ 30fps)
  *
  * Narrative: thread-view (CUDA/OpenCL) vs tensor-view (CroqTile)
  *
  * 2-intro  (0–300f,   10s): thread-view chaos — buffer+offset complexity grows
  * 2A       (300–900f, 20s): CroqTile tensor-view vs CUDA thread-view code split
  * 2B       (900–1260f,12s): TMA & MMA zero-boilerplate + LOC comparison
- * 2-outro  (1260–1410f,5s): conclusion card — intuitive + AI-readable + less code
+ * 2-outro  (1260–1470f,7s): conclusion card — intuitive + AI-readable + less code
  */
 import React from "react";
 import {
@@ -1247,7 +1247,7 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
 
 const INTRO_END = 510;
 const SPLIT_END = 1100;
-const TOTAL_FRAMES = 1390;
+const TOTAL_FRAMES = 1470;
 
 export const FeatureSpotlight: React.FC = () => {
   const frame = useCurrentFrame();

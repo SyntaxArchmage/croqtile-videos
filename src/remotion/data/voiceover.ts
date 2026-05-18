@@ -2,6 +2,16 @@
  * data/voiceover.ts
  * Maps each subtitle cue to its corresponding voiceover audio file.
  * startFrame values are absolute frame numbers in the FullVideo timeline.
+ *
+ * Segment offsets (from FullVideo.tsx SEGMENTS v3):
+ *   PainPoint:         0–459   (460f)
+ *   IterativeDev:      460–1929 (1470f)
+ *   FeatureSpotlight:  1930–3399 (1470f)
+ *   PerfChart:         3400–4169 (770f)
+ *   CompileTimeSafety: 4170–5599 (1430f)
+ *   DynamicShape:      5600–6489 (890f)
+ *   AINative:          6490–10789 (4300f)
+ *   OutroCTA:          10790–11089 (300f)
  */
 
 export interface VoiceoverCue {
@@ -11,7 +21,7 @@ export interface VoiceoverCue {
 }
 
 const CUE_IDS_WITH_FRAMES: [string, number][] = [
-  // Seg 0: PainPoint (0–438, 439f)
+  // Seg 0: PainPoint (0–459, 460f)
   ["seg0-01", 0],
   ["seg0-02", 165],
   // Seg 1: IterativeDev (439–1831, 1393f)

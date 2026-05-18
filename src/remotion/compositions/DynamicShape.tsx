@@ -1,11 +1,11 @@
 /**
  * remotion/compositions/DynamicShape.tsx
- * Segment 5 — Dynamic Symbolic Dimensions (2:15–2:45, 30 s = 900 frames @ 30fps)
+ * Segment 5 — Dynamic Symbolic Dimensions (3:06–3:36, 890 frames @ 30fps)
  *
  * 0–120f:   CroqTile kernel signature slides in; M, N, K highlighted in mint
  * 120–600f: Dimension preset selector cycles (~120f per preset), values crossfade
  * 600–750f: Triton comparison panel slides in from the right
- * 750–900f: Hold with both columns visible
+ * 750–890f: Hold with both columns visible
  */
 import React from "react";
 import {
@@ -20,7 +20,7 @@ import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 import { DeviceShell } from "../components/DeviceShell";
 
-const DURATION_FRAMES = 900;
+const DURATION_FRAMES = 890;
 const CYCLE_START = 120;
 const CYCLE_END = 600;
 const SLOT_FRAMES = 120;
