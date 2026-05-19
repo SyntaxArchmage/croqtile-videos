@@ -9,9 +9,9 @@
  *   FeatureSpotlight:  1930–3399 (1470f)
  *   PerfChart:         3400–4169 (770f)
  *   CompileTimeSafety: 4170–5599 (1430f)
- *   DynamicShape:      5600–6489 (890f)
- *   AINative:          6490–10789 (4300f)
- *   OutroCTA:          10790–11089 (300f)
+ *   HeterogeneousCompute: 5600–6719 (1120f)
+ *   AINative:          6720–11369 (4650f)
+ *   OutroCTA:          11370–11669 (300f)
  */
 
 export interface VoiceoverCue {
@@ -42,33 +42,29 @@ const CUE_IDS_WITH_FRAMES: [string, number][] = [
   ["seg3-02", 3432],
   // Seg 4: CompileTimeSafety (3972–4871)
   ["seg4-01", 3992],
-  ["seg4-02", 4272],
-  ["seg4-03", 4532],
-  // Seg 5: DynamicShape (4872–5771)
-  ["seg5-01", 4892],
-  ["seg5-02", 5172],
-  ["seg5-03", 5432],
-  // Seg 6: AINative (5772–10421)
-  ["seg6a-01", 5792],
-  ["seg6a-02", 6012],
-  ["seg6b-01", 6242],
-  ["seg6b-02", 6532],
-  ["seg6b-03", 6782],
-  ["seg6c-01", 6992],
-  ["seg6c-02", 7282],
-  ["seg6c-03", 7532],
-  ["seg6d-01", 7742],
-  ["seg6d-02", 7982],
-  ["seg6d-03", 8252],
-  ["seg6e-01", 8492],
-  ["seg6e-02", 8762],
-  ["seg6e-03", 9062],
-  ["seg6f-01", 9392],
-  ["seg6f-02", 9682],
-  ["seg6f-03", 9982],
-  ["seg6f-04", 10272],
-  // Seg 7: OutroCTA (10422–10721)
-  ["seg7-01", 10462],
+  ["seg4-02", 4182],
+  ["seg4-03", 4612],
+  ["seg4-04", 4972],
+  // Seg 5: HeterogeneousCompute (5600–6719)
+  ["seg5-01", 5610],
+  ["seg5-02", 6090],
+  // Seg 6: AINative (6720–11369, 14 cues, rate=+0%, gap=8f)
+  ["seg6-01", 6740],
+  ["seg6-02", 6994],
+  ["seg6-03", 7217],
+  ["seg6-04", 7488],
+  ["seg6-05", 7737],
+  ["seg6-06", 7996],
+  ["seg6-07", 8262],
+  ["seg6-08", 8505],
+  ["seg6-09", 8864],
+  ["seg6-10", 9089],
+  ["seg6-11", 9397],
+  ["seg6-12", 9647],
+  ["seg6-13", 10346],
+  // seg6-14 removed: "你的编程体验" now visual-only slogan on back cover
+  // Seg 7: OutroCTA (11370–11669)
+  ["seg7-01", 11410],
 ];
 
 export function getVoiceoverCues(lang: "cn" | "en"): VoiceoverCue[] {

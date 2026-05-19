@@ -1,37 +1,24 @@
-# Seg 5 — DynamicShape
+# Seg 5 — Heterogeneous Computing (Write Once, Run Everywhere)
 
-## Status: phase-10-pending-review
+## Status: script-redesign-in-progress
+
+## Content Direction (aligned with slides Chapter 3)
+- **Slide 1**: Write Once, Run Everywhere — same CroqTile source → multiple backends (H800, A100, AMD MI300, Custom DSA) via `-t` compiler flags
+- **Slide 2**: Multi-Device Programming — `parallel-by mpi` distributes work across nodes, compiler auto-generates host dispatch
 
 ## Timeline
-- Absolute start frame: 4872
-- Duration: 900 frames (30s)
-- Absolute end frame: 5771
+- Absolute start frame: 5600
+- Duration: 1120 frames (~37s)
+- Absolute end frame: 6719
 
-## Voiceover Cues
-| Cue | Abs Frame | Rel Frame | Duration |
-|-----|-----------|-----------|----------|
-| seg5-01 | 4892 | 20 | 5.46s |
-| seg5-02 | 5172 | 300 | 7.58s |
-| seg5-03 | 5432 | 560 | 8.59s |
+## Voiceover Cues (2 cues)
+| Cue | Abs Frame | Rel Frame | Duration | Content |
+|-----|-----------|-----------|----------|---------|
+| seg5-01 | 5610 | 10 | ~19s (CN) / ~19s (EN) | Multi-backend support, one config, no migration needed |
+| seg5-02 | 6090 | 490 | ~15s (CN) / ~15s (EN) | Multi-device collaboration: parallel-by mpi, compiler handles partitioning |
 
-Total VO: 21.63s (649f) / 30s (900f) — fits
-
-## Phases Completed
-- [x] Phase 4: Voiceover cue split (3 cues)
-- [x] Phase 5: Voiceover generation (CN+EN verified)
-- [x] Phase 6: Timing self-check (fits within 900f)
-- [x] Phase 7: Script timing update (frame offsets corrected +430)
-- [x] Phase 8: Animation wired (DynamicShape.tsx renders at all phases)
-- [x] Phase 9: Consistency check
-  - VO files exist: yes (cn + en)
-  - Subtitles wired: yes (absolute frames corrected)
-  - Preview composition: Seg5-Preview-CN/EN registered
-  - FullVideo duration matches: 900f
-  - Renders successfully: yes
-- [ ] Phase 10: User review pending
-
-## Quality Gates
-- [x] Text readable at 1920x1080
-- [x] Subtitle area clear (bottom 200px)
-- [x] Colors from THEME
-- [x] Animations render without error
+## Script Updated
+- [x] Subtitles rewritten to match slides Chapter 3
+- [ ] Voiceover re-generation needed (CN+EN)
+- [ ] Animation redesign needed (DynamicShape.tsx → HeterogeneousCompute.tsx)
+- [ ] User review pending

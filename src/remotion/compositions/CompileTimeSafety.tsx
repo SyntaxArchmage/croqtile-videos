@@ -20,17 +20,20 @@ import { DeviceShell } from "../components/DeviceShell";
 
 const TOTAL_FRAMES = 1430;
 
-const P2 = 112;
-const P3 = 217;
-const P4 = 353;
-const P5 = 455;
-const P6 = 645;
-const P7 = 825;
-const P8 = 1006;
-const P9 = 1195;
+const P2 = 100;
+const P3 = 210;
+const P4 = 370;
+const P5 = 500;
+const P6 = 640;
+const P7 = 810;
+const P8 = 1000;
+const P9 = 1200;
 
 const MINT = THEME.colors.primary;
 const DANGER = THEME.colors.danger;
+const BORDER_SUBTLE = "rgba(255,255,255,0.06)";
+const BG_SUBTLE = "rgba(255,255,255,0.03)";
+const CONTENT_PAD_BOTTOM = 200;
 
 const OOB_CODE = [
   { text: "shared f16 buf[64][64];", bug: false },
@@ -132,7 +135,7 @@ export const CompileTimeSafety: React.FC = () => {
     <PageContainer tag="Segment 04" style={{ pointerEvents: "none" }}>
       <div style={{
         flex: 1, minHeight: 0, width: "100%", position: "relative",
-        display: "flex", flexDirection: "column", overflow: "hidden", paddingBottom: 200,
+        display: "flex", flexDirection: "column", overflow: "hidden", paddingBottom: CONTENT_PAD_BOTTOM,
       }}>
         <AbsoluteFill style={{ pointerEvents: "none" }}>
           <NoiseOverlay opacity={0.032} />
@@ -164,8 +167,8 @@ export const CompileTimeSafety: React.FC = () => {
               </svg>
             </div>
             <h1 style={{
-              margin: 0, fontSize: 56, fontWeight: 800, fontFamily: THEME.fonts.sans,
-              color: THEME.colors.textPrimary, letterSpacing: "-0.03em", lineHeight: 1.1,
+              margin: 0, fontSize: THEME.fontSize["3xl"], fontWeight: 700, fontFamily: THEME.fonts.sans,
+              color: THEME.colors.textPrimary, letterSpacing: "-0.025em", lineHeight: 1.15,
             }}>
               Compile-Time Safety
             </h1>
@@ -181,14 +184,14 @@ export const CompileTimeSafety: React.FC = () => {
               flex: 1, opacity: usabilityOp * 0.5, textAlign: "center",
             }}>
               <div style={{
-                fontSize: 28, fontWeight: 700, fontFamily: THEME.fonts.sans,
+                fontSize: THEME.fontSize.xl, fontWeight: 700, fontFamily: THEME.fonts.sans,
                 color: THEME.colors.textSecondary, marginBottom: 6,
               }}>
                 <span style={{ color: MINT, marginRight: 8 }}>✓</span>
                 Usability
               </div>
               <div style={{
-                fontSize: 16, color: THEME.colors.textMuted, fontFamily: THEME.fonts.sans,
+                fontSize: THEME.fontSize.base, color: THEME.colors.textMuted, fontFamily: THEME.fonts.sans,
               }}>
                 Solved in the previous chapter
               </div>
@@ -210,13 +213,13 @@ export const CompileTimeSafety: React.FC = () => {
               boxShadow: `0 0 ${28 * debugGlow}px ${THEME.colors.primaryGlow}`,
             }}>
               <div style={{
-                fontSize: 28, fontWeight: 700, fontFamily: THEME.fonts.sans,
+                fontSize: THEME.fontSize.xl, fontWeight: 700, fontFamily: THEME.fonts.sans,
                 color: THEME.colors.textPrimary, marginBottom: 6,
               }}>
                 Debugging Speed
               </div>
               <div style={{
-                fontSize: 16, color: THEME.colors.textSecondary, fontFamily: THEME.fonts.sans,
+                fontSize: THEME.fontSize.base, color: THEME.colors.textSecondary, fontFamily: THEME.fonts.sans,
               }}>
                 The real bottleneck in kernel dev
               </div>
@@ -230,23 +233,23 @@ export const CompileTimeSafety: React.FC = () => {
             <div style={{
               display: "flex", alignItems: "center", gap: 16,
               padding: "14px 20px", borderRadius: THEME.radius.md,
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)",
+              background: BG_SUBTLE, border: `1px solid ${BORDER_SUBTLE}`,
             }}>
               <span style={{
-                fontFamily: THEME.fonts.mono, fontSize: 14, color: THEME.colors.textMuted,
+                fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, color: THEME.colors.textMuted,
                 letterSpacing: "0.06em", whiteSpace: "nowrap",
               }}>Development velocity</span>
               <div style={{
                 flex: 1, height: 10, borderRadius: THEME.radius.full,
-                background: "rgba(255,255,255,0.04)", overflow: "hidden",
+                background: BG_SUBTLE, overflow: "hidden",
               }}>
                 <div style={{
                   height: "100%", width: `${p2BarW * 100}%`, borderRadius: THEME.radius.full,
-                  background: `linear-gradient(90deg, ${MINT}, ${THEME.colors.accent})`, opacity: 0.85,
+                  background: `linear-gradient(90deg, ${MINT}, ${THEME.colors.primaryDark})`, opacity: 0.85,
                 }} />
               </div>
               <span style={{
-                fontFamily: THEME.fonts.sans, fontSize: 15, fontWeight: 700,
+                fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize.base, fontWeight: 700,
                 color: MINT, whiteSpace: "nowrap",
               }}>Debugging is the bottleneck</span>
             </div>
@@ -264,14 +267,14 @@ export const CompileTimeSafety: React.FC = () => {
             }}>
               <div style={{ flex: 3, minWidth: 0 }}>
                 <div style={{
-                  fontFamily: THEME.fonts.mono, fontSize: 13, color: DANGER,
+                  fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, color: DANGER,
                   letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase",
                 }}>
                   Traditional kernel · runtime only
                 </div>
                 <DeviceShell title="kernel.cu" width={780} height={230} style={{ width: "100%", height: 230 }}>
                   <div style={{
-                    padding: "14px 18px", fontFamily: THEME.fonts.mono, fontSize: 16,
+                    padding: "14px 18px", fontFamily: THEME.fonts.mono, fontSize: 18,
                     lineHeight: 1.65, color: THEME.colors.textCode,
                   }}>
                     {OOB_CODE.map((line, i) => {
@@ -297,7 +300,7 @@ export const CompileTimeSafety: React.FC = () => {
                 transform: `translateX(${gpuX}px) translateX(${shake}px)`,
               }}>
                 <div style={{
-                  fontFamily: THEME.fonts.mono, fontSize: 13,
+                  fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm,
                   color: THEME.colors.textMuted, letterSpacing: "0.1em", marginBottom: 6,
                 }}>
                   GPU device
@@ -320,7 +323,7 @@ export const CompileTimeSafety: React.FC = () => {
                     opacity: crashOp, marginTop: 10, padding: "8px 12px",
                     borderRadius: THEME.radius.md, background: "rgba(8,12,18,0.96)",
                     border: `1px solid ${DANGER}77`, fontFamily: THEME.fonts.mono,
-                    fontSize: 13, color: DANGER,
+                    fontSize: THEME.fontSize.sm, color: DANGER,
                     boxShadow: `0 6px 24px rgba(248,113,113,0.2)`,
                   }}>
                     CUDA error: illegal memory access (OOB)
@@ -329,10 +332,10 @@ export const CompileTimeSafety: React.FC = () => {
               </div>
             </div>
 
-            {/* Phase 5: time overlay */}
+            {/* Phase 5: time overlay — positioned below the code/GPU row */}
             <div style={{
-              position: "absolute", left: "50%", top: "25%",
-              transform: "translate(-50%, -50%)", opacity: timeOp,
+              position: "absolute", left: "50%", bottom: 40,
+              transform: "translateX(-50%)", opacity: timeOp,
               textAlign: "center", pointerEvents: "none",
             }}>
               <div style={{
@@ -354,91 +357,91 @@ export const CompileTimeSafety: React.FC = () => {
                   </svg>
                 </div>
                 <div style={{
-                  fontSize: 38, fontWeight: 800, fontFamily: THEME.fonts.sans,
+                  fontSize: THEME.fontSize["2xl"], fontWeight: 700, fontFamily: THEME.fonts.sans,
                   color: lc(timeProg, THEME.colors.accentWarm, DANGER),
                 }}>
                   {timeProg < 0.5 ? "hours" : "days"}
                 </div>
-                <div style={{ fontSize: 15, color: THEME.colors.textSecondary, marginTop: 6, fontFamily: THEME.fonts.sans }}>
+                <div style={{ fontSize: THEME.fontSize.base, color: THEME.colors.textSecondary, marginTop: 6, fontFamily: THEME.fonts.sans }}>
                   to find one DMA / shape bug
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Phases 6-7: CroqTile compiler vs DSL comparison */}
+          {/* Phases 6-7: Stacked comparison — Other DSLs (top) → CroqTile (bottom) */}
           <AbsoluteFill style={{ opacity: solOp, pointerEvents: "none", top: 0 }}>
             <div style={{
-              display: "flex", flexDirection: "row", gap: 20, alignItems: "stretch",
+              display: "flex", flexDirection: "column", gap: 16,
               transform: `scale(${solEnter})`, transformOrigin: "top center",
             }}>
-              {/* Left: Other DSLs (template-based) — faded comparison */}
+              {/* Top: Other DSLs — full width, compact, shrinks as CroqTile enters */}
               <div style={{
-                flex: 1, minWidth: 0, opacity: dslFade * 0.7,
+                opacity: dslFade,
+                transform: `scale(${1 - 0.03 * pipeGlow})`,
+                transformOrigin: "top center",
               }}>
                 <div style={{
-                  fontFamily: THEME.fonts.mono, fontSize: 12, color: THEME.colors.textMuted,
-                  letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase",
+                  fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, color: DANGER,
+                  letterSpacing: "0.1em", marginBottom: 8, textTransform: "uppercase",
+                  fontWeight: 600,
                 }}>
-                  Other kernel DSLs
+                  Other kernel DSLs — template-based C++ extension
                 </div>
                 <div style={{
-                  borderRadius: THEME.radius.lg, padding: "16px 14px",
-                  border: `1px solid rgba(255,255,255,0.06)`,
-                  background: "rgba(17,24,39,0.95)",
-                  boxShadow: THEME.shadows.card, height: "100%",
+                  borderRadius: THEME.radius.lg, padding: "14px 20px",
+                  border: `1px solid ${DANGER}33`,
+                  background: `linear-gradient(90deg, rgba(248,113,113,0.04), rgba(17,24,39,0.95))`,
+                  boxShadow: THEME.shadows.card,
+                  display: "flex", flexDirection: "row", alignItems: "center", gap: 12,
                 }}>
-                  <div style={{
-                    fontFamily: THEME.fonts.mono, fontSize: 13, color: THEME.colors.textMuted,
-                    lineHeight: 1.6, marginBottom: 12,
-                  }}>
-                    Template-based C++ extension
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {["C++ Preprocessor", "Template Instantiation", "Host Compiler (NVCC)"].map((s, i) => (
-                      <div key={s} style={{
-                        padding: "8px 10px", borderRadius: THEME.radius.sm,
-                        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.04)",
-                        fontFamily: THEME.fonts.sans, fontSize: 14, color: THEME.colors.textMuted,
-                        display: "flex", alignItems: "center", gap: 8,
+                  {["C++ Preprocessor", "Template Instantiation", "Host Compiler (NVCC)"].map((s, i) => (
+                    <React.Fragment key={s}>
+                      <div style={{
+                        padding: "8px 14px", borderRadius: THEME.radius.sm,
+                        background: BG_SUBTLE, border: `1px solid ${BORDER_SUBTLE}`,
+                        fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, color: THEME.colors.textSecondary,
                       }}>
-                        <span style={{ color: THEME.colors.textMuted, fontSize: 12 }}>→</span>
                         {s}
                       </div>
-                    ))}
-                  </div>
+                      {i < 2 && (
+                        <span style={{ color: THEME.colors.textMuted, fontSize: 16 }}>→</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  <span style={{ color: THEME.colors.textMuted, fontSize: 16, marginLeft: 4 }}>→</span>
                   <div style={{
-                    marginTop: 10, padding: "6px 10px", borderRadius: THEME.radius.sm,
-                    background: `rgba(248,113,113,0.08)`, border: `1px solid ${DANGER}33`,
-                    fontFamily: THEME.fonts.mono, fontSize: 12, color: DANGER,
+                    padding: "8px 14px", borderRadius: THEME.radius.sm,
+                    background: `rgba(248,113,113,0.1)`, border: `1px solid ${DANGER}55`,
+                    fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, fontWeight: 700, color: DANGER,
                   }}>
                     No kernel-level static analysis
                   </div>
                 </div>
               </div>
 
-              {/* Right: CroqTile standalone compiler pipeline */}
-              <div style={{ flex: 2, minWidth: 0 }}>
+              {/* Bottom: CroqTile standalone compiler pipeline — full width */}
+              <div>
                 <div style={{
-                  fontFamily: THEME.fonts.mono, fontSize: 12, color: MINT,
-                  letterSpacing: "0.1em", marginBottom: 6, textTransform: "uppercase",
+                  fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, color: MINT,
+                  letterSpacing: "0.1em", marginBottom: 8, textTransform: "uppercase",
+                  fontWeight: 600,
                 }}>
                   CroqTile · standalone compiler
                 </div>
                 <div style={{
-                  borderRadius: THEME.radius.lg, padding: "16px 14px",
+                  borderRadius: THEME.radius.lg, padding: "16px 20px",
                   border: `2px solid rgba(110,231,183,${0.18 + 0.4 * pipeGlow})`,
                   background: `linear-gradient(180deg, rgba(31,41,55,0.96), rgba(17,24,39,0.98))`,
                   boxShadow: pipeGlow > 0
                     ? `${THEME.shadows.card}, 0 0 ${32 * pipeGlow}px ${THEME.colors.primaryGlow}`
                     : THEME.shadows.card,
                 }}>
-                  {/* 6-stage pipeline */}
-                  <div style={{ display: "flex", flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
                     {PIPE_STAGES.map((stage, i) => (
                       <React.Fragment key={stage.label}>
                         <div style={{
-                          flex: "1 1 0", minWidth: 90, padding: "10px 8px",
+                          flex: "1 1 0", minWidth: 100, padding: "12px 10px",
                           borderRadius: THEME.radius.md,
                           border: `1px solid ${MINT}${i < 4 ? "44" : "33"}`,
                           background: `rgba(110,231,183,${0.04 + (pipeGlow > 0 ? 0.04 * pipeGlow : 0)})`,
@@ -448,25 +451,25 @@ export const CompileTimeSafety: React.FC = () => {
                         }}>
                           <div style={{
                             fontFamily: THEME.fonts.sans, fontWeight: 700,
-                            fontSize: 14, color: THEME.colors.textPrimary,
+                            fontSize: THEME.fontSize.base, color: THEME.colors.textPrimary,
                           }}>
                             {stage.label}
                           </div>
                           <div style={{
-                            fontFamily: THEME.fonts.mono, fontSize: 11,
-                            color: THEME.colors.textMuted, marginTop: 3,
+                            fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.xs,
+                            color: THEME.colors.textSecondary, marginTop: 4,
                           }}>
                             {stage.sub}
                           </div>
                           {frame >= P7 && (
                             <div style={{
                               position: "absolute", right: -4, top: -6,
-                              width: 20, height: 20, borderRadius: THEME.radius.full,
+                              width: 22, height: 22, borderRadius: THEME.radius.full,
                               background: MINT, color: "#0A0E1A",
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              fontWeight: 900, fontSize: 12,
+                              fontWeight: 900, fontSize: THEME.fontSize.xs,
                               transform: `scale(${checkOp(i)})`, opacity: checkOp(i),
-                              boxShadow: `0 0 10px ${MINT}`,
+                              boxShadow: `0 0 12px ${MINT}`,
                             }}>
                               ✓
                             </div>
@@ -474,7 +477,7 @@ export const CompileTimeSafety: React.FC = () => {
                         </div>
                         {i < PIPE_STAGES.length - 1 && (
                           <div style={{
-                            alignSelf: "center", fontSize: 16, color: `${MINT}88`,
+                            alignSelf: "center", fontSize: 18, color: `${MINT}88`,
                             opacity: stageOp(i),
                           }}>
                             →
@@ -484,11 +487,10 @@ export const CompileTimeSafety: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* CroqTile code snippet */}
                   <div style={{
-                    marginTop: 12, borderRadius: THEME.radius.md,
-                    background: "rgba(0,0,0,0.2)", padding: "10px 12px",
-                    fontFamily: THEME.fonts.mono, fontSize: 13,
+                    marginTop: 14, borderRadius: THEME.radius.md,
+                    background: "rgba(0,0,0,0.2)", padding: "12px 16px",
+                    fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.base,
                     lineHeight: 1.55, color: THEME.colors.textCode,
                   }}>
                     {CROQ_CODE.map((line, i) => (
@@ -496,12 +498,11 @@ export const CompileTimeSafety: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Phase 7: analysis badge */}
                   <div style={{
-                    marginTop: 12, textAlign: "center", opacity: analysisOp,
-                    fontFamily: THEME.fonts.mono, fontSize: 13, fontWeight: 800,
+                    marginTop: 14, textAlign: "center", opacity: analysisOp,
+                    fontFamily: THEME.fonts.mono, fontSize: THEME.fontSize.sm, fontWeight: 800,
                     letterSpacing: "0.12em", color: MINT,
-                    padding: "8px 14px", borderRadius: THEME.radius.md,
+                    padding: "10px 18px", borderRadius: THEME.radius.md,
                     border: `1px solid ${MINT}55`, background: `rgba(110,231,183,0.06)`,
                   }}>
                     COMPILE-TIME STATIC ANALYSIS · ALL PASSES GREEN
@@ -543,10 +544,10 @@ export const CompileTimeSafety: React.FC = () => {
                           <span style={{ position: "absolute", color: MINT, opacity: cOp, transform: `scale(${0.85 + 0.15 * cOp})` }}>✓</span>
                         </div>
                         <div>
-                          <div style={{ fontFamily: THEME.fonts.sans, fontSize: 20, fontWeight: 700, color: THEME.colors.textPrimary }}>
+                          <div style={{ fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize.lg, fontWeight: 700, color: THEME.colors.textPrimary }}>
                             {label}
                           </div>
-                          <div style={{ fontFamily: THEME.fonts.sans, fontSize: 13, color: THEME.colors.textSecondary, marginTop: 3 }}>
+                          <div style={{ fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize.sm, color: THEME.colors.textSecondary, marginTop: 3 }}>
                             {morphE > 0.3 ? "caught at compile time" : "runtime-only in CUDA"}
                           </div>
                         </div>
@@ -567,7 +568,7 @@ export const CompileTimeSafety: React.FC = () => {
                   opacity: cl(frame, P9 + 8, P9 + 36),
                 }}>
                   <span style={{
-                    fontFamily: THEME.fonts.sans, fontSize: 36, fontWeight: 800,
+                    fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize["2xl"], fontWeight: 700,
                     color: THEME.colors.textPrimary, letterSpacing: "-0.02em",
                   }}>
                     Caught at compile time
@@ -585,12 +586,12 @@ export const CompileTimeSafety: React.FC = () => {
         }}>
           <div style={{
             height: 3, borderRadius: THEME.radius.full,
-            background: "rgba(255,255,255,0.06)", overflow: "hidden",
+            background: BORDER_SUBTLE, overflow: "hidden",
           }}>
             <div style={{
               width: `${((frame + 1) / TOTAL_FRAMES) * 100}%`,
               height: "100%", borderRadius: THEME.radius.full,
-              background: `linear-gradient(90deg, ${MINT}, ${THEME.colors.accent})`,
+              background: `linear-gradient(90deg, ${MINT}, ${THEME.colors.primaryDark})`,
               opacity: 0.85,
             }} />
           </div>

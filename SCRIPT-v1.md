@@ -309,188 +309,274 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 
 ---
 
-### 第 5 段 · 亮点三：动态符号化维度
+### 第 5 段 · 亮点三：异构计算支持 · Write Once, Run Everywhere
 
-**⏱ 2:15 – 2:45 | 30 秒**
+**⏱ 2:15 – 2:45 | 30 秒 (900 帧 @ 30fps)**
+
+---
+
+#### 叙事路线
+
+> CroqTile 源码不绑定硬件 → 编译器降级到各后端原生 ISA → 一个 flag 切换目标 → 多设备编程（parallel-by mpi）→ 编译器自动生成 host dispatch / 数据分区
+
+#### 语音分段与帧时间
+
+| Cue ID | 帧范围（Seg内） | 时长 | 内容 |
+|--------|----------------|------|------|
+| seg5-01 | 0–280f | ~9s | 同一源码 → 多后端（H800/A100/MI300/DSA） |
+| seg5-02 | 280–560f | ~9s | 改一个 flag，同 kernel 跑不同硬件 |
+| seg5-03 | 560–890f | ~11s | 多设备：parallel-by mpi，编译器自动 dispatch |
+
+#### 动画结构（与语音对齐）
+
+| 段落 | 帧范围 | 时长 | 对应语音 | 内容 |
+|------|--------|------|----------|------|
+| Phase A | 0–280f | ~9s | seg5-01 | CroqTile 源码居中，右侧分支箭头指向 4 个目标设备卡片 |
+| Phase B | 280–560f | ~9s | seg5-02 | 编译 flag 动画切换（`-t cute -arch=sm_90a` → `-t gfx942` → `-t dsa_x`） |
+| Phase C | 560–890f | ~11s | seg5-03 | distributed_matmul 代码 + 节点分区图（2×2 grid） |
 
 ---
 
 **[画面]**
-屏幕出现一个函数签名，M、N、K 三个符号维度被 mint 色高亮。下方展示：
-- 一个维度选择器（Small / Medium / Large / Rectangular）
-- 随着选择切换，shape 数字变化，但代码本体一字不动
 
-```choreo
-// CroqTile：M、N、K 是符号维度 — 写一次，任意形状运行
-__co__ auto matmul(global f16 [M, K] lhs, global f16 [N, K] rhs) { ... }
-```
+**Phase A (0–280f, ~9s) — Write Once, Run Everywhere**
+屏幕左侧出现 CroqTile matmul 内核代码（约 12 行，mint 色调的 DeviceShell）。
+右侧从中间发散出 4 条带箭头的连线，每条连线末端是一个目标设备卡片，依次弹入（spring 动画）：
+- NVIDIA H800/H100（mint 绿边框）：`-t cute -arch=sm_90a` → Hopper SM90a (PTX + SASS)
+- NVIDIA A100（cyan 边框）：`-t cute -arch=sm_80` → Ampere SM80
+- AMD MI300（orange 边框）：`-t gfx942` → AMDGPU ISA
+- Custom DSA（pink 边框）：`-t dsa_x` → Pluggable backend
 
-对比出现：
+每条连线上标注对应的编译 flag（mono 字体、小号）。底部居中标注：
+`Same source → different targets — the compiler lowers CroqTile IR to each backend's native ISA`
 
-```python
-# Triton：block size 必须是编译期常量
-BLOCK_M: tl.constexpr  # 不能是符号
-# 每种 shape 需要单独调参、重新编译
-```
+**Phase B (280–560f, ~9s) — 一个 Flag 切换目标**
+左侧代码不变。右侧 4 个设备卡片依次高亮（当前活跃的卡片边框变亮、带 glow），
+其余变灰。对应的编译 flag 在代码上方一行以 crossfade 动画切换。
+暗示：源码完全不动，只有编译目标在变化。
+
+**Phase C (560–890f, ~11s) — 多设备编程**
+Phase A/B 淡出。屏幕左右分栏：
+- 左侧：distributed_matmul.co 代码（DeviceShell），高亮 `parallel {node_m, node_n} by [...] : mpi { ... }` 这几行（amber 高亮）
+- 右侧：2×2 网格图（Node 0,0 / 0,1 / 1,0 / 1,1），每个格子标注 GPU 编号和矩阵分区范围
+  下方 bullet points 弹入：
+  - Kernel launch → compiler generates host dispatch
+  - Type conversion & alignments → handled automatically
+  - Data partitioning → `parallel-by mpi` splits work across ranks
 
 **[中]**
-CroqTile 是同类工具中第一个支持符号化维度的内核语言。M、N、K 直接写进函数签名，派生维度如 `PACKED_K`、`META_COLS` 自动推断。
+*(seg5-01)* 同一份 CroqTile 源码，编译器自动降级到不同后端的原生 ISA——NVIDIA H800、A100、AMD MI300，甚至自定义加速器。不需要为每种硬件重写代码。
 
-一套代码，从小矩阵到 8K×16K，不需要重新编译，不需要模板特化。
+*(seg5-02)* 只需要改一个编译 flag，同一个 kernel 就能跑在完全不同的硬件上。代码不改一行。
 
-Triton 要求 block size 是编译期常量。CUDA 需要模板元编程。CroqTile 不需要。
+*(seg5-03)* 多设备编程也一样简单：在 kernel 外层加一层 `parallel-by mpi`，编译器自动生成数据分区、host dispatch 和跨节点通信。几行样板代码就能把单 GPU kernel 扩展到多节点集群。
 
 **[英]**
-CroqTile is the first kernel language in its class to support symbolic dimensions. M, N, K go directly into the function signature. Derived dimensions like `PACKED_K` and `META_COLS` are auto-inferred.
+*(seg5-01)* One CroqTile source, and the compiler lowers it to each backend's native ISA — NVIDIA H800, A100, AMD MI300, even custom DSAs. No code rewrite for each target.
 
-One kernel, any shape — from small tiles to 8K×16K matrices. No recompilation. No template specialization.
+*(seg5-02)* Just change one compiler flag and the same kernel runs on entirely different hardware. Not a single line of code changes.
 
-Triton requires compile-time constexpr block sizes. CUDA needs template metaprogramming. CroqTile doesn't.
-
----
-
-### 第 6 段 · 亮点四：天生为 AI 而设计
-
-**⏱ 2:45 – 5:20 | 155 秒**
+*(seg5-03)* Multi-device programming is just as simple: wrap the kernel in a `parallel-by mpi` layer, and the compiler generates data partitioning, host dispatch, and cross-node communication. A few lines of boilerplate scale a single-GPU kernel to a multi-node cluster.
 
 ---
 
-#### 6A · 引子：从易用到 AI-native
+### 第 6 段 · 亮点四：天生为 Agentic AI 编程而设计
+
+**⏱ 2:45 – 5:20 | 155 秒 (4650 帧 @ 30fps)**
+
+---
+
+#### 叙事路线
+
+> AI-native 定位 → AI 调优收敛实测（benchmark 数据先行，用结果建立可信度）→ 为什么 CroqTile 特别适合 AI 调优（token 精简 + 单点变更 + compiler guardrail）→ AI 增强层（profiler CLI + Skills）→ 收尾：新范式
+
+#### 语音分段与帧时间（18 cues，6 sub-segments）
+
+| Sub | Cue IDs | 帧范围（Seg内） | 时长 | 内容 |
+|-----|---------|----------------|------|------|
+| 6A | seg6a-01, seg6a-02 | 0–450f | ~15s | AI-native 引子 |
+| 6B | seg6b-01, seg6b-02, seg6b-03 | 450–1200f | ~25s | AI 调优收敛 benchmark |
+| 6C | seg6c-01, seg6c-02, seg6c-03 | 1200–1950f | ~25s | Token 精简 + 单点变更 |
+| 6D | seg6d-01, seg6d-02, seg6d-03 | 1950–2700f | ~25s | Compiler guardrail vs CUDA |
+| 6E | seg6e-01, seg6e-02, seg6e-03 | 2700–3600f | ~30s | Profiler CLI + Skills |
+| 6F | seg6f-01, seg6f-02, seg6f-03, seg6f-04 | 3600–4650f | ~35s | 实测结果 + 新范式 |
+
+---
+
+#### 6A · 引子：Born for Agentic AI Programming
 
 **⏱ 2:45 – 3:00 | 15 秒**
 
 **[画面]**
-画面由第 5 段平滑过渡。屏幕右侧浮现 AI agent 界面图标（终端 + 机器人徽章）。文字逐字显示：
-`entry-level performance engineer → CroqTile → production kernel`
-接着箭头延伸并乘以编程 Agent：`× coding agent → 10×`
+画面由第 5 段平滑过渡。大标题弹入：`Born for Agentic AI Programming`。
+下方两个关键词卡片对称出现（spring 弹性）：
+- 左：`Superior Context Engineering` — 图标：代码窗口 + 压缩箭头
+- 右：`Superior Harness Engineering` — 图标：编译器盾牌 + 检查标记
 
 **[中]**
-借助 CroqTile 的这些进步，哪怕是入门级性能工程师，也能独立写出生产级内核。
+*(seg6a-01)* CroqTile 从第一天起就为 agentic AI 编程而设计。
 
-更令人兴奋的是——用编程 Agent 搭配 CroqTile，这一切可以再乘以十。
-
-因为 CroqTile，从一开始就是为 AI-native 而设计的。
+*(seg6a-02)* 两个核心优势：极致的上下文工程，和极致的 harness 工程。
 
 **[英]**
-Thanks to CroqTile's advances, even an entry-level performance engineer can independently produce production-grade kernels.
+*(seg6a-01)* CroqTile was designed for agentic AI programming from day one.
 
-More excitingly — pair CroqTile with a coding agent, and multiply that by ten.
-
-Because CroqTile was designed for AI-native from day one.
+*(seg6a-02)* Two core advantages: superior context engineering, and superior harness engineering.
 
 ---
 
-#### 6B · 上下文极度精简
+#### 6B · AI 调优收敛对比（Benchmark 数据先行）
 
 **⏱ 3:00 – 3:25 | 25 秒**
 
 **[画面]**
-左侧：代码 token 计数器动画。CroqTile 内核：约 36 行 → `~500 tokens`；CUDA+CuTe：180 行 → `2000–4000 tokens`。
-右侧：AI 上下文窗口可视化——CroqTile 的完整内核轻松装进绿色窗格；CUDA 版本溢出窗格边界变红。
+
+**① matmul 收敛曲线（0–250f）**
+屏幕左侧：收敛曲线图（Y 轴 = running-best TFLOPS，X 轴 = iterations）。
+六条曲线依次出现：CroqTile 486（mint，最高）、Triton 384（indigo）、TileLang 343（pink）、Helion 318（amber）、CUDA 162（red）、CuTe-DSL 27（purple）。
+cuBLAS baseline 虚线 420 TFLOPS。CroqTile 超过 baseline 时曲线发光。
+右侧 6 个数据卡片（横向柱状图风格）显示最终 TFLOPS。
+底部标注：`cuBLAS baseline: 420 TFLOPS · CroqTile = 115% of vendor`
+
+**② blockscale 切换（250–450f）**
+曲线图 crossfade 切换到 blockscale GEMM E4M3 结果：
+CroqTile 711（mint）、TileLang 408（pink）、Triton 298（indigo）、Helion 167（amber）。
+底部标注：`cuBLAS baseline: 460 TFLOPS · CroqTile = 155% of vendor · 6 iterations only`
+
+**③ SPMM 总结（450–750f）**
+曲线图淡出，屏幕居中出现三个大数字卡片：
+- `84%` — win rate across 95 shapes
+- `+16.7%` — average speedup over cuSPARSELt
+- `95` — sparse GEMM shapes tested
 
 **[中]**
-AI 的工作质量，和它能看到的上下文直接相关。
+*(seg6b-01)* 同一个 AI agent、同一硬件、同一 budget，只有语言不同。CroqTile 在 matmul FP16 16384 的方阵上达到 486 TFLOPS，超过 cuBLAS 的 420。
 
-CroqTile 的语法信息密度极高——同样的计算逻辑，CroqTile 只需要约 500 个 token，而 CUDA+CuTe 要消耗 2000 到 4000 个 token。
+*(seg6b-02)* 在 blockscale GEMM E4M3 上更加惊人：CroqTile 711 TFLOPS，仅 6 次迭代，vendor library 的 155%。
 
-整个内核永远在上下文窗口里。AI 永远拥有完整的全局视图。
+*(seg6b-03)* 在 95 个 sparse GEMM shape 上，CroqTile AI 调优赢了 84%，平均比 cuSPARSELt 快 16.7%。
 
 **[英]**
-The quality of AI work is directly tied to how much context it can see.
+*(seg6b-01)* Same AI agent, same hardware, same budget — only the language differs. CroqTile hits 486 TFLOPS on matmul FP16 16384 squared, surpassing cuBLAS at 420.
 
-CroqTile's syntax has extremely high information density — the same logic takes roughly 500 tokens in CroqTile versus 2,000 to 4,000 in CUDA plus CuTe.
+*(seg6b-02)* Blockscale GEMM E4M3 is even more striking: CroqTile reaches 711 TFLOPS in just 6 iterations — 155% of the vendor library.
 
-The entire kernel always fits in the context window. The AI always has the full picture.
+*(seg6b-03)* Across 95 sparse GEMM shapes, CroqTile AI tuning wins 84% of cases, averaging 16.7% faster than cuSPARSELt.
 
 ---
 
-#### 6C · Context 浪费为零
+#### 6C · 为什么 CroqTile 适合 AI 调优：Token 精简 + 单点变更
 
 **⏱ 3:25 – 3:50 | 25 秒**
 
 **[画面]**
-动画展示一个 AI 修改指令："优化 TILE_K 以减少 bank conflict"。
-左侧（CroqTile）：一处修改，高亮一行代码，标注 `1 change site`。
-右侧（CUDA）：同一概念变更，7–9 处代码散落高亮，标注 `7 change sites`。
-接着展示第二个场景：一次较大的分块策略调整，CroqTile 只需修改声明处；CUDA 需要修改所有偏移量计算。
+
+**① Token 对比柱状图（0–250f）**
+横向柱状图，同一 persistent warp-specialized GEMM 的 token 数对比：
+- CroqTile：36 LOC / 303 tokens（mint，最短）
+- Triton：80 LOC / 449 tokens（indigo）
+- CUDA+CuTe：182 LOC / 1530 tokens（orange）
+- CUTLASS：280 LOC / 2350 tokens（red，最长）
+
+下方推论卡片（紫色边框）：
+`同样 100 iterations：CroqTile ~70K tokens / CUDA ~350K tokens → CroqTile 可以跑 5× 更多轮次，或用更小模型`
+
+**② 变更站点对比表（250–750f）**
+表格逐行弹入：
+
+| AI tuning 操作 | CroqTile | CUDA |
+|----------------|----------|------|
+| 改 tile size (WARP_M/N) | 1 处 | 5 处 |
+| 改 swizzle 模式 | 1 处 | 3 处 |
+| 改 pipeline stages | 1 处 | 4 处 |
+| 改 data type (f16→f8) | 1 处 | 7 处 |
+| 加 warp specialization | 2 处 | 6 处 |
+
+CroqTile 列 mint 高亮，CUDA 列 red 高亮。
 
 **[中]**
-CroqTile 让每一个逻辑变更，只对应一处代码修改。
+*(seg6c-01)* CroqTile 只需要 303 个 token 描述一个 warp-specialized GEMM。Triton 需要 449，CUDA+CuTe 需要 1530，CUTLASS 需要 2350。
 
-改 TILE_K？只改一个地方。切换分块策略？只改声明，不动偏移量。
+*(seg6c-02)* 同样 100 轮迭代，CroqTile 只消耗约 70K token，而 CUDA 要 350K。CroqTile 可以跑 5 倍更多轮次，或用更小的模型。
 
-对 AI 来说，这意味着几乎零 context 浪费——没有散落各处的隐性耦合，没有需要追踪的影子变量。
-
-即便是复杂的结构调整，AI 也能在一步内完成，不会漏改。
+*(seg6c-03)* 每一个逻辑变更只对应一处代码修改。改 tile size，CroqTile 1 处，CUDA 5 处。改 swizzle，1 处 vs 3 处。
 
 **[英]**
-CroqTile ensures every logical change maps to exactly one code change site.
+*(seg6c-01)* CroqTile takes just 303 tokens for a warp-specialized GEMM. Triton needs 449, CUDA+CuTe 1,530, CUTLASS 2,350.
 
-Change TILE_K? One place. Switch tiling strategy? Modify the declaration — not every offset calculation.
+*(seg6c-02)* Over 100 iterations, CroqTile consumes only 70K tokens versus 350K for CUDA. That means 5x more iterations, or a smaller model.
 
-For AI, this means nearly zero context waste. No hidden coupling scattered across the file. No shadow variables to track.
-
-Even complex structural changes can be completed in a single step without missing anything.
+*(seg6c-03)* Every logical change maps to one code site. Tile size: CroqTile 1 site, CUDA 5. Swizzle: 1 vs 3.
 
 ---
 
-#### 6D · 编译失败率最低 · 反馈循环最快
+#### 6D · Compiler Message 作为护栏
 
 **⏱ 3:50 – 4:15 | 25 秒**
 
 **[画面]**
-柱状图对比：各 DSL 的编译失败率——
-CroqTile **3.5%**（mint 色，最低）；Triton 7.5%；CUDA 10.0%；Helion 23.3%（灰色）。
 
-下方补充反馈循环对比动画：
-- 其他 DSL：`AI 提出改动 → GPU 运行 30s → 报错（时间已浪费）`
-- CroqTile：`AI 提出改动 → 编译器 3s → 立即定位错误 → 下一次迭代`
+**① CUDA vs CroqTile 对比面板（0–500f）**
+屏幕左右分栏：
+- 左侧（red 调）：`CUDA: runtime 才发现错误`
+  - ⚠ Tile 不整除 → **device hang**
+  - ⚠ Shared memory 超限 → **silent launch fail**
+  - ⚠ Swizzle 不匹配 → **wrong results**
+  - ⚠ mbarrier 错误 → **deadlock**
+- 右侧（mint 调）：`CroqTile: 编译期完整诊断`
+  - ✔ `error: tile M=96 not divisible by WARP_M=64`
+  - ✔ `error: smem 49408B exceeds 48KB limit`
+  - ✔ `error: swiz<128> requires 128B-aligned`
+  - ✔ `error: mma.row requires M%64==0`
 
-右侧附注：compile-time pruning 消除 30–40% 不可行配置，完全无需 GPU 时间。
+**② 数据卡片（500–750f）**
+四个卡片横排弹入：
+- `353` compile checks（mint）
+- `1,319` runtime asserts（mint）
+- `3–8s` CroqTile / iteration（mint）
+- `30–90s` CUDA / iteration（red）
 
 **[中]**
-在实际调优实验中，CroqTile 的编译失败率是所有对比 DSL 中最低的——只有 3.5%。
+*(seg6d-01)* CUDA 的错误在 runtime 才暴露：device hang、silent launch fail、wrong results、deadlock。
 
-关键不在于"AI 犯更少的错误"，而在于：每一个错误都被更快地发现。
+*(seg6d-02)* CroqTile 在编译期就完整诊断：tile 不整除、shared memory 超限、swizzle 不匹配，全部拦截。
 
-CroqTile 的 353 项编译时检查，在 GPU 运行之前就拦截了所有约束违反，每次失败立即指向具体原因。无效的改动在秒级内被淘汰，而不是等待昂贵的 GPU 测量。
-
-结合 30–40% 配置空间预剪枝，调优循环比 profiler-only 方法快 5 倍。
+*(seg6d-03)* 353 条编译期检查、1319 条 runtime assert。每轮迭代 CroqTile 只需 3 到 8 秒，CUDA 要 30 到 90 秒。
 
 **[英]**
-In real-world tuning experiments, CroqTile has the lowest compile failure rate among all compared DSLs — just 3.5%.
+*(seg6d-01)* CUDA errors only surface at runtime: device hangs, silent launch failures, wrong results, deadlocks.
 
-The point isn't that AI makes fewer mistakes. It's that every mistake is caught faster.
+*(seg6d-02)* CroqTile catches everything at compile time: tile divisibility, shared memory limits, swizzle alignment — all intercepted.
 
-CroqTile's 353 compile-time checks intercept all constraint violations before any GPU run, pinpointing the exact cause immediately. Invalid changes are eliminated in seconds, not after expensive GPU measurements.
-
-Combined with 30–40% configuration space pruning, the tuning loop converges 5× faster than profiler-only approaches.
+*(seg6d-03)* 353 compile-time checks, 1,319 runtime asserts. Each iteration takes 3–8 seconds with CroqTile versus 30–90 seconds with CUDA.
 
 ---
 
-#### 6E · 额外护栏层
+#### 6E · AI 增强层：Profiler CLI + CroqTile Skills
 
 **⏱ 4:15 – 4:45 | 30 秒**
 
 **[画面]**
 三层护栏结构图依次从下向上浮现：
-- **第 1 层**：Compiler Guardrail（灰色底，已有）
-- **第 2 层**：Integrated Profiler CLI（mint 色，新浮现）—— 图标：ncu + 其他 DSA profiler 合并成统一界面
-- **第 3 层**：CroqTile Skills（橙色，新浮现）—— 图标：文档 + 模板 + patterns 封装
+- **第 1 层**：Compiler Guardrail（灰色底，已有，dim 状态）
+- **第 2 层**：Unified Profiler CLI（mint 色，新浮现）— 图标：ncu + 多 DSA profiler 合并成统一界面，terminal 样式截图
+- **第 3 层**：CroqTile Skills（amber 色，新浮现）— 图标：文档 + 模板 + patterns 封装
+
+每层浮现时带 spring 弹性 + glow 效果。
 
 **[中]**
-除了编译器护栏，CroqTile 还提供两层额外的 AI 增强层。
+*(seg6e-01)* 除了编译器护栏，CroqTile 还提供两层 AI 增强：统一 profiler CLI 和 CroqTile Skills。
 
-一是统一 profiler CLI：将 NVIDIA ncu 与其他 DSA profiler 的输出整合成一个统一界面，让 AI 能在同一视图下分析跨硬件性能数据。
+*(seg6e-02)* 统一 profiler CLI 将 NVIDIA ncu 和各种 DSA profiler 的输出整合成一个界面。AI 不再需要理解不同 profiler 的输出格式。
 
-二是 CroqTile Skills：为编程 Agent 预封装的 CroqTile 语法规则、常用模式与代码模板——AI 不再需要从零推导，直接调用已知最优方案。
+*(seg6e-03)* CroqTile Skills 为 coding agent 预封装语法规则、常用模式和代码模板，让 AI 的第一次尝试就接近最优。
 
 **[英]**
-Beyond compiler guardrails, CroqTile provides two additional AI enhancement layers.
+*(seg6e-01)* Beyond compiler guardrails, CroqTile adds two AI enhancement layers: a unified profiler CLI and CroqTile Skills.
 
-First: a unified profiler CLI — integrating NVIDIA ncu and other DSA profiler outputs into a single interface, so the AI can analyze cross-hardware performance in one view.
+*(seg6e-02)* The unified profiler CLI integrates NVIDIA ncu and various DSA profiler outputs into a single interface. AI no longer needs to parse different profiler formats.
 
-Second: CroqTile Skills — pre-packaged syntax rules, common patterns, and code templates for coding agents. AI no longer needs to reason from scratch; it can invoke known-optimal solutions directly.
+*(seg6e-03)* CroqTile Skills pre-packages syntax rules, common patterns, and code templates for coding agents, so the AI's first attempt is near-optimal.
 
 ---
 
@@ -500,36 +586,42 @@ Second: CroqTile Skills — pre-packaged syntax rules, common patterns, and code
 
 **[画面]**
 
-**① 复杂代码变更（左侧）**
-AI agent 界面展示一次非平凡的内核重构（例如切换 warp group 策略），CroqTile 内核平滑完成变更，编译通过。标注：`structural change · 1 step · compile pass`。
+**① 复杂代码变更（0–350f，左侧）**
+AI agent 界面展示一次非平凡的内核重构：切换 tile size、swizzle、pipeline stages。
+CroqTile 内核平滑完成变更，编译通过。标注：`structural change · 1 step · compile pass`。
 
-**② 调优收敛曲线（右侧）**
-近 template-free 场景下，AI-guided CroqTile 的吞吐量逐步爬升：
+**② 调优收敛曲线（0–350f，右侧）**
+FP8 sparse GEMM 吞吐量逐步爬升：
 `671 → 784 → 902 → 1051 → 1127 TFLOPS`
 标注：68 次迭代，+67.9%，对齐 vendor library 水位线（虚线）。
 
-**③ 范式对比（下方）**
+**③ 范式对比（350–700f，下方）**
 两条工作流示意同时浮现：
 - 当前主流：`人工写内核 → AI 辅助调试（下游）`
 - CroqTile 新范式：`AI 主动探索 + 优化（上游） → 人工审核确认`
 
+**④ 结语（700–1050f）**
+范式图淡出，屏幕居中大字弹入：
+`CroqTile has put AI in the driver's seat.`
+下方小字淡入：`That's what AI-native truly means.`
+
 **[中]**
-在实测中，CroqTile 上的 AI agent 能够自发地完成复杂的结构代码变更——不只是调参，而是真正的内核重构。
+*(seg6f-01)* AI agent 在 CroqTile 上自主完成复杂的结构代码变更：改 tile size、swizzle、pipeline stages，都是一步到位。
 
-在近 template-free 的调优场景下，AI 仍然能在 68 次迭代内将 FP8 稀疏 GEMM 的吞吐量从 671 提升到 1127 TFLOPS，达到 vendor library 的优化水平。
+*(seg6f-02)* AI 在 68 次迭代内将 FP8 sparse GEMM 的吞吐量从 671 提升到 1127 TFLOPS，达到 vendor library 水平。
 
-这开启了一个新的工作范式：AI 调优不再是下游的人工兜底，而是上游的主动探索引擎。
+*(seg6f-03)* 这开启了一个新范式：AI 调优不再是下游兜底，而是上游的主动探索引擎。
 
-当主流研究还在用 AI 做下游调试，CroqTile 已经把 AI 推上了驾驶位——这就是 AI-native 的真正含义。
+*(seg6f-04)* CroqTile 已经把 AI 推上了驾驶位。这就是 AI-native 的真正含义。
 
 **[英]**
-In practice, AI agents on CroqTile can autonomously make complex structural code changes — not just parameter tuning, but genuine kernel refactoring.
+*(seg6f-01)* AI agents on CroqTile autonomously make complex structural code changes: tile size, swizzle, pipeline stages — all in one step.
 
-In near-template-free tuning, AI still converges in 68 iterations, pushing FP8 sparse GEMM from 671 to 1,127 TFLOPS — matching vendor library performance.
+*(seg6f-02)* AI converges in 68 iterations, pushing FP8 sparse GEMM from 671 to 1,127 TFLOPS — matching vendor library performance.
 
-This enables a fundamentally new paradigm: AI tuning as an upstream workflow, not a downstream safety net.
+*(seg6f-03)* This enables a new paradigm: AI tuning as an upstream exploration engine, not a downstream safety net.
 
-While mainstream research still uses AI for downstream debugging, CroqTile has already put AI in the driver's seat — that's what AI-native truly means.
+*(seg6f-04)* CroqTile has put AI in the driver's seat. That's what AI-native truly means.
 
 ---
 
@@ -560,23 +652,22 @@ Welcome to the new era of compute programming. Your kernel development productiv
 
 | 段落 | 时间 | 时长 | 核心内容 |
 |------|------|------|---------|
-| 0 · 痛点开场 | 0:00–0:30 | 30s | 几个月 / 280行 / GPU 才报错 |
-| 1 · 解法揭晓 | 0:30–0:48 | 18s | CroqTile logo + tagline |
-| 2A · 编程抽象 | 0:48–1:22 | 34s | Tensor/Shape/Group-view 三维度 |
-| 2B · 零样板 | 1:22–1:35 | 13s | TMA 一行 / MMA 一行 |
-| 3 · 性能数据 | 1:35–1:45 | 10s | 471 TFLOPS vs 447 (+5.3%) |
-| 4 · 编译时安全 | 1:45–2:15 | 30s | 353 checks / 1319 assertions |
-| 5 · 动态 Shape | 2:15–2:45 | 30s | 符号维度 / 一次编写任意形状 |
-| 6A · AI 引子 | 2:45–3:00 | 15s | 入门工程师 → coding agent × 10 |
-| 6B · Context 精简 | 3:00–3:25 | 25s | 500 vs 2000–4000 tokens |
-| 6C · 零 context 浪费 | 3:25–3:50 | 25s | 单点变更 / 复杂重构一步完成 |
-| 6D · Pass@1 + 低随机性 | 3:50–4:15 | 25s | 统计显著差异 / compiler guardrail |
-| 6E · 额外护栏层 | 4:15–4:45 | 30s | 统一 profiler CLI / CroqTile Skills |
-| 6F · 实测 + 新范式 | 4:45–5:20 | 35s | 671→1127 / 上游 AI 工作流 |
-| 7 · CTA | 5:20–5:30 | 10s | Outro + 链接 |
-| **合计** | | **330s** | |
+| 0 · 痛点开场 | 0:00–0:15 | 15s | 写一个生产级 GPU kernel 要多久？ |
+| 1 · 迭代痛苦 + 解法 | 0:15–1:01 | 46s | 多轮迭代 + 门槛 → CroqTile 登场 |
+| 2 · 简单易用 | 1:01–1:48 | 47s | Tensor-view vs buffer+offset / 60% less code |
+| 3 · 零成本抽象 | 1:48–2:18 | 30s | LOC 对比 / 471 TFLOPS / 散点图 |
+| 4 · 编译时安全 | 2:18–2:45 | 30s | 353 checks / 1319 assertions / 对比 CUDA |
+| 5 · 异构计算 | 2:45–3:15 | 30s | Write Once Run Everywhere / parallel-by mpi |
+| 6A · AI-native 引子 | 3:15–3:30 | 15s | 上下文工程 + harness 工程 |
+| 6B · AI 调优收敛 | 3:30–3:55 | 25s | 486T matmul / 711T blockscale / 84% SPMM |
+| 6C · Token 精简 | 3:55–4:20 | 25s | 303 vs 2350 tokens / 单点变更 |
+| 6D · Compiler 护栏 | 4:20–4:45 | 25s | CUDA runtime vs CroqTile compile-time / 3-8s |
+| 6E · AI 增强层 | 4:45–5:15 | 30s | 统一 profiler CLI / CroqTile Skills |
+| 6F · 实测 + 新范式 | 5:15–5:50 | 35s | 671→1127 / 上游 AI 工作流 / driver's seat |
+| 7 · CTA | 5:50–6:00 | 10s | Outro + 链接 |
+| **合计** | | **~360s** | |
 
-> **注**：第 6 段合计 155 秒，超过其他所有亮点（2A+2B+3+4+5 = 117 秒）之和。
+> **注**：第 6 段合计 155 秒，超过其他所有亮点段（2+3+4+5 = 137 秒）之和。
 
 ## 关键数据汇总
 

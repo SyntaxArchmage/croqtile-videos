@@ -45,33 +45,30 @@ CUES = [
     ("seg4-03", "而 CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。这使得 CroqTile 具备了独一无二的编译期静态检查能力。", "CroqTile is the only next-generation kernel language on the market with a purpose-built standalone compiler. This gives CroqTile unparalleled compile-time static analysis."),
     ("seg4-04", "DMA 越界、shape 不匹配、同步错误——这些传统内核开发中最难追踪的 runtime bug，CroqTile 编译器在编译期就能优雅地拦截。", "DMA overflows, shape mismatches, sync errors — the hardest runtime bugs to track in traditional kernel development are caught elegantly by the CroqTile compiler at compile time."),
 
-    ("seg5-01", "CroqTile 是同类工具中第一个支持符号化维度的内核语言。", "CroqTile is the first kernel language in its class to support symbolic dimensions."),
-    ("seg5-02", "一套代码，从小矩阵到 8K 乘 16K，不需要重新编译，不需要模板特化。", "One kernel, any shape — from small tiles to 8K times 16K matrices. No recompilation. No template specialization."),
-    ("seg5-03", "Triton 要求 block size 是编译期常量。CUDA 需要模板元编程。CroqTile 不需要。", "Triton requires compile-time constexpr block sizes. CUDA needs template metaprogramming. CroqTile doesn't."),
+    ("seg5-01", "CroqTile 编译器支持多种后端执行设备，可以通过简单的编译器配置，就能将同一份 CroqTile 源码，运行在不同的后端设备上，甚至自定义加速器上，不需要用户进行复杂的迁移与适配。", "The CroqTile compiler supports multiple backend devices. With a simple compiler configuration, the same CroqTile source can run on different backend devices, even custom accelerators, without any complex migration or adaptation."),
+    ("seg5-02", "不仅如此，CroqTile 还能让多个设备协同工作。只需增加一层 parallel-by 结构，并标注通过 mpi 分发，CroqTile 编译器就能自动完成对应的宿主机代码和设备端代码的生成和分发，多设备编程与单设备一样简单。", "What's more, CroqTile enables multi-device collaboration. Just add a parallel-by structure and specify mpi dispatch, and the CroqTile compiler automatically generates and distributes the corresponding host code and device code — multi-device programming is as simple as single-device."),
 
-    ("seg6a-01", "借助 CroqTile 的这些进步，哪怕是入门级性能工程师，也能独立写出生产级内核。", "Thanks to CroqTile's advances, even an entry-level performance engineer can independently produce production-grade kernels."),
-    ("seg6a-02", "用编程 Agent 搭配 CroqTile，这一切可以再乘以十。因为 CroqTile，从一开始就是为 AI-native 而设计的。", "Pair CroqTile with a coding agent, and multiply that by ten. Because CroqTile was designed for AI-native from day one."),
-
-    ("seg6b-01", "AI 的工作质量，和它能看到的上下文直接相关。", "The quality of AI work is directly tied to how much context it can see."),
-    ("seg6b-02", "CroqTile 只需要约 500 个 token，而 CUDA 加 CuTe 要消耗 2000 到 4000 个 token。", "CroqTile takes roughly 500 tokens versus 2,000 to 4,000 in CUDA plus CuTe."),
-    ("seg6b-03", "整个内核永远在上下文窗口里。AI 永远拥有完整的全局视图。", "The entire kernel always fits in the context window. The AI always has the full picture."),
-
-    ("seg6c-01", "CroqTile 让每一个逻辑变更，只对应一处代码修改。", "CroqTile ensures every logical change maps to exactly one code change site."),
-    ("seg6c-02", "对 AI 来说，这意味着几乎零 context 浪费。", "For AI, this means nearly zero context waste."),
-    ("seg6c-03", "即便是复杂的结构调整，AI 也能在一步内完成，不会漏改。", "Even complex structural changes can be completed in a single step without missing anything."),
-
-    ("seg6d-01", "CroqTile 的编译失败率是所有对比 DSL 中最低的——只有 3.5%。", "CroqTile has the lowest compile failure rate among all compared DSLs — just 3.5%."),
-    ("seg6d-02", "关键不在于 AI 犯更少的错误，而在于每一个错误都被更快地发现。", "The point isn't that AI makes fewer mistakes. It's that every mistake is caught faster."),
-    ("seg6d-03", "结合 30 到 40% 配置空间预剪枝，调优循环比 profiler-only 方法快 5 倍。", "Combined with 30 to 40% configuration space pruning, the tuning loop converges 5 times faster."),
-
-    ("seg6e-01", "除了编译器护栏，CroqTile 还提供两层额外的 AI 增强层。", "Beyond compiler guardrails, CroqTile provides two additional AI enhancement layers."),
-    ("seg6e-02", "统一 profiler CLI：将 ncu 与其他 DSA profiler 的输出整合成一个统一界面。", "Unified profiler CLI — integrating NVIDIA ncu and other DSA profiler outputs into a single interface."),
-    ("seg6e-03", "CroqTile Skills：为编程 Agent 预封装的语法规则、常用模式与代码模板。", "CroqTile Skills — pre-packaged syntax rules, common patterns, and code templates for coding agents."),
-
-    ("seg6f-01", "CroqTile 上的 AI agent 能够自发完成复杂的结构代码变更。", "AI agents on CroqTile can autonomously make complex structural code changes."),
-    ("seg6f-02", "AI 在 68 次迭代内将吞吐量从 671 提升到 1127 TFLOPS，达到 vendor library 水平。", "AI converges in 68 iterations, pushing FP8 sparse GEMM from 671 to 1,127 TFLOPS — matching vendor library performance."),
-    ("seg6f-03", "这开启了一个新的工作范式：AI 调优不再是下游的人工兜底，而是上游的主动探索引擎。", "This enables a fundamentally new paradigm: AI tuning as an upstream workflow, not a downstream safety net."),
-    ("seg6f-04", "CroqTile 已经把 AI 推上了驾驶位——这就是 AI-native 的真正含义。", "CroqTile has already put AI in the driver's seat — that's what AI-native truly means."),
+    # ═══ Seg 6: AI-Native (6A→6C→6D→6E→6B→closing) ═══
+    # 6A: AI-native intro
+    ("seg6-01", "CroqTile 从设计之初就在思考一个问题：怎样让 AI Agent 成为更好的计算核调优工程师？", "From the very beginning, CroqTile was designed around one question: how do we make AI Agent a better kernel tuning engineer?"),
+    ("seg6-02", "答案是两件事——让 AI Agent 更容易读懂代码，也更快地得到编译器的反馈。", "The answer comes down to two things — making code easier for AI Agent to read, and making compiler feedback faster."),
+    # 6C: Token footprint
+    ("seg6-03", "首先是上下文。CroqTile 的代码极其精简，同样的计算核实现，所需的 token 数远低于其他语言。", "First, context. CroqTile's code is extremely concise — the same kernel implementation requires far fewer tokens than other languages."),
+    ("seg6-04", "这意味着同样的预算下，AI Agent 可以跑更多轮优化，或者用更小的模型达到同样效果。", "This means with the same budget, AI Agent can run more optimization rounds, or achieve the same results with a smaller model."),
+    ("seg6-05", "而且每个逻辑变更只对应很少的代码修改，AI Agent 不会因为要同时改多个位置而出错。", "And every logical change requires only minimal code modifications — AI Agent won't make mistakes from having to modify multiple locations at once."),
+    # 6D: Compiler guardrails
+    ("seg6-06", "然后是反馈速度。传统语言的错误要等到 GPU 运行时才暴露，定位一个 bug 可能需要几十分钟。", "Then there's feedback speed. In traditional languages, errors only surface at GPU runtime — tracking down a single bug can take tens of minutes."),
+    ("seg6-07", "而 CroqTile 在编译期就能拦截绝大部分错误，AI Agent 不需要等待漫长的运行和调试。", "CroqTile catches most errors at compile time, so AI Agent doesn't need to wait through lengthy runs and debugging."),
+    ("seg6-08", "配合大量的编译期检查和运行时断言，每一轮 AI Agent 迭代只需几秒。这让 AI Agent 的试错效率提升了一个数量级。", "Combined with extensive compile-time checks and runtime assertions, each AI Agent iteration takes just seconds — an order-of-magnitude improvement in trial-and-error efficiency."),
+    # 6E: AI Agent enhancement layers
+    ("seg6-09", "在编译器之上，CroqTile 还提供了两层专门为 AI Agent 设计的增强工具。", "On top of the compiler, CroqTile provides two additional AI Agent-specific enhancement layers."),
+    ("seg6-10", "统一的性能分析接口，让 AI Agent 直接获取结构化的性能数据，不需要适配不同硬件平台各自的 profiler 格式。", "A unified profiling interface gives AI Agent structured performance data directly, without adapting to each hardware platform's profiler format."),
+    ("seg6-11", "以及预封装的编程知识库，让 AI Agent 从第一次尝试就能写出接近最优的代码。", "And a pre-packaged programming knowledge base, so AI Agent writes near-optimal code from the very first attempt."),
+    # 6B: Results
+    ("seg6-12", "这些设计带来的结果是什么？同样的 Agent 模型、同样的硬件、同样的调优系统，在我们的实验中，用 CroqTile 进行调优效果显著好于其他计算核编程语言，甚至在很多算子的调优上，能超过当前厂商的算子库性能。CroqTile 让生产级别的 AI Agent 调优应用成为可能。", "What do these design choices deliver? Same agent model, same hardware, same tuning system — in our experiments, tuning with CroqTile significantly outperforms other kernel languages, and even surpasses vendor library performance on many operators. CroqTile makes production-grade AI Agent tuning a reality."),
+    # Closing
+    ("seg6-13", "用 CroqTile，让你的计算核调优更加写意。", "With CroqTile, make your kernel tuning truly effortless."),
+    ("seg6-14", "你的编程体验，值得被重新定义。", "Your programming experience deserves to be redefined."),
 
     ("seg7-01", "欢迎来到计算编程的新时代。你的性能开发效率，值得被重新定义。", "Welcome to the new era of compute programming. Your kernel development productivity deserves to be redefined."),
 ]
@@ -103,18 +100,19 @@ async def generate_all():
     for cue_id, cn_text, en_text in CUES:
         cn_path = os.path.join(cn_dir, f"{cue_id}.mp3")
         en_path = os.path.join(en_dir, f"{cue_id}.mp3")
+        rate = "+0%" if cue_id.startswith("seg6-") else "-5%"
 
         if not os.path.exists(cn_path):
-            print(f"[CN] Generating {cue_id}...")
-            comm = edge_tts.Communicate(cn_text, VOICE_CN, rate="-5%")
+            print(f"[CN] Generating {cue_id} (rate={rate})...")
+            comm = edge_tts.Communicate(cn_text, VOICE_CN, rate=rate)
             await comm.save(cn_path)
             _normalize_mp3(cn_path)
         else:
             print(f"[CN] Skipping {cue_id} (exists)")
 
         if not os.path.exists(en_path):
-            print(f"[EN] Generating {cue_id}...")
-            comm = edge_tts.Communicate(en_text, VOICE_EN, rate="-5%")
+            print(f"[EN] Generating {cue_id} (rate={rate})...")
+            comm = edge_tts.Communicate(en_text, VOICE_EN, rate=rate)
             await comm.save(en_path)
             _normalize_mp3(en_path)
         else:

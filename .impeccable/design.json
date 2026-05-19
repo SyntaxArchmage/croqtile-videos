@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-19T12:30:00+08:00",
+  "title": "Design System: CroqTile Videos",
+  "extensions": {
+    "colorMeta": {
+      "mint-primary": {
+        "role": "primary",
+        "displayName": "Mint Primary",
+        "canonical": "oklch(85% 0.15 163)",
+        "tonalRamp": ["#064E3B", "#065F46", "#047857", "#059669", "#10B981", "#34D399", "#6EE7B7", "#A7F3D0"]
+      },
+      "emerald-deep": {
+        "role": "primary",
+        "displayName": "Emerald Deep",
+        "canonical": "oklch(55% 0.14 163)",
+        "tonalRamp": ["#022C22", "#064E3B", "#065F46", "#047857", "#059669", "#10B981", "#34D399", "#6EE7B7"]
+      },
+      "abyss-base": {
+        "role": "neutral",
+        "displayName": "Abyss Base",
+        "canonical": "oklch(12% 0.02 260)",
+        "tonalRamp": ["#050810", "#0A0E1A", "#0F1524", "#141C2E", "#1A2338", "#1F2937", "#2D3748", "#3B4559"]
+      },
+      "slate-card": {
+        "role": "neutral",
+        "displayName": "Slate Card",
+        "canonical": "oklch(18% 0.01 260)",
+        "tonalRamp": ["#0A0E1A", "#111827", "#1A2332", "#1F2937", "#2D3748", "#374151", "#4B5563", "#6B7280"]
+      },
+      "slate-elevated": {
+        "role": "neutral",
+        "displayName": "Slate Elevated",
+        "canonical": "oklch(24% 0.01 260)",
+        "tonalRamp": ["#111827", "#1F2937", "#2D3748", "#374151", "#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB"]
+      },
+      "snow-text": {
+        "role": "neutral",
+        "displayName": "Snow Text",
+        "canonical": "oklch(98% 0.003 260)",
+        "tonalRamp": ["#9CA3AF", "#D1D5DB", "#E5E7EB", "#F3F4F6", "#F9FAFB", "#FAFBFC", "#FCFCFD", "#FEFEFE"]
+      },
+      "indigo-annotation": {
+        "role": "tertiary",
+        "displayName": "Indigo Annotation",
+        "canonical": "oklch(65% 0.2 280)",
+        "tonalRamp": ["#312E81", "#3730A3", "#4338CA", "#4F46E5", "#6366F1", "#818CF8", "#A5B4FC", "#C7D2FE"]
+      },
+      "amber-highlight": {
+        "role": "tertiary",
+        "displayName": "Amber Highlight",
+        "canonical": "oklch(88% 0.16 90)",
+        "tonalRamp": ["#78350F", "#92400E", "#B45309", "#D97706", "#F59E0B", "#FBBF24", "#FCD34D", "#FDE68A"]
+      },
+      "danger-red": {
+        "role": "tertiary",
+        "displayName": "Danger Red",
+        "canonical": "oklch(65% 0.2 25)",
+        "tonalRamp": ["#7F1D1D", "#991B1B", "#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FCA5A5", "#FECACA"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Logo text and hero statements. One per scene maximum." },
+      "headline": { "displayName": "Headline", "purpose": "Scene titles and bilingual hero lines." },
+      "title": { "displayName": "Title", "purpose": "Section headers, comparison labels, feature names." },
+      "body": { "displayName": "Body", "purpose": "Subtitle text, descriptive copy, voiceover-aligned blocks." },
+      "label": { "displayName": "Label", "purpose": "Section tags, segment identifiers, metadata. Always mono, always uppercase." },
+      "code": { "displayName": "Code", "purpose": "All code blocks. Tuned for CUDA/C++ readability at 1080p." }
+    },
+    "shadows": [
+      { "name": "card", "value": "0 4px 24px rgba(0,0,0,0.5)", "purpose": "Structural anchoring for code blocks and panels." },
+      { "name": "glow-standard", "value": "0 0 32px rgba(110,231,183,0.3)", "purpose": "Mint halo behind logo, CTA buttons, and highlighted elements." },
+      { "name": "glow-small", "value": "0 0 12px rgba(110,231,183,0.2)", "purpose": "Subtle mint ring for section tags and minor accents." },
+      { "name": "inset-highlight", "value": "inset 0 1px 0 rgba(255,255,255,0.06)", "purpose": "Top-edge light catch on elevated surfaces." }
+    ],
+    "motion": [
+      { "name": "spring-organic", "value": "{ damping: 13, stiffness: 128, mass: 0.78 }", "purpose": "Default spring config for all entrances and transitions." },
+      { "name": "spring-logo", "value": "{ damping: 14, stiffness: 120, mass: 0.8 }", "purpose": "Logo-specific spring with slightly more damping." },
+      { "name": "timing-fastest", "value": "6 frames (0.2s)", "purpose": "Micro-interactions, opacity snaps." },
+      { "name": "timing-fast", "value": "9 frames (0.3s)", "purpose": "Quick fades, state changes." },
+      { "name": "timing-normal", "value": "15 frames (0.5s)", "purpose": "Standard transitions." },
+      { "name": "timing-slow", "value": "24 frames (0.8s)", "purpose": "Deliberate reveals." },
+      { "name": "timing-slower", "value": "45 frames (1.5s)", "purpose": "Scene-level transitions." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "CTA Button",
+      "kind": "button",
+      "refersTo": "cta-button",
+      "description": "Primary call-to-action with gradient fill and glow border wrapper.",
+      "html": "<div class=\"ds-cta-border\"><button class=\"ds-cta-btn\">Get Started</button></div>",
+      "css": ".ds-cta-border { padding: 2px; border-radius: 22px; background: linear-gradient(135deg, #6EE7B7 0%, #34D399 42%, #059669 100%); box-shadow: 0 0 0 1px rgba(110,231,183,0.25), 0 0 56px rgba(110,231,183,0.32), 0 18px 48px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06); display: inline-block; } .ds-cta-btn { border-radius: 20px; padding: 14px 34px; font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: 0.02em; color: #0A0E1A; background: linear-gradient(145deg, #6EE7B7 0%, #5EEAD4 45%, #34D399 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); border: none; cursor: pointer; white-space: nowrap; }"
+    },
+    {
+      "name": "Code Block",
+      "kind": "card",
+      "refersTo": "code-block",
+      "description": "Syntax-highlighted code container for CUDA/CroqTile snippets.",
+      "html": "<div class=\"ds-code-block\"><code><span class=\"ds-code-kw\">#include</span> <span class=\"ds-code-str\">&lt;cuda.h&gt;</span>\n<span class=\"ds-code-kw\">__global__</span> void kernel() {}</code></div>",
+      "css": ".ds-code-block { background: #111827; border-radius: 12px; padding: 24px 32px; font-family: 'JetBrains Mono', monospace; font-size: 19px; line-height: 1.58; color: #A7F3D0; box-shadow: 0 4px 24px rgba(0,0,0,0.5); } .ds-code-block code { white-space: pre; } .ds-code-kw { color: #6EE7B7; } .ds-code-str { color: #FCD34D; } .ds-code-comment { color: #818CF8; }"
+    },
+    {
+      "name": "Section Tag",
+      "kind": "custom",
+      "refersTo": "section-tag",
+      "description": "Dot + uppercase mono label identifying a scene section.",
+      "html": "<div class=\"ds-section-tag\"><span class=\"ds-tag-dot\"></span><span class=\"ds-tag-text\">FEATURE SPOTLIGHT</span></div>",
+      "css": ".ds-section-tag { display: inline-flex; align-items: center; gap: 6px; } .ds-tag-dot { width: 6px; height: 6px; border-radius: 9999px; background: #6EE7B7; flex-shrink: 0; } .ds-tag-text { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #6EE7B7; text-transform: uppercase; letter-spacing: 0.1em; }"
+    },
+    {
+      "name": "GitHub Badge",
+      "kind": "chip",
+      "refersTo": "github-badge",
+      "description": "Pill-shaped repository link badge used in outro CTA.",
+      "html": "<span class=\"ds-gh-badge\">github.com/LancerLab/croqtile</span>",
+      "css": ".ds-gh-badge { display: inline-block; padding: 9px 22px; border-radius: 9999px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: rgba(209,213,219,0.92); background: rgba(17,24,39,0.72); border: 1px solid rgba(110,231,183,0.14); box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 28px rgba(110,231,183,0.06); letter-spacing: 0.06em; }"
+    },
+    {
+      "name": "Logo Block",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "CroqTile wordmark with mint glow disc.",
+      "html": "<div class=\"ds-logo-wrap\"><div class=\"ds-logo-glow\"></div><span class=\"ds-logo-text\">Croq<span class=\"ds-logo-mint\">Tile</span></span></div>",
+      "css": ".ds-logo-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; } .ds-logo-glow { position: absolute; width: 220px; height: 220px; border-radius: 9999px; background: rgba(110,231,183,0.25); filter: blur(40px); top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; } .ds-logo-text { font-family: 'Inter', sans-serif; font-size: 78px; font-weight: 800; color: #F9FAFB; letter-spacing: -0.035em; position: relative; z-index: 1; text-shadow: 0 0 28px rgba(110,231,183,0.35), 0 0 56px rgba(110,231,183,0.12), 0 6px 32px rgba(0,0,0,0.55); } .ds-logo-mint { color: #6EE7B7; text-shadow: 0 0 28px rgba(110,231,183,0.35), 0 0 56px rgba(110,231,183,0.12), 0 6px 32px rgba(0,0,0,0.55), 0 0 64px rgba(110,231,183,0.45); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Terminal Cinema",
+    "overview": "CroqTile Videos treats every frame as a film shot composed inside a developer's terminal. The aesthetic is cinematic production quality applied to a developer-native dark interface: deep abyss backgrounds, mint-green accents that glow like phosphor traces, noise-textured surfaces that feel analog, and spring-physics animations timed to voiceover beats. The system rejects anything that looks like a slide deck, a stock-illustration explainer, or a gaming RGB showcase.\n\nThe bilingual presentation (Chinese and English) is structural, not cosmetic. Both languages share the same typographic hierarchy, the same timing, the same emphasis. Neither is a subtitle of the other.\n\nCode is the protagonist. Real CUDA snippets and CroqTile kernel patterns occupy center frame, rendered in monospaced type at readable sizes, syntax-highlighted with the palette's semantic colors. Everything else exists to direct attention toward the code.",
+    "keyCharacteristics": [
+      "Dark, noise-textured surfaces with glow-based depth",
+      "Mint/emerald green as the sole chromatic accent",
+      "Spring-physics animations with organic damping",
+      "Code blocks as hero visual elements",
+      "Bilingual parity in every composition",
+      "Cinematic pacing aligned to voiceover cues"
+    ],
+    "rules": [
+      { "name": "The Phosphor Rule", "body": "Mint green appears on no more than 15% of any frame's surface area. Its impact comes from scarcity. A scene drenched in mint is a failed scene.", "section": "colors" },
+      { "name": "The No Pure Black Rule", "body": "#000000 is prohibited. The darkest value is Abyss Base (#0A0E1A), tinted toward blue. Pure black kills the noise texture and flattens depth.", "section": "colors" },
+      { "name": "The Code Protagonist Rule", "body": "In any scene that shows code, the code block's type size must be at least as large as the body text. Code is never subordinate to prose.", "section": "typography" },
+      { "name": "The CJK Parity Rule", "body": "Chinese and English headlines occupy the same visual weight. If the Chinese line is 60px, the English line is no smaller than 56px. Neither language is an afterthought.", "section": "typography" },
+      { "name": "The Glow-Not-Shadow Rule", "body": "Depth comes from light emission (colored glow halos), not from dark shadows falling downward. The card shadow is the sole exception: it anchors, it doesn't elevate.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use spring physics for all entrance animations. Default config: damping 13-14, stiffness 120-128, mass 0.78-0.8.",
+      "Do use the noise overlay on every scene.",
+      "Do start from the Abyss Base (#0A0E1A) background.",
+      "Do render real CUDA/CroqTile code in code blocks.",
+      "Do time animations to voiceover cue points.",
+      "Do give Chinese and English equal typographic weight and timing.",
+      "Do use the Inset Highlight on elevated surfaces for directional light."
+    ],
+    "donts": [
+      "Don't use generic SaaS explainer aesthetics: stock illustrations, bouncy cartoon transitions, pastel gradients.",
+      "Don't use corporate keynote slide layouts: bullet-point lists, centered title slides with no visual substance.",
+      "Don't use gaming/RGB aesthetics: rainbow neon, particle explosions, chromatic aberration.",
+      "Don't use design-agency reel style that prioritizes form over code substance.",
+      "Don't use tutorial screencast conventions: webcam overlays, casual narration tone, screen-recording borders.",
+      "Don't use #000000 or #FFFFFF.",
+      "Don't use linear easing or CSS ease. All motion uses exponential ease-out or spring physics.",
+      "Don't use border-left/right accents thicker than 1px as decorative stripes.",
+      "Don't let mint green exceed 15% of any frame's surface area.",
+      "Don't use bounce or elastic easing. Spring damping stays above 12."
+    ]
+  }
+}

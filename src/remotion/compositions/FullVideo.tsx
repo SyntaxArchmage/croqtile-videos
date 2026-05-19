@@ -8,9 +8,9 @@
  *   1:04–1:53    段 2  FeatureSpotlight (1470f)
  *   1:53–2:19    段 3  PerfChart        (770f)
  *   2:19–3:06    段 4  CompileTimeSafety(1430f)
- *   3:06–3:36    段 5  DynamicShape     (890f)
- *   3:36–5:59    段 6  AINative         (4300f)
- *   5:59–6:10    段 7  OutroCTA         (300f)
+ *   3:06–3:43    段 5  HeterogeneousCompute (1120f)
+ *   3:43–5:52    段 6  AINative         (3880f)
+ *   6:18–6:28    段 7  OutroCTA         (300f)
  */
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
@@ -20,7 +20,7 @@ import { IterativeDev } from "./IterativeDev";
 import { FeatureSpotlight } from "./FeatureSpotlight";
 import { PerfChart } from "./PerfChart";
 import { CompileTimeSafety } from "./CompileTimeSafety";
-import { DynamicShape } from "./DynamicShape";
+import { HeterogeneousCompute } from "./HeterogeneousCompute";
 import { AINative } from "./AINative";
 import { OutroCTA } from "./OutroCTA";
 import { Subtitle } from "../components/Subtitle";
@@ -33,8 +33,8 @@ const SEGMENTS = [
   { id: "FeatureSpotlight", component: FeatureSpotlight, duration: 1470 },
   { id: "PerfChart", component: PerfChart, duration: 770 },
   { id: "CompileTimeSafety", component: CompileTimeSafety, duration: 1430 },
-  { id: "DynamicShape", component: DynamicShape, duration: 890 },
-  { id: "AINative", component: AINative, duration: 4300 },
+  { id: "HeterogeneousCompute", component: HeterogeneousCompute, duration: 1120 },
+  { id: "AINative", component: AINative, duration: 3880 },
   { id: "OutroCTA", component: OutroCTA, duration: 300 },
 ] as const;
 

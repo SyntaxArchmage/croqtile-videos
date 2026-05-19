@@ -10,7 +10,7 @@ import { IterativeDev } from "./IterativeDev";
 import { FeatureSpotlight } from "./FeatureSpotlight";
 import { PerfChart } from "./PerfChart";
 import { CompileTimeSafety } from "./CompileTimeSafety";
-import { DynamicShape } from "./DynamicShape";
+import { HeterogeneousCompute } from "./HeterogeneousCompute";
 import { AINative } from "./AINative";
 import { OutroCTA } from "./OutroCTA";
 import { Subtitle, type SubtitleCue } from "../components/Subtitle";
@@ -20,9 +20,9 @@ const SEG0_DURATION = 439;
 const SEG1_DURATION = 1393;
 const SEG2_DURATION = 1390;
 const SEG3_DURATION = 750;
-const SEG4_DURATION = 900;
-const SEG5_DURATION = 900;
-const SEG6_DURATION = 4650;
+const SEG4_DURATION = 1430;
+const SEG5_DURATION = 1120;
+const SEG6_DURATION = 3880;
 const SEG7_DURATION = 300;
 
 const SEG0_CUES = ["seg0-01", "seg0-02"];
@@ -57,50 +57,44 @@ const SEG3_VO_FRAMES: [string, number][] = [
 
 const SEG4_VO_FRAMES: [string, number][] = [
   ["seg4-01", 20],
-  ["seg4-02", 300],
-  ["seg4-03", 560],
+  ["seg4-02", 210],
+  ["seg4-03", 640],
+  ["seg4-04", 1000],
 ];
 
 const SEG5_VO_FRAMES: [string, number][] = [
-  ["seg5-01", 20],
-  ["seg5-02", 300],
-  ["seg5-03", 560],
+  ["seg5-01", 10],
+  ["seg5-02", 490],
 ];
 
 const SEG6_VO_FRAMES: [string, number][] = [
-  ["seg6a-01", 20],
-  ["seg6a-02", 240],
-  ["seg6b-01", 470],
-  ["seg6b-02", 760],
-  ["seg6b-03", 1010],
-  ["seg6c-01", 1220],
-  ["seg6c-02", 1510],
-  ["seg6c-03", 1760],
-  ["seg6d-01", 1970],
-  ["seg6d-02", 2210],
-  ["seg6d-03", 2480],
-  ["seg6e-01", 2720],
-  ["seg6e-02", 2990],
-  ["seg6e-03", 3290],
-  ["seg6f-01", 3620],
-  ["seg6f-02", 3910],
-  ["seg6f-03", 4210],
-  ["seg6f-04", 4500],
+  ["seg6-01", 20],
+  ["seg6-02", 274],
+  ["seg6-03", 497],
+  ["seg6-04", 768],
+  ["seg6-05", 1017],
+  ["seg6-06", 1276],
+  ["seg6-07", 1542],
+  ["seg6-08", 1785],
+  ["seg6-09", 2144],
+  ["seg6-10", 2369],
+  ["seg6-11", 2677],
+  ["seg6-12", 2927],
+  ["seg6-13", 3626],
+  ["seg6-14", 3768],
 ];
 
 const SEG7_VO_FRAMES: [string, number][] = [
   ["seg7-01", 40],
 ];
 
-function filterSubtitles(
-  cueIds: string[],
-  baseOffset: number,
+function sliceSubtitlesEarly(
+  timelineStart: number,
+  duration: number,
 ): SubtitleCue[] {
-  return SUBTITLES.filter((_, i) => {
-    const sub = SUBTITLES[i];
-    return sub.startFrame >= baseOffset &&
-      sub.startFrame < baseOffset + (cueIds[0].startsWith("seg0") ? SEG0_DURATION : SEG1_DURATION);
-  }).map((sub) => ({
+  return SUBTITLES.filter(
+    (sub) => sub.startFrame >= timelineStart && sub.startFrame < timelineStart + duration,
+  ).map((sub) => ({
     ...sub,
     startFrame: sub.startFrame - timelineStart,
     endFrame: sub.endFrame - timelineStart,
@@ -122,28 +116,31 @@ const seg4Subs = SUBTITLES.filter(
   endFrame: sub.endFrame - 3972,
 }));
 
+const SEG5_TIMELINE_START = 5402;
 const seg5Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 4872 && sub.startFrame < 4872 + SEG5_DURATION,
+  (sub) => sub.startFrame >= SEG5_TIMELINE_START && sub.startFrame < SEG5_TIMELINE_START + SEG5_DURATION,
 ).map((sub) => ({
   ...sub,
-  startFrame: sub.startFrame - 4872,
-  endFrame: sub.endFrame - 4872,
+  startFrame: sub.startFrame - SEG5_TIMELINE_START,
+  endFrame: sub.endFrame - SEG5_TIMELINE_START,
 }));
 
+const SEG6_TIMELINE_START = 6720;
 const seg6Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 5772 && sub.startFrame < 5772 + SEG6_DURATION,
+  (sub) => sub.startFrame >= SEG6_TIMELINE_START && sub.startFrame < SEG6_TIMELINE_START + SEG6_DURATION,
 ).map((sub) => ({
   ...sub,
-  startFrame: sub.startFrame - 5772,
-  endFrame: sub.endFrame - 5772,
+  startFrame: sub.startFrame - SEG6_TIMELINE_START,
+  endFrame: sub.endFrame - SEG6_TIMELINE_START,
 }));
 
+const SEG7_TIMELINE_START = 11172;
 const seg7Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 10422 && sub.startFrame < 10422 + SEG7_DURATION,
+  (sub) => sub.startFrame >= SEG7_TIMELINE_START && sub.startFrame < SEG7_TIMELINE_START + SEG7_DURATION,
 ).map((sub) => ({
   ...sub,
-  startFrame: sub.startFrame - 10422,
-  endFrame: sub.endFrame - 10422,
+  startFrame: sub.startFrame - SEG7_TIMELINE_START,
+  endFrame: sub.endFrame - SEG7_TIMELINE_START,
 }));
 
 interface SegPreviewProps {
@@ -221,7 +218,7 @@ export const Seg4PreviewInner: React.FC<SegPreviewProps> = ({ lang }) => (
 
 export const Seg5PreviewInner: React.FC<SegPreviewProps> = ({ lang }) => (
   <AbsoluteFill style={{ background: "#0A0E1A" }}>
-    <DynamicShape />
+    <HeterogeneousCompute />
     <Subtitle cues={seg5Subs} />
     {SEG5_VO_FRAMES.map(([id, frame]) => (
       <Sequence key={id} from={frame} layout="none">

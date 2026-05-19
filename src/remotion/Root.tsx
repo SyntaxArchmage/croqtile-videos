@@ -7,7 +7,7 @@ import { HeroIntro } from "./compositions/HeroIntro";
 import { FeatureSpotlight } from "./compositions/FeatureSpotlight";
 import { PerfChart } from "./compositions/PerfChart";
 import { CompileTimeSafety } from "./compositions/CompileTimeSafety";
-import { DynamicShape } from "./compositions/DynamicShape";
+import { HeterogeneousCompute } from "./compositions/HeterogeneousCompute";
 import { AINative } from "./compositions/AINative";
 import { OutroCTA } from "./compositions/OutroCTA";
 import {
@@ -308,9 +308,9 @@ export const RemotionRoot: React.FC = () => {
         height={height}
       />
       <Composition
-        id="DynamicShape"
-        component={DynamicShape}
-        durationInFrames={890}
+        id="HeterogeneousCompute"
+        component={HeterogeneousCompute}
+        durationInFrames={1120}
         fps={fps}
         width={width}
         height={height}
@@ -318,7 +318,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="AINative"
         component={AINative}
-        durationInFrames={4300}
+        durationInFrames={3880}
         fps={fps}
         width={width}
         height={height}

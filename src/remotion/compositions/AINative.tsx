@@ -1,13 +1,14 @@
 /**
  * remotion/compositions/AINative.tsx
- * Segment 6 — AI-native features (3:36–5:59 @ 30fps = 4300 frames)
+ * Segment 6 — AI-native features (3:36–5:59 @ 30fps = 4650 frames)
  *
- * 6A 0–450f   From Easy to AI-native
- * 6B 450–1200 Ultra-compact Context
- * 6C 1200–1950 Zero Context Waste
- * 6D 1950–2700 Lowest Compile Failure Rate
- * 6E 2700–3600 Extra Guardrail Layers
- * 6F 3600–4650 Real Results & New Paradigm
+ * Reordered to match script flow (6A→6C→6D→6E→6B→closing):
+ * 6A 0–500f     Born for Agentic AI — intro + two pillars
+ * 6C 476–1300f  Zero Context Waste — tokens, minimal code changes
+ * 6D 1252–2170f Compile Feedback Speed — error catching, fast loop
+ * 6E 2120–2960f Harness Tools — profiler + knowledge base
+ * 6B 2910–3650f Real Results — convergence benchmarks
+ * 6F 3600–3880f Closing — effortless tuning + back cover with slogan
  */
 import React from "react";
 import {
@@ -16,6 +17,7 @@ import {
   interpolate,
   Sequence,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -24,30 +26,40 @@ import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 import { DeviceShell } from "../components/DeviceShell";
 
-const TOTAL_FRAMES = 4300;
+const TOTAL_FRAMES = 4650;
 
 const FADE_FRAMES = 24;
 
 /** Body stacks below PageContainer header; keep primary visuals above ~y=700 for subtitle safe zone */
 const BODY_MAX_HEIGHT = 432;
 
-/** Typography — Segment 6 (42–58px body, 18–28px labels) */
+/** Typography — Segment 6 (1080p legibility; maps to THEME.fontSize where exact) */
 const FS = {
+  /** Between 2xl (38) and 3xl (52) — intentional video hero size */
   main: 48,
-  mainAccent: 52,
+  mainAccent: THEME.fontSize["3xl"],
+  /** Card/chart titles — between lg (20) and xl (28) */
   label: 22,
   labelSm: 18,
-  mono: 20,
+  mono: THEME.fontSize.lg,
   monoLg: 24,
 } as const;
 
+/** Benchmark chart series outside core palette */
+const CHART = {
+  tileLang: "#F472B6",
+  cuteDsl: "#A78BFA",
+} as const;
+
+const SHELL_HEIGHT = 380;
+
 const SEG = {
-  A: { seqFrom: 0, seqDur: 450, start: 0, end: 450 },
-  B: { seqFrom: 426, seqDur: 774, start: 450, end: 1200 },
-  C: { seqFrom: 1176, seqDur: 774, start: 1200, end: 1950 },
-  D: { seqFrom: 1926, seqDur: 774, start: 1950, end: 2700 },
-  E: { seqFrom: 2676, seqDur: 924, start: 2700, end: 3600 },
-  F: { seqFrom: 3576, seqDur: 1074, start: 3600, end: 4650 },
+  A: { seqFrom: 0, seqDur: 500, start: 0, end: 500 },
+  C: { seqFrom: 452, seqDur: 848, start: 476, end: 1300 },
+  D: { seqFrom: 1228, seqDur: 942, start: 1252, end: 2170 },
+  E: { seqFrom: 2096, seqDur: 864, start: 2120, end: 2960 },
+  B: { seqFrom: 2886, seqDur: 764, start: 2910, end: 3650 },
+  F: { seqFrom: 3576, seqDur: 304, start: 3600, end: 3880 },
 } as const;
 
 const SegmentWrap: React.FC<{
@@ -126,7 +138,7 @@ const AgentBadge: React.FC<{ scale?: number }> = ({ scale = 1 }) => {
           height: 72,
           borderRadius: THEME.radius.md,
           background: `linear-gradient(145deg, ${THEME.colors.bgElevated}, ${THEME.colors.bgCard})`,
-          border: `1px solid rgba(110,231,183,0.35)`,
+          border: `1px solid ${THEME.colors.primary}59`,
           boxShadow: THEME.shadows.inset,
         }}
       >
@@ -214,132 +226,272 @@ const Sub6A: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = Math.max(0, frame);
 
-  const line1 = spring({
-    frame: t - 18,
+  const badgeOp = spring({
+    frame: t - 8,
     fps,
-    config: { damping: 18, stiffness: 100 },
-    from: 0,
-    to: 1,
-  });
-  const line2 = spring({
-    frame: t - 120,
-    fps,
-    config: { damping: 16, stiffness: 90 },
-    from: 0,
-    to: 1,
-  });
-  const extend = spring({
-    frame: t - 260,
-    fps,
-    config: { damping: 14, stiffness: 80 },
+    config: { damping: 16, stiffness: 100 },
     from: 0,
     to: 1,
   });
 
-  const badgeScale = spring({
-    frame: t - 8,
+  const taglineOp = spring({
+    frame: t - 24,
     fps,
-    config: { damping: 12, stiffness: 120 },
-    from: 0.85,
+    config: { damping: 15, stiffness: 90 },
+    from: 0,
     to: 1,
+  });
+
+  const phase1Fade = interpolate(t, [240, 280], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const phase2Fade = interpolate(t, [240, 280], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const pillarLeft = spring({
+    frame: t - 290,
+    fps,
+    config: { damping: 16, stiffness: 110 },
+    from: 0,
+    to: 1,
+  });
+  const pillarRight = spring({
+    frame: t - 340,
+    fps,
+    config: { damping: 16, stiffness: 100 },
+    from: 0,
+    to: 1,
+  });
+
+  const pillarSpringStyle = (p: number) => ({
+    opacity: p * phase2Fade,
+    transform: `translateY(${interpolate(p, [0, 1], [32, 0])}px) scale(${interpolate(p, [0, 1], [0.88, 1])})`,
   });
 
   return (
     <SegmentWrap duration={SEG.A.seqDur}>
       <PageContainer
         tag="Segment 06"
-        title="From easy to AI-native"
-        subtitle="One stack that grows with your agent"
+        title=""
+        subtitle=""
         style={{ pointerEvents: "none" }}
       >
         <div
           style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 48,
-            minHeight: 0,
-            maxHeight: BODY_MAX_HEIGHT,
+            position: "absolute",
+            top: 28,
+            right: 48,
+            opacity: badgeOp,
+            transform: `translate(${(1 - badgeOp) * 48}px, ${(1 - badgeOp) * -36}px)`,
+            zIndex: 2,
           }}
         >
-          <div style={{ flex: 1, maxWidth: 1100 }}>
+          <AgentBadge scale={0.62} />
+        </div>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 0,
+            maxHeight: BODY_MAX_HEIGHT,
+            position: "relative",
+          }}
+        >
+          {/* Phase 1: the question */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 28,
+              opacity: taglineOp * phase1Fade,
+              transform: `translateY(${interpolate(taglineOp, [0, 1], [18, 0])}px)`,
+            }}
+          >
             <div
               style={{
                 fontSize: FS.main,
                 fontFamily: THEME.fonts.sans,
-                color: THEME.colors.textSecondary,
+                fontWeight: 700,
+                textAlign: "center",
                 lineHeight: 1.45,
-                opacity: line1,
-                transform: `translateY(${interpolate(line1, [0, 1], [12, 0])}px)`,
+                maxWidth: 820,
+                color: THEME.colors.textPrimary,
               }}
             >
-              <span style={{ color: THEME.colors.textPrimary, fontWeight: 600 }}>
-                entry-level performance engineer
-              </span>
-              <span style={{ color: THEME.colors.textMuted }}> → </span>
-              <span style={{ color: THEME.colors.primary, fontWeight: 700 }}>
-                CroqTile
-              </span>
-              <span style={{ color: THEME.colors.textMuted }}> → </span>
-              <span style={{ color: THEME.colors.textCode, fontWeight: 600 }}>
-                production kernel
-              </span>
+              怎样让{" "}
+              <span style={{ color: THEME.colors.primary }}>AI Agent</span>{" "}
+              成为更好的
+              <br />
+              计算核调优工程师？
             </div>
             <div
               style={{
-                marginTop: 22,
-                fontSize: FS.mainAccent,
-                fontFamily: THEME.fonts.mono,
-                color: THEME.colors.accentWarm,
-                opacity: line2,
-                transform: `translateY(${interpolate(line2, [0, 1], [16, 0])}px)`,
-                textShadow: `0 0 24px rgba(252,211,77,0.25)`,
+                fontSize: FS.label,
+                fontFamily: THEME.fonts.sans,
+                color: THEME.colors.textSecondary,
+                textAlign: "center",
+                lineHeight: 1.5,
               }}
             >
-              × coding agent
-              <span style={{ color: THEME.colors.textMuted, fontWeight: 400 }}>
-                {" "}
-                →{" "}
-              </span>
-              <span style={{ color: THEME.colors.primary, fontWeight: 800 }}>
-                10×
-              </span>
+              How do we make AI Agent a better kernel tuning engineer?
             </div>
-            <div
-              style={{
-                marginTop: 20,
-                height: 4,
-                width: interpolate(extend, [0, 1], [0, 420]),
-                borderRadius: THEME.radius.full,
-                background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.accent})`,
-                opacity: extend,
-                boxShadow: THEME.shadows.glowSm,
-              }}
-            />
           </div>
+
+          {/* Phase 2: two visual pillars — bigger cards */}
           <div
             style={{
-              flexShrink: 0,
+              position: "absolute",
+              inset: 0,
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              gap: 16,
-              transform: `scale(${badgeScale})`,
+              justifyContent: "center",
+              gap: 48,
+              opacity: phase2Fade,
             }}
           >
-            <AgentBadge />
-            <span
+            <div
               style={{
-                fontSize: FS.labelSm,
-                color: THEME.colors.textMuted,
-                fontFamily: THEME.fonts.mono,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 20,
+                width: 380,
+                borderRadius: THEME.radius.lg,
+                background: THEME.colors.bgCard,
+                border: `1px solid ${THEME.colors.primary}55`,
+                boxShadow: `${THEME.shadows.card}, 0 0 32px ${THEME.colors.primaryGlow}`,
+                padding: "36px 28px",
+                ...pillarSpringStyle(pillarLeft),
               }}
             >
-              Agent-native surface
-            </span>
+              <div
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: THEME.radius.lg,
+                  background: `linear-gradient(145deg, ${THEME.colors.primaryGlow}, ${THEME.colors.bgElevated})`,
+                  border: `1px solid ${THEME.colors.primary}55`,
+                  boxShadow: `0 0 32px ${THEME.colors.primaryGlow}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                  <rect x="8" y="6" width="24" height="32" rx="3" stroke={THEME.colors.textCode} strokeWidth="1.75" fill={`${THEME.colors.bgBase}99`} />
+                  <path d="M14 14h14M14 20h10M14 26h12" stroke={THEME.colors.primary} strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="38" cy="38" r="10" stroke={THEME.colors.primary} strokeWidth="2" fill={`${THEME.colors.bgBase}CC`} />
+                  <path d="M45 45l6 6" stroke={THEME.colors.primary} strokeWidth="2.25" strokeLinecap="round" />
+                  <circle cx="38" cy="38" r="4.5" stroke={THEME.colors.accent} strokeWidth="1.5" fill="none" />
+                </svg>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <div style={{ fontSize: FS.mainAccent, fontFamily: THEME.fonts.sans, fontWeight: 700, color: THEME.colors.textPrimary, textAlign: "center" }}>
+                  更友好的上下文
+                </div>
+                <div style={{ fontSize: FS.label, fontFamily: THEME.fonts.sans, color: THEME.colors.primary, textAlign: "center" }}>
+                  Friendlier Context
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 20,
+                width: 380,
+                borderRadius: THEME.radius.lg,
+                background: THEME.colors.bgCard,
+                border: `1px solid ${THEME.colors.accentWarm}55`,
+                boxShadow: `${THEME.shadows.card}, 0 0 32px ${THEME.colors.accentWarm}2E`,
+                padding: "36px 28px",
+                ...pillarSpringStyle(pillarRight),
+              }}
+            >
+              <div
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: THEME.radius.lg,
+                  background: `linear-gradient(145deg, ${THEME.colors.accentWarm}2E, ${THEME.colors.bgElevated})`,
+                  border: `1px solid ${THEME.colors.accentWarm}66`,
+                  boxShadow: `0 0 32px ${THEME.colors.accentWarm}33`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+                  <rect
+                    x="7"
+                    y="10"
+                    width="38"
+                    height="28"
+                    rx="4"
+                    stroke={THEME.colors.textCode}
+                    strokeWidth="1.75"
+                    fill={`${THEME.colors.bgBase}99`}
+                  />
+                  <path
+                    d="M7 16h38"
+                    stroke={THEME.colors.textMuted}
+                    strokeWidth="1.5"
+                  />
+                  <circle cx="12" cy="13" r="1.5" fill={THEME.colors.danger} />
+                  <circle cx="17" cy="13" r="1.5" fill={THEME.colors.accentWarm} />
+                  <circle cx="22" cy="13" r="1.5" fill={THEME.colors.primary} />
+                  <path
+                    d="M13 24l-2 2 2 2M20 28h8"
+                    stroke={THEME.colors.accentWarm}
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <circle
+                    cx="38"
+                    cy="34"
+                    r="10"
+                    stroke={THEME.colors.accentWarm}
+                    strokeWidth="1.75"
+                    fill={`${THEME.colors.bgElevated}EE`}
+                  />
+                  <path
+                    d="M33.5 34l3 3 6-6"
+                    stroke={THEME.colors.primary}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <div style={{ fontSize: FS.mainAccent, fontFamily: THEME.fonts.sans, fontWeight: 700, color: THEME.colors.textPrimary, textAlign: "center" }}>
+                  更快的编译器反馈
+                </div>
+                <div style={{ fontSize: FS.label, fontFamily: THEME.fonts.sans, color: THEME.colors.accentWarm, textAlign: "center" }}>
+                  Faster Compiler Feedback
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </PageContainer>
@@ -352,304 +504,529 @@ const Sub6B: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const croqLinesF = spring({
-    frame: t - 12,
-    fps,
-    config: { damping: 18, stiffness: 95 },
-    from: 0,
-    to: 1,
+  const phase1Op = interpolate(t, [0, 18, 320, 350], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
   });
-  const croqLines = Math.round(interpolate(croqLinesF, [0, 1], [1, 36]));
-
-  const croqTokF = spring({
-    frame: t - 28,
-    fps,
-    config: { damping: 16, stiffness: 88 },
-    from: 0,
-    to: 1,
+  const phase2Op = interpolate(t, [300, 330, 520, 550], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
   });
-  const croqTokens = Math.round(interpolate(croqTokF, [0, 1], [0, 500]));
-
-  const cudaLinesF = spring({
-    frame: t - 100,
-    fps,
-    config: { damping: 17, stiffness: 85 },
-    from: 0,
-    to: 1,
+  const phase3Op = interpolate(t, [500, 530, 730, 764], [0, 1, 1, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
   });
-  const cudaLines = Math.round(interpolate(cudaLinesF, [0, 1], [1, 180]));
 
-  const cudaTokF = spring({
-    frame: t - 160,
+  const chartReveal = spring({
+    frame: t - 14,
     fps,
-    config: { damping: 16, stiffness: 82 },
-    from: 0,
-    to: 1,
-  });
-  const cudaTokLow = Math.round(interpolate(cudaTokF, [0, 1], [0, 2000]));
-  const cudaTokHigh = Math.round(interpolate(cudaTokF, [0, 1], [0, 4000]));
-
-  const windowPulse = spring({
-    frame: t - 40,
-    fps,
-    config: { damping: 14, stiffness: 70 },
+    config: { damping: 16, stiffness: 95 },
     from: 0,
     to: 1,
   });
 
-  const overflow = spring({
-    frame: t - 150,
+  const yForTflops = (v: number) =>
+    interpolate(v, [0, 550], [340, 36], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+
+  const xForIter = (i: number, total: number) =>
+    72 + (i * (888 - 72)) / (total - 1);
+
+  const convergenceSeries = [
+    {
+      label: "CroqTile",
+      color: THEME.colors.primary,
+      values: [72, 198, 340, 418, 462, 480, 486],
+      width: 4,
+      glow: true,
+    },
+    {
+      label: "Triton",
+      color: THEME.colors.accent,
+      values: [58, 148, 258, 328, 362, 378, 384],
+      width: 2.5,
+    },
+    {
+      label: "TileLang",
+      color: CHART.tileLang,
+      values: [52, 132, 228, 298, 322, 336, 343],
+      width: 2.5,
+    },
+    {
+      label: "Helion",
+      color: THEME.colors.accentWarm,
+      values: [48, 118, 208, 272, 298, 312, 318],
+      width: 2.5,
+    },
+    {
+      label: "CUDA",
+      color: THEME.colors.danger,
+      values: [38, 72, 108, 132, 148, 156, 162],
+      width: 2,
+    },
+    {
+      label: "CuTe-DSL",
+      color: CHART.cuteDsl,
+      values: [12, 16, 20, 22, 24, 26, 27],
+      width: 2,
+    },
+  ];
+
+  const CUBLAS_BASELINE = 420;
+
+  const blockscaleRows = [
+    { label: "CroqTile", value: 711, color: THEME.colors.primary },
+    { label: "TileLang", value: 408, color: CHART.tileLang },
+    { label: "Triton", value: 298, color: THEME.colors.accent },
+    { label: "Helion", value: 167, color: THEME.colors.accentWarm },
+  ];
+  const blockscaleMax = 760;
+
+  const blockscaleSprings = blockscaleRows.map((_, i) =>
+    spring({
+      frame: t - 318 - i * 16,
+      fps,
+      config: { damping: 16, stiffness: 120 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const spmmCards = [
+    {
+      value: "84%",
+      label: "win rate across 95 shapes",
+      color: THEME.colors.primary,
+      delay: 538,
+    },
+    {
+      value: "+16.7%",
+      label: "average speedup over cuSPARSELt",
+      color: THEME.colors.accentWarm,
+      delay: 578,
+    },
+    {
+      value: "95",
+      label: "sparse GEMM shapes tested",
+      color: THEME.colors.accent,
+      delay: 618,
+    },
+  ];
+
+  const spmmSprings = spmmCards.map((c) =>
+    spring({
+      frame: t - c.delay,
+      fps,
+      config: { damping: 16, stiffness: 105 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const animSpmmValue = (raw: string, progress: number): string => {
+    if (raw.endsWith("%")) {
+      const prefix = raw.startsWith("+") ? "+" : "";
+      const num = parseFloat(raw.replace("+", ""));
+      const v = Math.round(num * progress * 10) / 10;
+      return `${prefix}${Number.isInteger(v) ? v : v.toFixed(1)}%`;
+    }
+    return String(Math.round(parseFloat(raw) * progress));
+  };
+
+  const LINE_BASE_DELAY = 18;
+  const SEG_STAGGER = 8;
+
+  const convergenceSegSprings = convergenceSeries.map((series, si) => {
+    const lineDelay = LINE_BASE_DELAY + si * 10;
+    return series.values.slice(0, -1).map((_, i) =>
+      spring({
+        frame: t - lineDelay - i * SEG_STAGGER,
+        fps,
+        config: { damping: 16, stiffness: 110 },
+        from: 0,
+        to: 1,
+      }),
+    );
+  });
+
+  const convergenceDotSprings = convergenceSeries.map((series, si) => {
+    const lineDelay = LINE_BASE_DELAY + si * 10;
+    return spring({
+      frame: t - lineDelay - (series.values.length - 1) * SEG_STAGGER - 6,
+      fps,
+      config: { damping: 14, stiffness: 120 },
+      from: 0,
+      to: 1,
+    });
+  });
+
+  const blockscaleLabelSpring = spring({
+    frame: t - 390,
     fps,
-    config: { damping: 18, stiffness: 72 },
+    config: { damping: 16, stiffness: 90 },
     from: 0,
     to: 1,
   });
 
-  const innerScaleCroq = spring({
-    frame: t - 55,
-    fps,
-    config: { damping: 16, stiffness: 78 },
-    from: 0.92,
-    to: 1,
-  });
+  const renderConvergenceChart = () => (
+    <div
+      style={{
+        borderRadius: THEME.radius.lg,
+        background: THEME.colors.bgCard,
+        border: `1px solid rgba(255,255,255,0.06)`,
+        boxShadow: THEME.shadows.card,
+        padding: "14px 18px 8px",
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
+      <div
+        style={{
+          fontSize: FS.labelSm,
+          fontFamily: THEME.fonts.sans,
+          fontWeight: 600,
+          color: THEME.colors.textMuted,
+          marginBottom: 4,
+        }}
+      >
+        matmul FP16→FP32 · 16384³ · TFLOPS vs iterations
+      </div>
+      <svg
+        viewBox="0 0 960 380"
+        style={{ width: "100%", flex: 1, minHeight: 0, maxHeight: 340 }}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {[0, 110, 220, 330, 440, 550].map((v) => (
+          <text
+            key={v}
+            x={48}
+            y={yForTflops(v) + 5}
+            fill={THEME.colors.textMuted}
+            fontSize={FS.labelSm}
+            fontFamily={THEME.fonts.mono}
+            textAnchor="end"
+            opacity={chartReveal}
+          >
+            {v}
+          </text>
+        ))}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <line
+            key={i}
+            x1={56}
+            x2={908}
+            y1={52 + i * 72}
+            y2={52 + i * 72}
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth={1}
+          />
+        ))}
+        <text
+          x={48}
+          y={44}
+          fill={THEME.colors.textMuted}
+          fontSize={FS.labelSm}
+          fontFamily={THEME.fonts.mono}
+          textAnchor="end"
+        >
+          TFLOPS
+        </text>
+        <text
+          x={908}
+          y={362}
+          fill={THEME.colors.textMuted}
+          fontSize={FS.labelSm}
+          fontFamily={THEME.fonts.mono}
+          textAnchor="end"
+        >
+          iterations
+        </text>
+        <line
+          x1={72}
+          x2={888}
+          y1={yForTflops(CUBLAS_BASELINE)}
+          y2={yForTflops(CUBLAS_BASELINE)}
+          stroke={THEME.colors.textMuted}
+          strokeWidth={2}
+          strokeDasharray="10 8"
+          opacity={0.82 * chartReveal}
+        />
+        <text
+          x={892}
+          y={yForTflops(CUBLAS_BASELINE) - 6}
+          fill={THEME.colors.textMuted}
+          fontSize={FS.labelSm}
+          fontFamily={THEME.fonts.mono}
+          opacity={chartReveal}
+        >
+          cuBLAS {CUBLAS_BASELINE}T
+        </text>
+        {convergenceSeries.map((series, si) => {
+          const xs = series.values.map((_, i) =>
+            xForIter(i, series.values.length),
+          );
+          const ys = series.values.map((v) => yForTflops(v));
+          const segLens = series.values.slice(0, -1).map((_, i) => {
+            const dx = xs[i + 1] - xs[i];
+            const dy = ys[i + 1] - ys[i];
+            return Math.max(1, Math.hypot(dx, dy));
+          });
+          const dot = convergenceDotSprings[si];
+          const last = series.values.length - 1;
+          return (
+            <g key={series.label}>
+              {segLens.map((_, i) => {
+                const p = convergenceSegSprings[si][i];
+                const stairD = `M ${xs[i]} ${ys[i]} H ${xs[i + 1]} V ${ys[i + 1]}`;
+                const stairLen = Math.abs(xs[i + 1] - xs[i]) + Math.abs(ys[i + 1] - ys[i]);
+                return (
+                  <g key={i}>
+                    <path
+                      d={stairD}
+                      fill="none"
+                      stroke={series.color}
+                      strokeWidth={series.width}
+                      strokeLinecap="round"
+                      strokeDasharray={stairLen}
+                      strokeDashoffset={stairLen * (1 - p)}
+                      style={
+                        series.glow
+                          ? { filter: `drop-shadow(${THEME.shadows.glowSm})` }
+                          : undefined
+                      }
+                    />
+                    <circle
+                      cx={xs[i]}
+                      cy={ys[i]}
+                      r={i === 0 ? 5 : 4}
+                      fill={THEME.colors.bgBase}
+                      stroke={series.color}
+                      strokeWidth={1.5}
+                      opacity={p}
+                    />
+                  </g>
+                );
+              })}
+              <g opacity={dot}>
+                <circle
+                  cx={xs[last]}
+                  cy={ys[last]}
+                  r={4 + 3 * dot}
+                  fill={THEME.colors.bgBase}
+                  stroke={series.color}
+                  strokeWidth={2}
+                />
+                <text
+                  x={xs[last] + 10}
+                  y={ys[last] + 5}
+                  fill={series.color}
+                  fontSize={FS.labelSm}
+                  fontFamily={THEME.fonts.mono}
+                  fontWeight={600}
+                >
+                  {series.label} {series.values[last]}T
+                </text>
+              </g>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
 
-  const innerScaleCuda = spring({
-    frame: t - 130,
-    fps,
-    config: { damping: 14, stiffness: 68 },
-    from: 0.78,
-    to: 1.42,
-  });
+  const sweepCharts = [
+    "sweep_mnk_line.svg",
+    "sweep_m_line.svg",
+    "sweep_n_line.svg",
+    "sweep_k_line.svg",
+    "sweep_mn_line.svg",
+    "sweep_mk_line.svg",
+    "sweep_nk_line.svg",
+  ];
 
-  const redEdge = interpolate(overflow, [0, 1], [0, 0.95]);
+  const sweepSprings = sweepCharts.map((_, i) =>
+    spring({
+      frame: t - 330 - i * 8,
+      fps,
+      config: { damping: 16, stiffness: 110 },
+      from: 0,
+      to: 1,
+    }),
+  );
 
-  const shellH = 392;
+  const renderSweepGrid = () => (
+    <div
+      style={{
+        borderRadius: THEME.radius.lg,
+        background: THEME.colors.bgCard,
+        border: `1px solid rgba(255,255,255,0.06)`,
+        boxShadow: THEME.shadows.card,
+        padding: "14px 18px 10px",
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: FS.labelSm, fontFamily: THEME.fonts.sans, color: THEME.colors.textMuted }}>
+          SPMM FP16 · 95 shapes · CroqTile vs cuSPARSELt
+        </div>
+        <div style={{ display: "flex", gap: 16, fontSize: FS.labelSm, fontFamily: THEME.fonts.mono }}>
+          <span style={{ color: THEME.colors.primary, fontWeight: 700 }}>84% win rate</span>
+          <span style={{ color: THEME.colors.accentWarm, fontWeight: 700 }}>+16.7% avg</span>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, flex: 1, minHeight: 0 }}>
+        {sweepCharts.slice(0, 4).map((src, i) => (
+          <div
+            key={src}
+            style={{
+              borderRadius: THEME.radius.sm,
+              overflow: "hidden",
+              border: `1px solid rgba(255,255,255,0.06)`,
+              opacity: sweepSprings[i],
+              transform: `scale(${interpolate(sweepSprings[i], [0, 1], [0.92, 1])})`,
+            }}
+          >
+            <img src={staticFile(src)} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: THEME.radius.sm }} />
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, flex: 0.75, minHeight: 0 }}>
+        {sweepCharts.slice(4).map((src, i) => (
+          <div
+            key={src}
+            style={{
+              borderRadius: THEME.radius.sm,
+              overflow: "hidden",
+              border: `1px solid rgba(255,255,255,0.06)`,
+              opacity: sweepSprings[i + 4],
+              transform: `scale(${interpolate(sweepSprings[i + 4], [0, 1], [0.92, 1])})`,
+            }}
+          >
+            <img src={staticFile(src)} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: THEME.radius.sm }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderSpmmSummary = () => (
+    <div
+      style={{
+        flex: 1,
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gap: 28,
+        alignItems: "stretch",
+      }}
+    >
+      {spmmCards.map((card, i) => (
+        <div
+          key={card.label}
+          style={{
+            borderRadius: THEME.radius.lg,
+            background: THEME.colors.bgCard,
+            border: `1px solid ${card.color}44`,
+            boxShadow: THEME.shadows.card,
+            padding: "40px 24px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 16,
+            opacity: spmmSprings[i],
+            transform: `translateY(${interpolate(spmmSprings[i], [0, 1], [24, 0])}px) scale(${interpolate(spmmSprings[i], [0, 1], [0.92, 1])})`,
+          }}
+        >
+          <div
+            style={{
+              fontSize: THEME.fontSize["4xl"],
+              fontFamily: THEME.fonts.mono,
+              fontWeight: 700,
+              color: card.color,
+              lineHeight: 1,
+              textShadow:
+                card.color === THEME.colors.primary
+                  ? THEME.shadows.glowSm
+                  : undefined,
+            }}
+          >
+            {animSpmmValue(card.value, spmmSprings[i])}
+          </div>
+          <div
+            style={{
+              fontSize: FS.label,
+              fontFamily: THEME.fonts.sans,
+              fontWeight: 600,
+              color: THEME.colors.textSecondary,
+              textAlign: "center",
+              lineHeight: 1.45,
+            }}
+          >
+            {card.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <SegmentWrap duration={SEG.B.seqDur}>
       <PageContainer
         tag="Segment 06"
-        title="Ultra-compact context"
-        subtitle="More reasoning budget for strategy, less for boilerplate"
+        title="AI tuning convergence"
+        subtitle="Same agent · same hardware · same budget — only the language changes"
         style={{ pointerEvents: "none" }}
       >
         <div
           style={{
             flex: 1,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 40,
-            alignItems: "stretch",
+            position: "relative",
             minHeight: 0,
             maxHeight: BODY_MAX_HEIGHT,
           }}
         >
-          <DeviceShell title="tokens-per-kernel.tsx" width="100%" height={shellH}>
-            <div
-              style={{
-                padding: 22,
-                display: "flex",
-                flexDirection: "column",
-                gap: 18,
-                height: "100%",
-                boxSizing: "border-box",
-                background: THEME.colors.bgBase,
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    color: THEME.colors.textMuted,
-                    fontFamily: THEME.fonts.mono,
-                    marginBottom: 6,
-                  }}
-                >
-                  CroqTile kernel
-                </div>
-                <div
-                  style={{
-                    fontSize: FS.mainAccent,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.primary,
-                    fontWeight: 700,
-                  }}
-                >
-                  {croqLines} lines
-                </div>
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: FS.monoLg,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.textCode,
-                  }}
-                >
-                  ≈ ~{croqTokens} tokens
-                </div>
-              </div>
-              <div
-                style={{
-                  height: 1,
-                  background: "rgba(255,255,255,0.08)",
-                  margin: "6px 0",
-                }}
-              />
-              <div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    color: THEME.colors.textMuted,
-                    fontFamily: THEME.fonts.mono,
-                    marginBottom: 6,
-                  }}
-                >
-                  CUDA + CuTe surface
-                </div>
-                <div
-                  style={{
-                    fontSize: FS.mainAccent,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.textSecondary,
-                    fontWeight: 700,
-                  }}
-                >
-                  {cudaLines} lines
-                </div>
-                <div
-                  style={{
-                    marginTop: 4,
-                    fontSize: FS.monoLg,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.accentWarm,
-                  }}
-                >
-                  ≈ {cudaTokLow}–{cudaTokHigh} tokens
-                </div>
-              </div>
-              <div
-                style={{
-                  marginTop: "auto",
-                  fontSize: FS.labelSm,
-                  fontFamily: THEME.fonts.sans,
-                  color: THEME.colors.textMuted,
-                  lineHeight: 1.45,
-                }}
-              >
-                Smaller literals mean agents can retain surrounding system state —
-                fused layouts, tiling policy, safety — without drowning in STL-shaped
-                noise.
-              </div>
-            </div>
-          </DeviceShell>
-
           <div
             style={{
-              borderRadius: THEME.radius.lg,
-              background: THEME.colors.bgCard,
-              boxShadow: THEME.shadows.card,
-              padding: 24,
+              position: "absolute",
+              inset: 0,
+              opacity: phase1Op,
               display: "flex",
               flexDirection: "column",
-              gap: 14,
-              border: `1px solid rgba(255,255,255,0.06)`,
             }}
           >
-            <div
-              style={{
-                fontSize: FS.label,
-                color: THEME.colors.textPrimary,
-                fontFamily: THEME.fonts.sans,
-                fontWeight: 600,
-              }}
-            >
-              Context window utilization
-            </div>
-            <div
-              style={{
-                flex: 1,
-                position: "relative",
-                borderRadius: THEME.radius.md,
-                background: THEME.colors.bgBase,
-                overflow: "hidden",
-                border: `1px solid rgba(129,140,248,0.35)`,
-                minHeight: 280,
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 16,
-                  borderRadius: THEME.radius.sm,
-                  border: `${2 + windowPulse * 2}px solid rgba(110,231,183,${0.32 + 0.38 * windowPulse})`,
-                  boxShadow: THEME.shadows.glowSm,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transform: `scale(${innerScaleCroq})`,
-                  transformOrigin: "50% 45%",
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: THEME.fonts.mono,
-                    fontSize: FS.mono,
-                    color: THEME.colors.primary,
-                    textAlign: "center",
-                    padding: 12,
-                  }}
-                >
-                  CroqTile kernel
-                  <br />
-                  <span style={{ color: THEME.colors.textSecondary }}>
-                    fits comfortably
-                  </span>
-                </span>
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                <div
-                  style={{
-                    width: "118%",
-                    height: "118%",
-                    borderRadius: THEME.radius.md,
-                    border: `${3}px solid rgba(248,113,113,${redEdge})`,
-                    boxShadow: `0 0 48px rgba(248,113,113,${0.15 + 0.55 * overflow})`,
-                    transform: `scale(${innerScaleCuda}) rotate(${interpolate(
-                      overflow,
-                      [0, 1],
-                      [0, 1.8],
-                    )}deg)`,
-                    opacity: interpolate(t, [70, 130], [0, 1], {
-                      extrapolateLeft: "clamp",
-                      extrapolateRight: "clamp",
-                    }),
-                  }}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 20,
-                    right: 22,
-                    fontFamily: THEME.fonts.sans,
-                    fontSize: FS.labelSm,
-                    color: THEME.colors.danger,
-                    opacity: overflow,
-                  }}
-                >
-                  CUDA variant spills context window
-                </span>
-              </div>
-            </div>
+            {renderConvergenceChart()}
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: phase2Op,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {renderSweepGrid()}
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: phase3Op,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {renderSpmmSummary()}
           </div>
         </div>
       </PageContainer>
@@ -687,200 +1064,459 @@ const Sub6C: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const instrOp = spring({
-    frame: t - 8,
+  const phase1Op = interpolate(t, [0, 18, 520, 560], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const phase2Op = interpolate(t, [520, 560, 800, 848], [0, 1, 1, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+
+  const title1Op = interpolate(t, [520, 560], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const title2Op = interpolate(t, [520, 560], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+
+  const tokenRows = [
+    { label: "CroqTile", tokens: 303, loc: 36, color: THEME.colors.primary },
+    { label: "Triton", tokens: 449, loc: 80, color: THEME.colors.accent },
+    { label: "CUDA+CuTe", tokens: 1530, loc: 182, color: THEME.colors.danger },
+    { label: "CUTLASS", tokens: 2350, loc: 280, color: THEME.colors.textMuted },
+  ];
+  const tokenMax = 2500;
+
+  const tokenSprings = tokenRows.map((_, i) =>
+    spring({
+      frame: t - 24 - i * 18,
+      fps,
+      config: { damping: 16, stiffness: 110 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const calloutSpring = spring({
+    frame: t - 316,
     fps,
-    config: { damping: 17, stiffness: 105 },
+    config: { damping: 17, stiffness: 95 },
+    from: 0,
+    to: 1,
+  });
+  const calloutGlow = 0.5 + 0.5 * Math.sin(t * 0.22);
+
+  const changeSiteRows = [
+    { op: "改 tile size", croq: 1, cuda: 5 },
+    { op: "改 swizzle", croq: 1, cuda: 3 },
+    { op: "改 pipeline stages", croq: 1, cuda: 4 },
+    { op: "改 data type", croq: 1, cuda: 7 },
+    { op: "加 warp specialization", croq: 2, cuda: 6 },
+  ];
+
+  const rowSprings = changeSiteRows.map((_, i) =>
+    spring({
+      frame: t - 565 - i * 22,
+      fps,
+      config: { damping: 16, stiffness: 105 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
+  const tableHeaderSpring = spring({
+    frame: t - 565,
+    fps,
+    config: { damping: 17, stiffness: 100 },
     from: 0,
     to: 1,
   });
 
-  const showCroq = spring({
-    frame: t - 55,
+  const summarySpring = spring({
+    frame: t - 565 - changeSiteRows.length * 22 - 8,
     fps,
     config: { damping: 16, stiffness: 100 },
     from: 0,
     to: 1,
   });
-  const showCuda = spring({
-    frame: t - 130,
-    fps,
-    config: { damping: 16, stiffness: 95 },
-    from: 0,
-    to: 1,
-  });
 
-  const cudaSites = [
-    { top: 44, left: 14, w: 132, h: 18 },
-    { top: 66, left: 14, w: 268, h: 18 },
-    { top: 112, left: 14, w: 284, h: 18 },
-    { top: 134, left: 220, w: 148, h: 18 },
-    { top: 178, left: 14, w: 228, h: 18 },
-    { top: 222, left: 170, w: 192, h: 18 },
-    { top: 266, left: 14, w: 220, h: 18 },
-  ];
+  const phaseTitle = (zh: string, en: string, opacity: number) => (
+    <div style={{ opacity, marginBottom: 4 }}>
+      <div
+        style={{
+          fontSize: FS.label,
+          fontFamily: THEME.fonts.sans,
+          fontWeight: 700,
+          color: THEME.colors.textPrimary,
+        }}
+      >
+        {zh}
+      </div>
+      <div
+        style={{
+          fontSize: FS.labelSm,
+          fontFamily: THEME.fonts.mono,
+          color: THEME.colors.textMuted,
+          marginTop: 2,
+        }}
+      >
+        {en}
+      </div>
+    </div>
+  );
 
-  const shellH = 388;
+  const renderTokenChart = () => (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        borderRadius: THEME.radius.lg,
+        background: THEME.colors.bgCard,
+        border: `1px solid rgba(255,255,255,0.06)`,
+        boxShadow: THEME.shadows.card,
+        padding: "20px 28px",
+      }}
+    >
+      {phaseTitle("极简上下文", "Minimal Context", title1Op)}
+      <div
+        style={{
+          fontSize: FS.labelSm,
+          fontFamily: THEME.fonts.sans,
+          color: THEME.colors.textMuted,
+          opacity: title1Op,
+        }}
+      >
+        token footprint · same GEMM kernel
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
+        {tokenRows.map((row, i) => {
+          const w = (row.tokens / tokenMax) * 100 * tokenSprings[i];
+          return (
+            <div
+              key={row.label}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "128px 1fr 88px",
+                alignItems: "center",
+                gap: 16,
+                opacity: tokenSprings[i],
+                transform: `translateX(${interpolate(tokenSprings[i], [0, 1], [-20, 0])}px)`,
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontFamily: THEME.fonts.mono,
+                    color: THEME.colors.textSecondary,
+                    fontSize: FS.mono,
+                    fontWeight: 600,
+                  }}
+                >
+                  {row.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: THEME.fonts.mono,
+                    color: THEME.colors.textMuted,
+                    fontSize: FS.labelSm,
+                    marginTop: 2,
+                  }}
+                >
+                  {row.loc} LOC
+                </div>
+              </div>
+              <div
+                style={{
+                  height: 26,
+                  borderRadius: THEME.radius.full,
+                  background: THEME.colors.bgBase,
+                  overflow: "hidden",
+                  border: `1px solid rgba(255,255,255,0.06)`,
+                }}
+              >
+                <div
+                  style={{
+                    width: `${w}%`,
+                    height: "100%",
+                    borderRadius: THEME.radius.full,
+                    background:
+                      row.label === "CroqTile"
+                        ? `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`
+                        : row.color,
+                    boxShadow:
+                      row.label === "CroqTile" ? THEME.shadows.glowSm : undefined,
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontFamily: THEME.fonts.mono,
+                  color: row.color,
+                  fontSize: FS.mono,
+                  textAlign: "right",
+                  fontWeight: 600,
+                }}
+              >
+                {Math.round(row.tokens * tokenSprings[i])}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div
+        style={{
+          alignSelf: "stretch",
+          marginTop: 4,
+          padding: "12px 24px",
+          borderRadius: THEME.radius.md,
+          background: `${THEME.colors.primary}1A`,
+          border: `1px solid ${THEME.colors.primary}${Math.round((0.4 + 0.35 * calloutGlow) * 255).toString(16).padStart(2, "0")}`,
+          boxShadow: `${THEME.shadows.glowSm}, 0 0 ${20 + 12 * calloutGlow}px ${THEME.colors.primaryGlow}`,
+          opacity: calloutSpring,
+          transform: `translateY(${interpolate(calloutSpring, [0, 1], [12, 0])}px) scale(${interpolate(calloutSpring, [0, 1], [0.94, 1])})`,
+          transformOrigin: "top center",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.label,
+            color: THEME.colors.primary,
+            fontWeight: 700,
+          }}
+        >
+          同等预算 → 5× 更多迭代
+        </span>
+        <span
+          style={{
+            fontFamily: THEME.fonts.sans,
+            fontSize: FS.labelSm,
+            color: THEME.colors.textSecondary,
+            marginLeft: 16,
+          }}
+        >
+          same budget · more optimization rounds
+        </span>
+      </div>
+    </div>
+  );
+
+  const renderChangeSites = () => (
+    <div
+      style={{
+        flex: 1,
+        borderRadius: THEME.radius.lg,
+        background: THEME.colors.bgCard,
+        border: `1px solid rgba(255,255,255,0.06)`,
+        boxShadow: THEME.shadows.card,
+        padding: "20px 28px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+      }}
+    >
+      {phaseTitle("精确编辑", "Surgical Edits", title2Op)}
+      <div
+        style={{
+          fontSize: FS.labelSm,
+          fontFamily: THEME.fonts.sans,
+          color: THEME.colors.textMuted,
+          opacity: tableHeaderSpring,
+        }}
+      >
+        code change sites per logical edit
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 100px 100px",
+          gap: 12,
+          padding: "6px 0",
+          borderBottom: `1px solid rgba(255,255,255,0.08)`,
+          opacity: tableHeaderSpring,
+          transform: `translateY(${interpolate(tableHeaderSpring, [0, 1], [10, 0])}px)`,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.labelSm,
+            color: THEME.colors.textMuted,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}
+        >
+          operation
+        </span>
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.labelSm,
+            color: THEME.colors.primary,
+            textAlign: "center",
+            fontWeight: 600,
+          }}
+        >
+          CroqTile
+        </span>
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.labelSm,
+            color: THEME.colors.danger,
+            textAlign: "center",
+            fontWeight: 600,
+          }}
+        >
+          CUDA
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+        {changeSiteRows.map((row, i) => {
+          const p = rowSprings[i];
+          const highlight = row.croq === 1 && row.cuda >= 5;
+          return (
+            <div
+              key={row.op}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 100px 100px",
+                alignItems: "center",
+                gap: 12,
+                padding: "10px 14px",
+                borderRadius: THEME.radius.md,
+                background: highlight
+                  ? `${THEME.colors.primary}0F`
+                  : THEME.colors.bgElevated,
+                border: highlight
+                  ? `1px solid ${THEME.colors.primary}44`
+                  : `1px solid rgba(255,255,255,0.04)`,
+                opacity: p,
+                transform: `translateY(${interpolate(p, [0, 1], [20, 0])}px) scale(${interpolate(p, [0, 1], [0.96, 1])})`,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: THEME.fonts.sans,
+                  fontSize: FS.label,
+                  color: THEME.colors.textPrimary,
+                  fontWeight: 500,
+                }}
+              >
+                {row.op}
+              </span>
+              <span
+                style={{
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.monoLg,
+                  color: THEME.colors.primary,
+                  textAlign: "center",
+                  fontWeight: 700,
+                }}
+              >
+                {row.croq}
+              </span>
+              <span
+                style={{
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.monoLg,
+                  color: THEME.colors.danger,
+                  textAlign: "center",
+                  fontWeight: 700,
+                }}
+              >
+                {row.cuda}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 32,
+          marginTop: 4,
+          opacity: summarySpring,
+          transform: `translateY(${interpolate(summarySpring, [0, 1], [12, 0])}px)`,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.label,
+            color: THEME.colors.primary,
+            fontWeight: 700,
+          }}
+        >
+          1 change site
+        </span>
+        <span style={{ color: THEME.colors.textMuted, fontSize: FS.label }}>vs</span>
+        <span
+          style={{
+            fontFamily: THEME.fonts.mono,
+            fontSize: FS.label,
+            color: THEME.colors.danger,
+            fontWeight: 700,
+          }}
+        >
+          5+ change sites
+        </span>
+      </div>
+    </div>
+  );
 
   return (
     <SegmentWrap duration={SEG.C.seqDur}>
       <PageContainer
         tag="Segment 06"
         title="Zero context waste"
-        subtitle="Agents edit intent-sized regions — not constellation surgery"
+        subtitle={
+          title2Op > 0.5
+            ? "One logical change · one edit site — agents stay on track"
+            : "Fewer tokens per kernel — more room to iterate"
+        }
         style={{ pointerEvents: "none" }}
       >
         <div
           style={{
-            opacity: instrOp,
-            transform: `translateY(${interpolate(instrOp, [0, 1], [14, 0])}px)`,
-            marginBottom: 18,
-            padding: "16px 24px",
-            borderRadius: THEME.radius.md,
-            background: THEME.colors.bgElevated,
-            border: `1px solid rgba(129,140,248,0.35)`,
-            alignSelf: "flex-start",
-            maxWidth: 920,
-            boxShadow: THEME.shadows.card,
-          }}
-        >
-          <span
-            style={{
-              fontSize: FS.labelSm,
-              color: THEME.colors.accent,
-              fontFamily: THEME.fonts.mono,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-            }}
-          >
-            Agent instruction ·
-          </span>
-          <span
-            style={{
-              marginLeft: 8,
-              fontSize: FS.label,
-              color: THEME.colors.textPrimary,
-              fontFamily: THEME.fonts.mono,
-            }}
-          >
-            Optimize TILE_K to reduce bank conflict
-          </span>
-        </div>
-
-        <div
-          style={{
             flex: 1,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 36,
+            position: "relative",
             minHeight: 0,
             maxHeight: BODY_MAX_HEIGHT,
           }}
         >
-          <DeviceShell title="croqtile_gemm.ct" width="100%" height={shellH}>
-            <div
-              style={{
-                position: "relative",
-                padding: "18px 22px",
-                fontFamily: THEME.fonts.mono,
-                fontSize: FS.mono,
-                lineHeight: 1.65,
-                color: THEME.colors.textSecondary,
-                background: THEME.colors.bgBase,
-                height: "100%",
-                boxSizing: "border-box",
-                opacity: showCroq,
-              }}
-            >
-              <div style={{ color: THEME.colors.textMuted }}>@kernel</div>
-              <div style={{ color: THEME.colors.textCode }}>
-                def gemm[M, N, K]():
-              </div>
-              <div>{"  "}tile_m = TILE_M</div>
-              <div>{"  "}tile_n = TILE_N</div>
-              <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
-                <span style={{ color: THEME.colors.textPrimary }}>
-                  {"  "}tile_k =
-                </span>{" "}
-                <span style={{ color: THEME.colors.primary }}>96</span>{" "}
-                <span style={{ color: THEME.colors.textMuted }}>
-                  {"// tuned for SRAM banks"}
-                </span>
-                {showCroq > 0.08 &&
-                  highlightBox(132, 68, 44, 22, THEME.colors.primary, showCroq)}
-              </div>
-              <div>{"  "}...</div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: 18,
-                  bottom: 14,
-                  fontSize: FS.monoLg,
-                  fontFamily: THEME.fonts.mono,
-                  color: THEME.colors.primary,
-                  fontWeight: 700,
-                  opacity: interpolate(showCroq, [0.45, 1], [0, 1]),
-                }}
-              >
-                1 change site
-              </div>
-            </div>
-          </DeviceShell>
-
-          <DeviceShell title="cuda_cute_attn.cuh" width="100%" height={shellH}>
-            <div
-              style={{
-                position: "relative",
-                padding: "18px 22px",
-                fontFamily: THEME.fonts.mono,
-                fontSize: FS.mono,
-                lineHeight: 1.62,
-                color: THEME.colors.textSecondary,
-                background: THEME.colors.bgBase,
-                height: "100%",
-                boxSizing: "border-box",
-                opacity: showCuda,
-              }}
-            >
-              {[
-                "#define TILE_K 128",
-                "using BlockShape = Shape<_128,_64,_128>;",
-                "// bank conflict heuristic spread across:",
-                "__device__ inline void prefetch_K_tile(...){ /* ... */ }",
-                "__device__ inline void softmax_row(...){ /* uses TILE_K */ }",
-                "// shared memory tiling policy",
-                "auto sK_layout = composition(Swizzle<3,4,3>{}, ...);",
-                "copy_atom_K.with(TILE_K).invoke(...);",
-                "warpgroup_fence();",
-                "// epilogue reshapes TILE_K-bound accumulators",
-                " tiled_mma.consume_tile<TILE_K>(frag);",
-              ].map((line, i) => (
-                <div key={i} style={{ whiteSpace: "pre" }}>
-                  {line}
-                </div>
-              ))}
-
-              {cudaSites.map((s) =>
-                highlightBox(s.top, s.left, s.w, s.h, THEME.colors.danger, showCuda),
-              )}
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: 18,
-                  bottom: 14,
-                  fontSize: FS.monoLg,
-                  fontFamily: THEME.fonts.mono,
-                  color: THEME.colors.danger,
-                  fontWeight: 700,
-                  opacity: interpolate(showCuda, [0.5, 1], [0, 1]),
-                }}
-              >
-                7 change sites
-              </div>
-            </div>
-          </DeviceShell>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: phase1Op,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {renderTokenChart()}
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: phase2Op,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {renderChangeSites()}
+          </div>
         </div>
       </PageContainer>
     </SegmentWrap>
@@ -892,295 +1528,613 @@ const Sub6D: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const rows = [
-    { label: "CroqTile", value: 3.5, color: THEME.colors.primary },
-    { label: "Triton", value: 7.5, color: THEME.colors.accent },
-    { label: "CUDA", value: 10.0, color: THEME.colors.textCode },
-    { label: "Helion", value: 23.3, color: THEME.colors.textMuted },
-  ];
+  const phase1Op = interpolate(t, [0, 18, 520, 560], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const phase2Op = interpolate(t, [520, 560, 900, 942], [0, 1, 1, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
 
-  const maxPct = 25;
+  const title1Op = interpolate(t, [520, 560], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+  const title2Op = interpolate(t, [520, 560], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
 
-  const barProgress = rows.map((_, i) =>
-    spring({
-      frame: t - 20 - i * 14,
-      fps,
-      config: { damping: 15, stiffness: 155 },
-      from: 0,
-      to: 1,
-    }),
-  );
+  const shellH = 340;
 
-  const loopReveal = spring({
-    frame: t - 285,
+  const tradPanelSpring = spring({
+    frame: t - 12,
     fps,
-    config: { damping: 17, stiffness: 82 },
+    config: { damping: 16, stiffness: 105 },
     from: 0,
     to: 1,
   });
+  const tradLine1 = spring({ frame: t - 20, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
+  const tradCompile = spring({ frame: t - 45, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradSuccess = spring({ frame: t - 72, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradLine2 = spring({ frame: t - 95, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradRunning = spring({ frame: t - 120, fps, config: { damping: 18, stiffness: 90 }, from: 0, to: 1 });
+  const tradGpuWait = interpolate(t, [120, 180], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const tradError = spring({ frame: t - 175, fps, config: { damping: 14, stiffness: 120 }, from: 0, to: 1 });
+  const tradDebugTime = spring({ frame: t - 210, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
+  const errorPulse = 0.55 + 0.45 * Math.sin(t * 0.35);
 
-  const croqtileScan = spring({
-    frame: t - 340,
+  const croqSlide = spring({
+    frame: t - 300,
+    fps,
+    config: { damping: 16, stiffness: 100 },
+    from: 0,
+    to: 1,
+  });
+  const croqLine1 = spring({ frame: t - 318, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
+  const croqError = spring({ frame: t - 340, fps, config: { damping: 16, stiffness: 110 }, from: 0, to: 1 });
+  const croqFixTime = spring({ frame: t - 400, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
+  const croqSubtitle = spring({ frame: t - 430, fps, config: { damping: 17, stiffness: 90 }, from: 0, to: 1 });
+
+  const loopReveal = spring({
+    frame: t - 570,
+    fps,
+    config: { damping: 17, stiffness: 95 },
+    from: 0,
+    to: 1,
+  });
+  const croqLoopSpring = spring({
+    frame: t - 590,
     fps,
     config: { damping: 16, stiffness: 88 },
     from: 0,
     to: 1,
   });
-
-  const otherRuntime = spring({
-    frame: t - 365,
+  const tradLoopSpring = spring({
+    frame: t - 620,
     fps,
-    config: { damping: 17, stiffness: 74 },
+    config: { damping: 17, stiffness: 80 },
+    from: 0,
+    to: 1,
+  });
+  const magnitudeSpring = spring({
+    frame: t - 700,
+    fps,
+    config: { damping: 15, stiffness: 100 },
     from: 0,
     to: 1,
   });
 
+  const passAt1Rows = [
+    { label: "CroqTile", value: 96.4, color: THEME.colors.primary, glow: true, delay: 750 },
+    { label: "Triton", value: 92.6, color: THEME.colors.accent, glow: false, delay: 775 },
+    { label: "CUDA", value: 88.6, color: THEME.colors.danger, glow: false, delay: 800 },
+    { label: "Helion", value: 76.8, color: THEME.colors.textMuted, glow: false, delay: 825 },
+  ];
+
+  const passSprings = passAt1Rows.map((row) =>
+    spring({
+      frame: t - row.delay,
+      fps,
+      config: { damping: 16, stiffness: 110 },
+      from: 0,
+      to: 1,
+    }),
+  );
+
   const tick = 0.5 + 0.5 * Math.sin(t * 0.29);
 
-  const barGradient = (label: string, base: string) => {
-    if (label === "CroqTile") {
-      return `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`;
-    }
-    if (label === "Helion") {
-      return `linear-gradient(90deg, ${THEME.colors.textMuted}, ${THEME.colors.textSecondary})`;
-    }
-    return `linear-gradient(90deg, ${base}, ${THEME.colors.accent})`;
-  };
+  const termLine = (opacity: number, children: React.ReactNode, color: string = THEME.colors.textSecondary) => (
+    <div
+      style={{
+        opacity,
+        transform: `translateY(${interpolate(opacity, [0, 1], [8, 0])}px)`,
+        fontFamily: THEME.fonts.mono,
+        fontSize: FS.labelSm,
+        color,
+        lineHeight: 1.6,
+      }}
+    >
+      {children}
+    </div>
+  );
+
+  const phaseTitle = (zh: string, en: string, opacity: number) => (
+    <div style={{ opacity, marginBottom: 8 }}>
+      <div
+        style={{
+          fontSize: FS.label,
+          fontFamily: THEME.fonts.sans,
+          fontWeight: 700,
+          color: THEME.colors.textPrimary,
+        }}
+      >
+        {zh}
+      </div>
+      <div
+        style={{
+          fontSize: FS.labelSm,
+          fontFamily: THEME.fonts.mono,
+          color: THEME.colors.textMuted,
+          marginTop: 2,
+        }}
+      >
+        {en}
+      </div>
+    </div>
+  );
+
+  const renderErrorStory = () => (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+      {phaseTitle("编译期反馈", "Compile-Time Feedback", title1Op)}
+      <div
+        style={{
+          flex: 1,
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 24,
+          minHeight: 0,
+        }}
+      >
+        <div
+          style={{
+            opacity: tradPanelSpring,
+            transform: `translateX(${interpolate(tradPanelSpring, [0, 1], [-20, 0])}px)`,
+          }}
+        >
+          <DeviceShell title="Traditional DSL · CUDA" width="100%" height={shellH}>
+            <div
+              style={{
+                padding: "16px 20px",
+                fontFamily: THEME.fonts.mono,
+                fontSize: FS.labelSm,
+                background: THEME.colors.bgBase,
+                height: "100%",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                border:
+                  tradError > 0.3
+                    ? `2px solid ${THEME.colors.danger}${Math.round(errorPulse * 180).toString(16).padStart(2, "0")}`
+                    : "2px solid transparent",
+                borderRadius: `0 0 ${THEME.radius.lg} ${THEME.radius.lg}`,
+              }}
+            >
+              {termLine(tradLine1, <>$ nvcc matmul_kernel.cu -o matmul</>)}
+              {termLine(tradCompile, <>Compiling...</>, THEME.colors.textMuted)}
+              {termLine(tradSuccess, <>✓ Compiled successfully</>, THEME.colors.primary)}
+              {termLine(tradLine2, <>$ ./matmul</>)}
+              {termLine(tradRunning, <>Running on GPU...</>, THEME.colors.textMuted)}
+              {tradGpuWait > 0.2 && (
+                <div
+                  style={{
+                    opacity: tradGpuWait,
+                    fontFamily: THEME.fonts.mono,
+                    fontSize: FS.labelSm,
+                    color: THEME.colors.textMuted,
+                  }}
+                >
+                  {"▸".repeat(Math.floor(1 + tradGpuWait * 3))} device running...
+                </div>
+              )}
+              {termLine(
+                tradError,
+                <>CUDA Error: device-side assert triggered</>,
+                THEME.colors.danger,
+              )}
+              <div
+                style={{
+                  opacity: tradDebugTime,
+                  marginTop: "auto",
+                  padding: "8px 12px",
+                  borderRadius: THEME.radius.sm,
+                  background: `${THEME.colors.danger}18`,
+                  border: `1px solid ${THEME.colors.danger}55`,
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.labelSm,
+                  color: THEME.colors.danger,
+                  fontWeight: 600,
+                }}
+              >
+                debug time: ~30–60 min
+              </div>
+            </div>
+          </DeviceShell>
+        </div>
+
+        <div
+          style={{
+            opacity: croqSlide,
+            transform: `translateX(${interpolate(croqSlide, [0, 1], [40, 0])}px)`,
+          }}
+        >
+          <DeviceShell title="CroqTile · compile-time ✓" width="100%" height={shellH}>
+            <div
+              style={{
+                padding: "16px 20px",
+                fontFamily: THEME.fonts.mono,
+                fontSize: FS.labelSm,
+                background: THEME.colors.bgBase,
+                height: "100%",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              {termLine(croqLine1, <>$ croqc build matmul.tile</>)}
+              <div
+                style={{
+                  opacity: croqError,
+                  transform: `translateY(${interpolate(croqError, [0, 1], [10, 0])}px)`,
+                  padding: "12px 14px",
+                  borderRadius: THEME.radius.sm,
+                  background: `${THEME.colors.danger}10`,
+                  border: `1px solid ${THEME.colors.danger}44`,
+                  lineHeight: 1.65,
+                }}
+              >
+                <div style={{ color: THEME.colors.danger, fontWeight: 700 }}>
+                  error[E0042]: tile M=96 not divisible by WARP_M=64
+                </div>
+                <div style={{ color: THEME.colors.textMuted, marginTop: 4 }}>
+                  {"  --> matmul.tile:23:5"}
+                </div>
+                <div style={{ color: THEME.colors.primary, marginTop: 6 }}>
+                  fix: adjust WARP_M to a divisor of M
+                </div>
+              </div>
+              <div
+                style={{
+                  opacity: croqFixTime,
+                  padding: "8px 12px",
+                  borderRadius: THEME.radius.sm,
+                  background: `${THEME.colors.primary}18`,
+                  border: `1px solid ${THEME.colors.primary}55`,
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.labelSm,
+                  color: THEME.colors.primary,
+                  fontWeight: 600,
+                }}
+              >
+                fix time: ~3–8 seconds
+              </div>
+              <div
+                style={{
+                  opacity: croqSubtitle,
+                  marginTop: "auto",
+                  fontFamily: THEME.fonts.sans,
+                  fontSize: FS.labelSm,
+                  color: THEME.colors.textSecondary,
+                  fontStyle: "italic",
+                }}
+              >
+                为 AI Agent 阅读专门设计的错误信息
+              </div>
+            </div>
+          </DeviceShell>
+        </div>
+      </div>
+    </div>
+  );
+
+  const loopSteps = (steps: string[], progress: number, color: string) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      {steps.map((step, i) => {
+        const stepOp = interpolate(progress, [i / steps.length, (i + 1) / steps.length], [0.35, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        return (
+          <React.Fragment key={step}>
+            {i > 0 && (
+              <span style={{ color: THEME.colors.textMuted, fontSize: FS.labelSm, opacity: stepOp }}>
+                →
+              </span>
+            )}
+            <span
+              style={{
+                fontFamily: THEME.fonts.mono,
+                fontSize: FS.labelSm,
+                color,
+                opacity: stepOp,
+                fontWeight: i === steps.length - 1 ? 700 : 500,
+              }}
+            >
+              {step}
+            </span>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+
+  const renderFeedbackLoop = () => (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        opacity: loopReveal,
+        transform: `translateY(${interpolate(loopReveal, [0, 1], [16, 0])}px)`,
+      }}
+    >
+      {phaseTitle("迭代效率", "Iteration Efficiency", title2Op)}
+      <div
+        style={{
+          borderRadius: THEME.radius.lg,
+          background: THEME.colors.bgCard,
+          padding: "18px 24px",
+          border: `1px solid rgba(255,255,255,0.06)`,
+          boxShadow: THEME.shadows.card,
+        }}
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+          <div>
+            <div
+              style={{
+                fontSize: FS.labelSm,
+                color: THEME.colors.primary,
+                fontFamily: THEME.fonts.mono,
+                marginBottom: 10,
+                fontWeight: 600,
+              }}
+            >
+              CroqTile · 353 checks + 1,319 asserts
+            </div>
+            {loopSteps(["编写", "编译", "反馈"], croqLoopSpring, THEME.colors.primary)}
+            <div
+              style={{
+                marginTop: 12,
+                height: 10,
+                borderRadius: THEME.radius.full,
+                background: THEME.colors.bgBase,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${croqLoopSpring * 100}%`,
+                  height: "100%",
+                  borderRadius: THEME.radius.full,
+                  background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`,
+                  boxShadow: THEME.shadows.glowSm,
+                }}
+              />
+            </div>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: FS.label,
+                fontFamily: THEME.fonts.mono,
+                color: THEME.colors.primary,
+                fontWeight: 700,
+              }}
+            >
+              秒级迭代
+            </div>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontSize: FS.labelSm,
+                color: THEME.colors.danger,
+                fontFamily: THEME.fonts.mono,
+                marginBottom: 10,
+                fontWeight: 600,
+              }}
+            >
+              Traditional DSL · GPU runtime path
+            </div>
+            {loopSteps(
+              ["编写", "编译", "GPU运行", "等待...", "模糊错误"],
+              tradLoopSpring,
+              THEME.colors.danger,
+            )}
+            <div
+              style={{
+                marginTop: 12,
+                height: 10,
+                borderRadius: THEME.radius.full,
+                background: THEME.colors.bgBase,
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  width: `${tradLoopSpring * 100}%`,
+                  height: "100%",
+                  borderRadius: THEME.radius.full,
+                  background: `linear-gradient(90deg, ${THEME.colors.danger}, ${THEME.colors.accentWarm})`,
+                  opacity: 0.88,
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: `linear-gradient(90deg, transparent, transparent 88%, ${THEME.colors.danger}${Math.round((0.15 + 0.4 * tick) * 255).toString(16).padStart(2, "0")})`,
+                }}
+              />
+            </div>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: FS.label,
+                fontFamily: THEME.fonts.mono,
+                color: THEME.colors.danger,
+                fontWeight: 700,
+              }}
+            >
+              分钟级迭代
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 16,
+            textAlign: "center",
+            opacity: magnitudeSpring,
+            transform: `scale(${interpolate(magnitudeSpring, [0, 1], [0.92, 1])})`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: THEME.fonts.sans,
+              fontSize: FS.mainAccent,
+              fontWeight: 700,
+              color: THEME.colors.textPrimary,
+            }}
+          >
+            快至少一个数量级
+          </span>
+        </div>
+      </div>
+
+      <div
+        style={{
+          borderRadius: THEME.radius.lg,
+          background: THEME.colors.bgCard,
+          padding: "16px 24px",
+          border: `1px solid rgba(255,255,255,0.06)`,
+          boxShadow: THEME.shadows.card,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: FS.labelSm,
+            fontFamily: THEME.fonts.mono,
+            color: THEME.colors.textMuted,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            opacity: passSprings[0],
+          }}
+        >
+          pass@1 · AI Agent 编译首次成功率
+        </div>
+        {passAt1Rows.map((row, i) => {
+          const p = passSprings[i];
+          const barW = row.value * p;
+          return (
+            <div
+              key={row.label}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "100px 1fr 72px",
+                alignItems: "center",
+                gap: 14,
+                opacity: p,
+                transform: `translateX(${interpolate(p, [0, 1], [-16, 0])}px)`,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.labelSm,
+                  color: row.color,
+                  fontWeight: 600,
+                }}
+              >
+                {row.label}
+              </span>
+              <div
+                style={{
+                  height: 22,
+                  borderRadius: THEME.radius.full,
+                  background: THEME.colors.bgBase,
+                  overflow: "hidden",
+                  border: `1px solid rgba(255,255,255,0.06)`,
+                }}
+              >
+                <div
+                  style={{
+                    width: `${barW}%`,
+                    height: "100%",
+                    borderRadius: THEME.radius.full,
+                    background: row.glow
+                      ? `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`
+                      : row.color,
+                    boxShadow: row.glow ? THEME.shadows.glowSm : undefined,
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontFamily: THEME.fonts.mono,
+                  fontSize: FS.mono,
+                  color: row.color,
+                  textAlign: "right",
+                  fontWeight: 700,
+                }}
+              >
+                {row.value.toFixed(1)}%
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <SegmentWrap duration={SEG.D.seqDur}>
       <PageContainer
         tag="Segment 06"
-        title="Lowest compile failure rate"
-        subtitle="Fast feedback beats long GPU tails"
+        title="Compile feedback speed"
+        subtitle={
+          title2Op > 0.5
+            ? "Seconds per iteration — not minutes of GPU debugging"
+            : "Errors caught at compile time — not after a 30-minute GPU debug session"
+        }
         style={{ pointerEvents: "none" }}
       >
         <div
           style={{
             flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 22,
+            position: "relative",
             minHeight: 0,
             maxHeight: BODY_MAX_HEIGHT,
           }}
         >
-          <div style={{ flex: 1.05, minHeight: 0 }}>
-            <div
-              style={{
-                fontSize: FS.labelSm,
-                fontFamily: THEME.fonts.sans,
-                color: THEME.colors.textMuted,
-                marginBottom: 12,
-              }}
-            >
-              Compile failures per attempt (%)
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {rows.map((row, i) => {
-                const w = (row.value / maxPct) * 100 * barProgress[i];
-                return (
-                  <div
-                    key={row.label}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "128px 1fr 88px",
-                      alignItems: "center",
-                      gap: 14,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: THEME.fonts.mono,
-                        color: THEME.colors.textSecondary,
-                        fontSize: FS.mono,
-                      }}
-                    >
-                      {row.label}
-                    </span>
-                    <div
-                      style={{
-                        height: 24,
-                        borderRadius: THEME.radius.full,
-                        background: THEME.colors.bgElevated,
-                        overflow: "hidden",
-                        border: `1px solid rgba(255,255,255,0.06)`,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${w}%`,
-                          height: "100%",
-                          borderRadius: THEME.radius.full,
-                          background: barGradient(row.label, row.color),
-                          boxShadow:
-                            row.label === "CroqTile" ? THEME.shadows.glowSm : undefined,
-                        }}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        fontFamily: THEME.fonts.mono,
-                        color: THEME.colors.textPrimary,
-                        fontSize: FS.mono,
-                        textAlign: "right",
-                      }}
-                    >
-                      {row.value.toFixed(1)}%
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           <div
             style={{
-              borderRadius: THEME.radius.lg,
-              background: THEME.colors.bgCard,
-              padding: 22,
-              border: `1px solid rgba(255,255,255,0.06)`,
-              boxShadow: THEME.shadows.card,
-              opacity: loopReveal,
-              transform: `translateY(${interpolate(loopReveal, [0, 1], [18, 0])}px)`,
+              position: "absolute",
+              inset: 0,
+              opacity: phase1Op,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <div
-              style={{
-                fontSize: FS.label,
-                fontFamily: THEME.fonts.sans,
-                fontWeight: 600,
-                color: THEME.colors.textPrimary,
-                marginBottom: 16,
-              }}
-            >
-              Feedback loop latency
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 28,
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    color: THEME.colors.primary,
-                    fontFamily: THEME.fonts.mono,
-                    marginBottom: 10,
-                  }}
-                >
-                  CroqTile compiler
-                </div>
-                <div
-                  style={{
-                    height: 12,
-                    borderRadius: THEME.radius.full,
-                    background: THEME.colors.bgBase,
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: THEME.colors.bgElevated,
-                    }}
-                  />
-                  <div
-                    style={{
-                      width: `${croqtileScan * 100}%`,
-                      height: "100%",
-                      borderRadius: THEME.radius.full,
-                      background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.primaryDark})`,
-                      boxShadow: THEME.shadows.glowSm,
-                    }}
-                  />
-                </div>
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: FS.mainAccent,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.primary,
-                    fontWeight: 700,
-                  }}
-                >
-                  ≈ 3s
-                </div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    fontFamily: THEME.fonts.sans,
-                    color: THEME.colors.textMuted,
-                  }}
-                >
-                  Static guarantees + deterministic errors · iterate like a linter
-                </div>
-              </div>
-
-              <div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    color: THEME.colors.textMuted,
-                    fontFamily: THEME.fonts.mono,
-                    marginBottom: 10,
-                  }}
-                >
-                  Typical GPU-first DSL iteration
-                </div>
-                <div
-                  style={{
-                    height: 12,
-                    borderRadius: THEME.radius.full,
-                    background: THEME.colors.bgBase,
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${otherRuntime * 100}%`,
-                      height: "100%",
-                      borderRadius: THEME.radius.full,
-                      background: `linear-gradient(90deg, ${THEME.colors.danger}, ${THEME.colors.accentWarm})`,
-                      opacity: 0.88,
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: `linear-gradient(90deg, transparent, transparent 92%, rgba(248,113,113,${0.12 + 0.38 * tick}))`,
-                    }}
-                  />
-                </div>
-                <div
-                  style={{
-                    marginTop: 8,
-                    fontSize: FS.mainAccent,
-                    fontFamily: THEME.fonts.mono,
-                    color: THEME.colors.danger,
-                    fontWeight: 700,
-                  }}
-                >
-                  ~30s GPU path
-                </div>
-                <div
-                  style={{
-                    fontSize: FS.labelSm,
-                    fontFamily: THEME.fonts.sans,
-                    color: THEME.colors.textMuted,
-                  }}
-                >
-                  Kernel launch + synchronization + profiler round-trips
-                </div>
-              </div>
-            </div>
+            {renderErrorStory()}
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: phase2Op,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {renderFeedbackLoop()}
           </div>
         </div>
       </PageContainer>
@@ -1193,23 +2147,23 @@ const Sub6E: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  /** Stack floats strictly bottom→top: each layer springs after the previous beat */
+  /** Stack floats: aligned to voiceover cues seg6-09(48), seg6-10(273), seg6-11(581) */
   const l1 = spring({
-    frame: t - 18,
+    frame: t - 30,
     fps,
     config: { damping: 17, stiffness: 102 },
     from: 0,
     to: 1,
   });
   const l2 = spring({
-    frame: t - 145,
+    frame: t - 260,
     fps,
     config: { damping: 17, stiffness: 98 },
     from: 0,
     to: 1,
   });
   const l3 = spring({
-    frame: t - 275,
+    frame: t - 565,
     fps,
     config: { damping: 17, stiffness: 94 },
     from: 0,
@@ -1223,6 +2177,7 @@ const Sub6E: React.FC = () => {
     bg: string,
     border: string,
     labelMono: string,
+    labelColor: string,
     title: string,
     subtitle: string,
   ) => {
@@ -1249,9 +2204,10 @@ const Sub6E: React.FC = () => {
           style={{
             fontSize: FS.labelSm,
             fontFamily: THEME.fonts.mono,
-            color: THEME.colors.primary,
+            color: labelColor,
             letterSpacing: "0.06em",
             textTransform: "uppercase",
+            fontWeight: 600,
           }}
         >
           {labelMono}
@@ -1270,6 +2226,7 @@ const Sub6E: React.FC = () => {
           style={{
             fontSize: FS.labelSm,
             fontFamily: THEME.fonts.sans,
+            fontWeight: 400,
             color: THEME.colors.textSecondary,
             lineHeight: 1.45,
           }}
@@ -1284,8 +2241,8 @@ const Sub6E: React.FC = () => {
     <SegmentWrap duration={SEG.E.seqDur}>
       <PageContainer
         tag="Segment 06"
-        title="Extra guardrail layers"
-        subtitle="Compiler truth + on-device evidence + packaged playbooks"
+        title="Harness tools in CroqTile"
+        subtitle="Unified profiler interface + pre-packaged programming knowledge"
         style={{ pointerEvents: "none" }}
       >
         <div
@@ -1321,12 +2278,13 @@ const Sub6E: React.FC = () => {
               }}
             />
             {layer(
-              108,
+              100,
               48,
               l1,
               THEME.colors.bgElevated,
-              "rgba(156,163,175,0.45)",
+              `${THEME.colors.textSecondary}73`,
               "Layer 01",
+              THEME.colors.textMuted,
               "Compiler Guardrail",
               "Types + tile contracts catch mistakes before they become silent wrong answers.",
             )}
@@ -1334,19 +2292,21 @@ const Sub6E: React.FC = () => {
               118,
               58,
               l2,
-              `linear-gradient(135deg, rgba(110,231,183,0.18), ${THEME.colors.bgCard})`,
-              "rgba(110,231,183,0.55)",
+              `linear-gradient(135deg, ${THEME.colors.primaryGlow}, ${THEME.colors.bgCard})`,
+              `${THEME.colors.primary}8C`,
               "Layer 02",
+              THEME.colors.primary,
               "Profiler CLI",
               "ncu + DSA profilers unified — evidence travels with the kernel.",
             )}
             {layer(
-              126,
+              138,
               68,
               l3,
-              `linear-gradient(135deg, rgba(252,211,77,0.2), ${THEME.colors.bgCard})`,
-              "rgba(252,211,77,0.55)",
+              `linear-gradient(135deg, ${THEME.colors.accentWarm}33, ${THEME.colors.bgCard})`,
+              `${THEME.colors.accentWarm}8C`,
               "Layer 03",
+              THEME.colors.accentWarm,
               "CroqTile Skills",
               "Docs + templates + patterns — agents ship structure, not just snippets.",
             )}
@@ -1362,346 +2322,50 @@ const Sub6F: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const points = [671, 784, 902, 1051, 1127];
-  const STAGGER = 46;
+  const glowPulse = 0.4 + 0.6 * Math.sin(t * 0.12);
 
-  const yForTflops = (v: number) =>
-    interpolate(v, [660, 1140], [328, 62], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-
-  const xs = points.map(
-    (_, i) => 80 + (i * (900 - 80)) / (points.length - 1),
-  );
-  const ys = points.map((v) => yForTflops(v));
-
-  const segLens = points.slice(0, -1).map((_, i) => {
-    const dx = xs[i + 1] - xs[i];
-    const dy = ys[i + 1] - ys[i];
-    return Math.max(1, Math.hypot(dx, dy));
-  });
-
-  const segmentSprings = segLens.map((_, i) =>
-    spring({
-      frame: t - 26 - i * STAGGER,
-      fps,
-      config: { damping: 16, stiffness: 112 },
-      from: 0,
-      to: 1,
-    }),
-  );
-
-  const pointSprings = points.map((_, i) =>
-    spring({
-      frame: t - 22 - i * STAGGER,
-      fps,
-      config: { damping: 14, stiffness: 130 },
-      from: 0,
-      to: 1,
-    }),
-  );
-
-  const fillReveal = spring({
-    frame: t - 22 - (points.length - 1) * STAGGER - 28,
-    fps,
-    config: { damping: 18, stiffness: 92 },
-    from: 0,
-    to: 1,
-  });
-
-  const compilePass = spring({
-    frame: t - 12,
-    fps,
-    config: { damping: 16, stiffness: 120 },
-    from: 0,
-    to: 1,
-  });
-
-  const agentType = spring({
-    frame: t - 28,
-    fps,
-    config: { damping: 17, stiffness: 96 },
-    from: 0,
-    to: 1,
-  });
-
-  const bottomOp = spring({
-    frame: t - 210,
-    fps,
-    config: { damping: 18, stiffness: 84 },
-    from: 0,
-    to: 1,
-  });
-
-  const pathD = points
-    .map((_, i) =>
-      `${i === 0 ? "M" : "L"} ${xs[i]} ${ys[i]}`,
-    )
-    .join(" ");
-
-  const shellH = 312;
+  const sloganSpring = spring({ frame: t - 12, fps, config: { damping: 16, stiffness: 90 }, from: 0, to: 1 });
+  const qrSpring = spring({ frame: t - 60, fps, config: { damping: 17, stiffness: 88 }, from: 0, to: 1 });
+  const linkSpring = spring({ frame: t - 100, fps, config: { damping: 18, stiffness: 84 }, from: 0, to: 1 });
 
   return (
     <SegmentWrap duration={SEG.F.seqDur}>
-      <PageContainer
-        tag="Segment 06"
-        title="Real results · new paradigm"
-        subtitle="Upstream AI exploration with human review — not downstream patchwork"
-        style={{ pointerEvents: "none" }}
-      >
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            minHeight: 0,
-            maxHeight: BODY_MAX_HEIGHT - 12,
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              display: "grid",
-              gridTemplateColumns: "0.95fr 1.05fr",
-              gap: 32,
-              minHeight: 0,
-            }}
-          >
-            <DeviceShell title="agent_session.log" width="100%" height={shellH}>
-              <div
-                style={{
-                  padding: 20,
-                  fontFamily: THEME.fonts.mono,
-                  fontSize: FS.mono,
-                  color: THEME.colors.textSecondary,
-                  background: THEME.colors.bgBase,
-                  height: "100%",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                }}
-              >
-                <div style={{ color: THEME.colors.textMuted }}>
-                  [agent] planning structural change: tile_swizzle + epilogue fusion
-                </div>
-                <div
-                  style={{
-                    color: THEME.colors.textCode,
-                    opacity: agentType,
-                  }}
-                >
-                  ▸ applying patch to `gemm_kernel.ct` (layout + policy)
-                </div>
-                <div style={{ color: THEME.colors.textMuted, opacity: agentType }}>
-                  ▸ running croq build — target sm_90a
-                </div>
-                <div
-                  style={{
-                    marginTop: "auto",
-                    alignSelf: "flex-start",
-                    padding: "10px 18px",
-                    borderRadius: THEME.radius.md,
-                    background: `rgba(110,231,183,${0.12 + 0.18 * compilePass})`,
-                    border: `1px solid rgba(110,231,183,0.45)`,
-                    color: THEME.colors.primary,
-                    fontFamily: THEME.fonts.mono,
-                    fontWeight: 700,
-                    fontSize: FS.label,
-                    transform: `scale(${0.96 + 0.04 * compilePass})`,
-                    opacity: compilePass,
-                    boxShadow: THEME.shadows.glowSm,
-                  }}
-                >
-                  compile pass
-                </div>
-              </div>
-            </DeviceShell>
-
-            <div
-              style={{
-                borderRadius: THEME.radius.lg,
-                background: THEME.colors.bgCard,
-                border: `1px solid rgba(255,255,255,0.06)`,
-                boxShadow: THEME.shadows.card,
-                padding: "18px 22px 10px",
-                display: "flex",
-                flexDirection: "column",
-                minHeight: 0,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: FS.labelSm,
-                  fontFamily: THEME.fonts.sans,
-                  color: THEME.colors.textMuted,
-                  marginBottom: 6,
-                }}
-              >
-                Tuning convergence · throughput (TFLOPS) · 671 → 1127
-              </div>
-              <svg
-                viewBox="0 0 960 380"
-                style={{ width: "100%", height: 270 }}
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id="seg06CurveFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={THEME.colors.primary} stopOpacity="0.35" />
-                    <stop offset="100%" stopColor={THEME.colors.primary} stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <line
-                    key={i}
-                    x1={56}
-                    x2={908}
-                    y1={52 + i * 72}
-                    y2={52 + i * 72}
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeWidth={1}
-                  />
-                ))}
-                <path
-                  d={`${pathD} L ${xs[xs.length - 1]} 348 L ${xs[0]} 348 Z`}
-                  fill="url(#seg06CurveFill)"
-                  opacity={fillReveal}
-                />
-                {segLens.map((len, i) => {
-                  const d = `M ${xs[i]} ${ys[i]} L ${xs[i + 1]} ${ys[i + 1]}`;
-                  const p = segmentSprings[i];
-                  return (
-                    <path
-                      key={i}
-                      d={d}
-                      fill="none"
-                      stroke={THEME.colors.primary}
-                      strokeWidth={4}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeDasharray={len}
-                      strokeDashoffset={len * (1 - p)}
-                      style={{ filter: `drop-shadow(${THEME.shadows.glowSm})` }}
-                    />
-                  );
-                })}
-                {points.map((v, i) => {
-                  const dot = pointSprings[i];
-                  return (
-                    <g key={i} opacity={dot}>
-                      <circle
-                        cx={xs[i]}
-                        cy={ys[i]}
-                        r={5 + 4 * dot}
-                        fill={THEME.colors.bgBase}
-                        stroke={THEME.colors.primary}
-                        strokeWidth={2}
-                      />
-                      <text
-                        x={xs[i]}
-                        y={ys[i] - 14}
-                        textAnchor="middle"
-                        fill={THEME.colors.textPrimary}
-                        fontSize={FS.mono}
-                        fontFamily={THEME.fonts.mono}
-                      >
-                        {v}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
+      <AbsoluteFill style={{ background: THEME.colors.bgBase, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 40 }}>
+        <NoiseOverlay opacity={0.028} blendMode="soft-light" />
+        <div style={{ opacity: sloganSpring, transform: `translateY(${interpolate(sloganSpring, [0, 1], [28, 0])}px) scale(${interpolate(sloganSpring, [0, 1], [0.94, 1])})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <div style={{ fontSize: 64, fontFamily: THEME.fonts.sans, fontWeight: 700, color: THEME.colors.textPrimary, textAlign: "center", lineHeight: 1.35, textShadow: `0 0 48px ${THEME.colors.primaryGlow}` }}>
+            {"你的编程体验，值得被"}
+            <span style={{ color: THEME.colors.primary, textShadow: `0 0 ${24 + 28 * glowPulse}px ${THEME.colors.primaryGlow}` }}>{"重新定义"}</span>
           </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 20,
-              opacity: bottomOp,
-              transform: `translateY(${interpolate(bottomOp, [0, 1], [14, 0])}px)`,
-            }}
-          >
-            <div
-              style={{
-                borderRadius: THEME.radius.md,
-                padding: 18,
-                background: THEME.colors.bgElevated,
-                border: `1px solid rgba(248,113,113,0.35)`,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: FS.labelSm,
-                  color: THEME.colors.danger,
-                  fontFamily: THEME.fonts.mono,
-                  marginBottom: 6,
-                }}
-              >
-                Current default
-              </div>
-              <div
-                style={{
-                  fontSize: FS.label,
-                  fontFamily: THEME.fonts.sans,
-                  color: THEME.colors.textPrimary,
-                  lineHeight: 1.45,
-                }}
-              >
-                Human writes kernel → AI assists{" "}
-                <span style={{ color: THEME.colors.textMuted }}>(downstream)</span>
-              </div>
+          <div style={{ fontSize: 26, fontFamily: THEME.fonts.sans, color: THEME.colors.textSecondary, textAlign: "center", letterSpacing: "0.04em" }}>
+            Your programming experience deserves to be redefined.
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 48, opacity: qrSpring, transform: `translateY(${interpolate(qrSpring, [0, 1], [20, 0])}px)` }}>
+          <img src={staticFile("croqtile-qr.png")} alt="" style={{ width: 180, height: 180, borderRadius: THEME.radius.lg, border: `2px solid ${THEME.colors.primary}55`, boxShadow: `0 0 32px ${THEME.colors.primaryGlow}` }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ fontSize: 42, fontFamily: THEME.fonts.sans, fontWeight: 700, background: `linear-gradient(120deg, ${THEME.colors.primary}, ${THEME.colors.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              CroqTile
             </div>
-            <div
-              style={{
-                borderRadius: THEME.radius.md,
-                padding: 18,
-                background: `linear-gradient(135deg, rgba(110,231,183,0.14), ${THEME.colors.bgElevated})`,
-                border: `1px solid rgba(110,231,183,0.45)`,
-                boxShadow: THEME.shadows.glowSm,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: FS.labelSm,
-                  color: THEME.colors.primary,
-                  fontFamily: THEME.fonts.mono,
-                  marginBottom: 6,
-                }}
-              >
-                CroqTile workflow
-              </div>
-              <div
-                style={{
-                  fontSize: FS.label,
-                  fontFamily: THEME.fonts.sans,
-                  color: THEME.colors.textPrimary,
-                  lineHeight: 1.45,
-                }}
-              >
-                AI explores + optimizes{" "}
-                <span style={{ color: THEME.colors.textMuted }}>(upstream)</span> → Human
-                reviews
-              </div>
+            <div style={{ fontSize: FS.label, fontFamily: THEME.fonts.sans, color: THEME.colors.textSecondary, lineHeight: 1.5 }}>
+              The Next-Gen GPU & DSA Language
             </div>
           </div>
         </div>
-      </PageContainer>
+        <div style={{ opacity: linkSpring, fontSize: FS.monoLg, fontFamily: THEME.fonts.mono, color: THEME.colors.textMuted, letterSpacing: "0.02em" }}>
+          github.com/LancerLab/croqtile
+        </div>
+      </AbsoluteFill>
     </SegmentWrap>
   );
 };
+
 
 export const AINative: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: THEME.colors.bgBase }}>
       <Sequence from={SEG.A.seqFrom} durationInFrames={SEG.A.seqDur}>
         <Sub6A />
-      </Sequence>
-      <Sequence from={SEG.B.seqFrom} durationInFrames={SEG.B.seqDur}>
-        <Sub6B />
       </Sequence>
       <Sequence from={SEG.C.seqFrom} durationInFrames={SEG.C.seqDur}>
         <Sub6C />
@@ -1711,6 +2375,9 @@ export const AINative: React.FC = () => {
       </Sequence>
       <Sequence from={SEG.E.seqFrom} durationInFrames={SEG.E.seqDur}>
         <Sub6E />
+      </Sequence>
+      <Sequence from={SEG.B.seqFrom} durationInFrames={SEG.B.seqDur}>
+        <Sub6B />
       </Sequence>
       <Sequence from={SEG.F.seqFrom} durationInFrames={SEG.F.seqDur}>
         <Sub6F />
