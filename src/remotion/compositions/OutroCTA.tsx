@@ -1,13 +1,12 @@
 /**
  * remotion/compositions/OutroCTA.tsx
- * Segment 7 — Outro CTA (5:20–5:30, 10 s = 300 frames @30fps)
+ * Segment 7 — Outro CTA (~7.2 s = 215 frames @30fps)
  *
- * 0–45f:    Scene lifts from black into base background
- * 45–90f:   CroqTile logo springs in (mint “Tile”, white “Croq”)
- * 90–150f:  Hero title fades / rises (bilingual)
- * 150–210f: Subtitle fades / rises (bilingual)
- * 210–270f: CTA button + GitHub badge
- * 270–300f: Hold — clean resolve
+ * 0–32f:    Scene lifts from black into base background
+ * 32–64f:   CroqTile logo springs in (mint “Tile”, white “Croq”)
+ * 64–107f:  Hero title fades / rises (bilingual)
+ * 107–150f: Subtitle fades / rises (bilingual)
+ * 150–215f: CTA button + GitHub badge
  */
 import React from "react";
 import {
@@ -21,49 +20,49 @@ import {
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 
-const DURATION_FRAMES = 300;
+const DURATION_FRAMES = 215;
 const SPRING_ORGANIC = { damping: 13, stiffness: 128, mass: 0.78 } as const;
 const MINT_HEX = "#6EE7B7";
 
-const LOGO_BLOCK_FROM = 45;
+const LOGO_BLOCK_FROM = 32;
 const LOGO_BLOCK_DURATION = DURATION_FRAMES - LOGO_BLOCK_FROM;
-const CTA_FROM = 210;
+const CTA_FROM = 150;
 const CTA_DURATION = DURATION_FRAMES - CTA_FROM;
 
 export const OutroCTA: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const blackoutOpacity = interpolate(frame, [0, 28, 45], [1, 0.14, 0], {
+  const blackoutOpacity = interpolate(frame, [0, 20, 32], [1, 0.14, 0], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
-  const noiseOpacity = interpolate(frame, [12, 45], [0, 0.032], {
+  const noiseOpacity = interpolate(frame, [9, 32], [0, 0.032], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
   const logoScale = spring({
-    frame: frame - 45,
+    frame: frame - 32,
     fps,
     config: SPRING_ORGANIC,
     from: 0.62,
     to: 1,
   });
 
-  const logoOpacity = interpolate(frame, [42, 78], [0, 1], {
+  const logoOpacity = interpolate(frame, [30, 56], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
-  const logoGlowBlur = interpolate(frame, [58, 100, 180], [0, 44, 34], {
+  const logoGlowBlur = interpolate(frame, [42, 72, 129], [0, 44, 34], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
   const titleProgress = spring({
-    frame: frame - 90,
+    frame: frame - 64,
     fps,
     config: SPRING_ORGANIC,
     from: 0,
@@ -74,7 +73,7 @@ export const OutroCTA: React.FC = () => {
     extrapolateLeft: "clamp",
   });
   const titleY = spring({
-    frame: frame - 90,
+    frame: frame - 64,
     fps,
     config: SPRING_ORGANIC,
     from: 22,
@@ -82,7 +81,7 @@ export const OutroCTA: React.FC = () => {
   });
 
   const subtitleProgress = spring({
-    frame: frame - 150,
+    frame: frame - 107,
     fps,
     config: SPRING_ORGANIC,
     from: 0,
@@ -93,7 +92,7 @@ export const OutroCTA: React.FC = () => {
     extrapolateLeft: "clamp",
   });
   const subtitleY = spring({
-    frame: frame - 150,
+    frame: frame - 107,
     fps,
     config: SPRING_ORGANIC,
     from: 18,
@@ -101,7 +100,7 @@ export const OutroCTA: React.FC = () => {
   });
 
   const ctaProgress = spring({
-    frame: frame - 210,
+    frame: frame - 150,
     fps,
     config: SPRING_ORGANIC,
     from: 0,
@@ -112,7 +111,7 @@ export const OutroCTA: React.FC = () => {
     extrapolateLeft: "clamp",
   });
   const ctaY = spring({
-    frame: frame - 210,
+    frame: frame - 150,
     fps,
     config: SPRING_ORGANIC,
     from: 36,
@@ -120,7 +119,7 @@ export const OutroCTA: React.FC = () => {
   });
 
   const ghProgress = spring({
-    frame: frame - 222,
+    frame: frame - 159,
     fps,
     config: SPRING_ORGANIC,
     from: 0,
@@ -131,14 +130,14 @@ export const OutroCTA: React.FC = () => {
     extrapolateLeft: "clamp",
   });
   const githubY = spring({
-    frame: frame - 222,
+    frame: frame - 159,
     fps,
     config: { ...SPRING_ORGANIC, mass: 0.82 },
     from: 14,
     to: 0,
   });
 
-  const vignetteMint = interpolate(frame, [0, 55], [0.5, 1], {
+  const vignetteMint = interpolate(frame, [0, 39], [0.5, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });

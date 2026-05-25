@@ -1,11 +1,11 @@
 /**
  * remotion/compositions/PainPoint.tsx
- * 段 0 — 痛点开场（前两句）  460 帧 @30fps
+ * 段 0 — 痛点开场（前两句）  381 帧 @30fps
  *
- * 配音对齐 (0.1s gap, rate=-15%):
- *   0–162f     seg0-01: "写一个生产级GPU计算核…"  (5.38s)
- *   165–425f   seg0-02: "FlashAttention、Blockscale GEMM…"  (8.64s)
- *   425–439f   淡出过渡
+ * 配音对齐 (0.1s gap):
+ *   4–143f     seg0-01: "写一个生产级GPU计算核…"
+ *   151–377f   seg0-02: "FlashAttention、Blockscale GEMM…"
+ *   370–381f   淡出过渡
  */
 import React from "react";
 import {
@@ -18,7 +18,7 @@ import {
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 
-const TOTAL_FRAMES = 460;
+const TOTAL_FRAMES = 382;
 
 const CODE_LINES = [
   "  ...",
@@ -84,7 +84,7 @@ const CODE_FRAGMENTS: FragData[] = CODE_LINES.map((text, i) => {
   };
 });
 
-/* ── Phase 1: Typewriter question (synced to seg0-01: 0–144f) ── */
+/* ── Phase 1: Typewriter question (synced to seg0-01: 4–143f) ── */
 const TypewriterQuestion: React.FC = () => {
   const frame = useCurrentFrame();
   const highlightPart = "How long";
@@ -92,14 +92,14 @@ const TypewriterQuestion: React.FC = () => {
   const fullText = highlightPart + restPart;
 
   const charCount = Math.floor(
-    interpolate(frame, [5, 65], [0, fullText.length], {
+    interpolate(frame, [5, 59], [0, fullText.length], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
       easing: Easing.out(Easing.quad),
     })
   );
 
-  const textOpacity = interpolate(frame, [0, 5, 150, 165], [0, 1, 1, 0], {
+  const textOpacity = interpolate(frame, [0, 5, 140, 151], [0, 1, 1, 0], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -112,13 +112,13 @@ const TypewriterQuestion: React.FC = () => {
   const hlScale = typingDone
     ? interpolate(
         frame,
-        [70, 80, 90, 100, 110],
+        [64, 73, 82, 91, 100],
         [1, 1.08, 1, 1.05, 1],
         { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
       )
     : 1;
   const hlGlow = typingDone
-    ? interpolate(frame, [70, 85, 100], [20, 35, 20], {
+    ? interpolate(frame, [64, 77, 91], [20, 35, 20], {
         extrapolateLeft: "clamp",
         extrapolateRight: "clamp",
       })
@@ -318,16 +318,16 @@ const OpNodeBox: React.FC<{
   );
 };
 
-/* ── Phase 2: Code fragments (synced to seg0-02: 153–385f) ── */
+/* ── Phase 2: Code fragments (synced to seg0-02: 151–377f) ── */
 const CodeFragments: React.FC = () => {
   const frame = useCurrentFrame();
 
   /* --- Compute graph: 0-100f --- */
-  const graphFadeIn = interpolate(frame, [0, 12], [0, 1], {
+  const graphFadeIn = interpolate(frame, [0, 10], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const graphScale = interpolate(frame, [0, 15], [0.88, 1], {
+  const graphScale = interpolate(frame, [0, 13], [0.88, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.back(1.1)),
@@ -335,56 +335,56 @@ const CodeFragments: React.FC = () => {
 
   /* Blink when voiceover mentions the operator name:
      "FlashAttention" ~1.5s in = ~frame 45, "Blockscale Gem" ~3s = ~frame 90 */
-  const flashBlink = interpolate(frame, [40, 48, 56], [0, 1, 0], {
+  const flashBlink = interpolate(frame, [34, 40, 47], [0, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const gemmBlink = interpolate(frame, [82, 90, 98], [0, 1, 0], {
+  const gemmBlink = interpolate(frame, [69, 76, 82], [0, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   /* GEMM fades while FlashAttention zooms + moves to center */
-  const gemmFade = interpolate(frame, [100, 125], [1, 0], {
+  const gemmFade = interpolate(frame, [84, 105], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const flashZoom = interpolate(frame, [100, 130], [1, 1.4], {
+  const flashZoom = interpolate(frame, [84, 109], [1, 1.4], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const flashMoveX = interpolate(frame, [100, 128], [520, 960], {
+  const flashMoveX = interpolate(frame, [84, 107], [520, 960], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
   /* Hold at center for 0.5s (15 frames: 130-145), then fade */
-  const flashFadeOut = interpolate(frame, [145, 160], [1, 0], {
+  const flashFadeOut = interpolate(frame, [122, 134], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   /* --- Code fragments: appear 140-175f, assemble 155-200f --- */
   const halfLines = Math.ceil(CODE_FRAGMENTS.length / 2);
-  const wave1Progress = interpolate(frame, [140, 165], [0, 1], {
+  const wave1Progress = interpolate(frame, [117, 138], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
-  const wave2Progress = interpolate(frame, [150, 175], [0, 1], {
+  const wave2Progress = interpolate(frame, [126, 147], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
 
-  const assembleProgress = interpolate(frame, [155, 200], [0, 1], {
+  const assembleProgress = interpolate(frame, [130, 168], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
 
-  const windowOpacity = interpolate(frame, [175, 200], [0, 1], {
+  const windowOpacity = interpolate(frame, [147, 168], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -585,7 +585,7 @@ const FadeOut: React.FC = () => {
 
 const AmbientGlow: React.FC = () => {
   const frame = useCurrentFrame();
-  const glowOpacity = interpolate(frame, [100, 180, 400, 439], [0, 0.15, 0.15, 0], {
+  const glowOpacity = interpolate(frame, [83, 149, 331, 364], [0, 0.15, 0.15, 0], {
     extrapolateRight: "clamp", extrapolateLeft: "clamp",
   });
   return (
@@ -603,18 +603,18 @@ export const PainPoint: React.FC = () => {
       <NoiseOverlay opacity={0.04} />
       <AmbientGlow />
 
-      {/* seg0-01: Typewriter (0–165f, fades out before seg0-02) */}
-      <Sequence durationInFrames={165}>
+      {/* seg0-01: Typewriter (0–150f, fades out before seg0-02) */}
+      <Sequence durationInFrames={150}>
         <TypewriterQuestion />
       </Sequence>
 
-      {/* seg0-02: Code assembly (165–end, code stays visible) */}
-      <Sequence from={165} durationInFrames={274}>
+      {/* seg0-02: Code assembly (151–end, code stays visible) */}
+      <Sequence from={151} durationInFrames={230}>
         <CodeFragments />
       </Sequence>
 
-      {/* Quick fade out at the very end (425–439f, 14 frames) */}
-      <Sequence from={425} durationInFrames={14}>
+      {/* Quick fade out at the very end (370–384f, 14 frames) */}
+      <Sequence from={370} durationInFrames={14}>
         <FadeOut />
       </Sequence>
     </AbsoluteFill>

@@ -1,13 +1,12 @@
 /**
  * remotion/compositions/FeatureSpotlight.tsx
- * Segment 2 — "Simple & Intuitive"  (49.0 s = 1470 frames @ 30fps)
+ * Segment 2 — "Simple & Intuitive"  (47.3 s = 1420 frames @ 30fps)
  *
  * Narrative: thread-view (CUDA/OpenCL) vs tensor-view (CroqTile)
  *
- * 2-intro  (0–300f,   10s): thread-view chaos — buffer+offset complexity grows
- * 2A       (300–900f, 20s): CroqTile tensor-view vs CUDA thread-view code split
- * 2B       (900–1260f,12s): TMA & MMA zero-boilerplate + LOC comparison
- * 2-outro  (1260–1470f,7s): conclusion card — intuitive + AI-readable + less code
+ * seg2-01  (4–592f):   thread-view chaos — buffer+offset complexity grows
+ * seg2-02  (596–1062f): CroqTile tensor-view — chunkat / subspan / .at()
+ * seg2-03  (1066–1416f): conclusion card — intuitive + AI-readable + less code
  */
 import React from "react";
 import {
@@ -29,7 +28,7 @@ const CX = W / 2;
 const _CY = H / 2;
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SECTION 1 — Thread-view intro (0–510f)
+ * SECTION 1 — Thread-view intro (0–469f)
  * Continuous animation: code line → threadIdx + offset move out → horizontal
  * thread row → offset row → mapping arrows to buffer
  * ═══════════════════════════════════════════════════════════════════════════ */
@@ -56,18 +55,18 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
   frame,
   fps,
 }) => {
-  // --- Stage 1: code line + annotation tabs (0–140f) ---
-  const codeOp = interpolate(frame, [0, 30], [0, 1], {
+  // --- Stage 1: code line + annotation tabs (0–129f) ---
+  const codeOp = interpolate(frame, [0, 28], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const annotTabOp = interpolate(frame, [30, 60], [0, 1], {
+  const annotTabOp = interpolate(frame, [28, 55], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const ptrBlinkRaw = interpolate(frame, [40, 100], [0, 1], {
+  const ptrBlinkRaw = interpolate(frame, [37, 92], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -75,7 +74,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
     ? 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frame * 0.35))
     : ptrBlinkRaw >= 1 ? 1 : 0;
 
-  const offsetBlinkRaw = interpolate(frame, [80, 140], [0, 1], {
+  const offsetBlinkRaw = interpolate(frame, [74, 129], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -83,8 +82,8 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
     ? 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(frame * 0.35))
     : offsetBlinkRaw >= 1 ? 1 : 0;
 
-  // --- Transition (140–210f): continuous move ---
-  const t = interpolate(frame, [140, 210], [0, 1], {
+  // --- Transition (129–193f): continuous move ---
+  const t = interpolate(frame, [129, 193], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
@@ -111,34 +110,34 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
   const offsetMoveY = interpolate(t, [0, 1], [CODE_Y, OFFSET_ROW_Y]);
   const offsetScale = interpolate(t, [0, 1], [1, 0.48]);
 
-  // --- Stage 3: peer threads + individual offsets (200–300f) ---
-  const threadListOp = interpolate(frame, [200, 240], [0, 1], {
+  // --- Stage 3: peer threads + individual offsets (184–276f) ---
+  const threadListOp = interpolate(frame, [184, 221], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const offsetExprOp = interpolate(frame, [240, 300], [0, 1], {
+  const offsetExprOp = interpolate(frame, [221, 276], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   // --- Buffer bar ---
-  const bufferOp = interpolate(frame, [180, 220], [0, 1], {
+  const bufferOp = interpolate(frame, [166, 202], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  // --- Stage 4: mapping arrows (300–440f) ---
-  const arrowsOp = interpolate(frame, [300, 340], [0, 1], {
+  // --- Stage 4: mapping arrows (276–405f) ---
+  const arrowsOp = interpolate(frame, [276, 313], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const annotationOp = interpolate(frame, [420, 460], [0, 1], {
+  const annotationOp = interpolate(frame, [386, 423], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const fadeOut = interpolate(frame, [475, 510], [1, 0], {
+  const fadeOut = interpolate(frame, [564, 596], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -294,7 +293,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
         >
           {THREAD_IDS.map((tid, i) => {
             const delay = i * 6;
-            const colOp = interpolate(frame, [200 + delay, 225 + delay], [0, 1], {
+            const colOp = interpolate(frame, [184 + delay, 207 + delay], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             });
@@ -336,7 +335,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
         >
           {THREAD_IDS.map((tid, i) => {
             const delay = i * 8;
-            const colOp = interpolate(frame, [250 + delay, 280 + delay], [0, 1], {
+            const colOp = interpolate(frame, [230 + delay, 257 + delay], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             });
@@ -378,7 +377,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
           const isTarget = THREAD_TARGETS.includes(i);
           const targetIdx = THREAD_TARGETS.indexOf(i);
           const glowStr = isTarget && arrowsOp > 0.5
-            ? interpolate(frame, [340 + targetIdx * 15, 380 + targetIdx * 15], [0, 1], {
+            ? interpolate(frame, [313 + targetIdx * 14, 349 + targetIdx * 14], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               })
@@ -452,7 +451,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
           </defs>
           {THREAD_IDS.map((tid, i) => {
             const delay = i * 15;
-            const lineOp = interpolate(frame, [320 + delay, 370 + delay], [0, 1], {
+            const lineOp = interpolate(frame, [294 + delay, 340 + delay], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             });
@@ -517,7 +516,7 @@ const ThreadViewIntro: React.FC<{ frame: number; fps: number }> = ({
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SECTION 2A — CroqTile vs CUDA code contrast (300–900f)
+ * SECTION 2A — CroqTile tensor-view (473–962f)
  * Three dimensions + chunkat / subspan / .at() showcase
  * ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -612,18 +611,18 @@ const _HIGHLIGHT_CUDA: Record<DimIndex, number[]> = {
 function dimContentOpacity(dim: DimIndex, localFrame: number): number {
   const f = localFrame;
   if (dim === 0) {
-    return interpolate(f, [0, 30, 170, 200], [0, 1, 1, 0], {
+    return interpolate(f, [0, 25, 143, 168], [0, 1, 1, 0], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     });
   }
   if (dim === 1) {
-    return interpolate(f, [200, 230, 400, 430], [0, 1, 1, 0], {
+    return interpolate(f, [168, 194, 337, 362], [0, 1, 1, 0], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     });
   }
-  return interpolate(f, [430, 460, 580, 600], [0, 1, 1, 1], {
+  return interpolate(f, [362, 387, 489, 497], [0, 1, 1, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -798,12 +797,12 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
 
   // --- 3-stage cycle ---
   type Stage = 0 | 1 | 2;
-  const stage: Stage = localFrame < 200 ? 0 : localFrame < 400 ? 1 : 2;
+  const stage: Stage = localFrame < 168 ? 0 : localFrame < 337 ? 1 : 2;
 
   const stageOp = (s: Stage) => {
-    if (s === 0) return interpolate(localFrame, [0, 30, 170, 200], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-    if (s === 1) return interpolate(localFrame, [200, 230, 370, 400], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-    return interpolate(localFrame, [400, 430, 560, 590], [0, 1, 1, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    if (s === 0) return interpolate(localFrame, [0, 25, 143, 168], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    if (s === 1) return interpolate(localFrame, [168, 194, 312, 337], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    return interpolate(localFrame, [337, 362, 472, 497], [0, 1, 1, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   };
 
   const currentOp = stageOp(stage);
@@ -835,13 +834,13 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
     if (stage === 0) {
       // chunkat: non-overlapping blocks sweep left-to-right
       const chunkIdx = Math.floor(c / CHUNK_W);
-      const activeChunk = Math.floor(interpolate(localFrame, [30, 170], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const activeChunk = Math.floor(interpolate(localFrame, [25, 143], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
       return chunkIdx === activeChunk ? currentOp : 0;
     }
     if (stage === 1) {
       // subspan.at: overlapping tiles sweep — tile is TILE_W wide, advances by TILE_STEP
       const maxTiles = Math.floor((GRID_COLS - TILE_W) / TILE_STEP) + 1;
-      const activeTile = Math.floor(interpolate(localFrame, [230, 370], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const activeTile = Math.floor(interpolate(localFrame, [194, 312], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
       const tileStart = activeTile * TILE_STEP;
       const tileEnd = tileStart + TILE_W - 1;
       const inTile = c >= tileStart && c <= tileEnd;
@@ -858,7 +857,7 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
     const VIEW_H = 4;
     const COL_OFFSET = 1;
     const maxSlide = GRID_ROWS - VIEW_H;
-    const slideRow = Math.floor(interpolate(localFrame, [430, 560], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+    const slideRow = Math.floor(interpolate(localFrame, [362, 472], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
     const inView = r >= slideRow && r < slideRow + VIEW_H && c >= COL_OFFSET && c < COL_OFFSET + VIEW_W;
     // Dim the skipped first column to show offset
     if (c < COL_OFFSET) return currentOp * 0.08;
@@ -869,27 +868,27 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
   const boundingBox = () => {
     if (stage === 0) {
       // chunkat: full-height block sweeps
-      const activeChunk = Math.floor(interpolate(localFrame, [30, 170], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const activeChunk = Math.floor(interpolate(localFrame, [25, 143], [0, 3.99], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
       return { r0: 0, r1: GRID_ROWS - 1, c0: activeChunk * CHUNK_W, c1: Math.min(activeChunk * CHUNK_W + CHUNK_W - 1, GRID_COLS - 1) };
     }
     if (stage === 1) {
       // subspan: overlapping tile
       const maxTiles = Math.floor((GRID_COLS - TILE_W) / TILE_STEP) + 1;
-      const activeTile = Math.floor(interpolate(localFrame, [230, 370], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+      const activeTile = Math.floor(interpolate(localFrame, [194, 312], [0, maxTiles - 0.01], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
       const tileStart = activeTile * TILE_STEP;
       return { r0: 0, r1: GRID_ROWS - 1, c0: tileStart, c1: Math.min(tileStart + TILE_W - 1, GRID_COLS - 1) };
     }
     // view.from: sliding window with offset
     const VIEW_W = 8, VIEW_H = 4, COL_OFFSET = 1;
     const maxSlide = GRID_ROWS - VIEW_H;
-    const slideRow = Math.floor(interpolate(localFrame, [430, 560], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+    const slideRow = Math.floor(interpolate(localFrame, [362, 472], [0, maxSlide], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
     return { r0: slideRow, r1: slideRow + VIEW_H - 1, c0: COL_OFFSET, c1: COL_OFFSET + VIEW_W - 1 };
   };
 
   const bb = boundingBox();
 
-  const gridOp = interpolate(localFrame, [0, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const bbOp = interpolate(localFrame, [40, 70], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const gridOp = interpolate(localFrame, [0, 25], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const bbOp = interpolate(localFrame, [34, 59], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   // Pill tabs for operations
   const pillOp = (s: number) => {
@@ -897,7 +896,7 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
     return o > 0.3 ? 1 : 0.35;
   };
 
-  const fadeAll = interpolate(localFrame, [0, 20], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const fadeAll = interpolate(localFrame, [0, 17], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   const { pre, obj, call } = stageCode[stage];
   const { tabLabel, sliceLabel } = stageAnnot[stage];
@@ -1087,7 +1086,7 @@ const SplitSection: React.FC<{ localFrame: number; fps: number }> = ({
 /* BoilerplateSection removed — LOC bars integrated into ConclusionCard */
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * SECTION 2-outro — Conclusion card (1260–1410f)
+ * SECTION 2-outro — Conclusion card (970–1276f)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
 const CONCLUSION_LINES = [
@@ -1096,24 +1095,24 @@ const CONCLUSION_LINES = [
   { text: "60% less code", sub: "", color: THEME.colors.accentWarm },
 ];
 
-const CONCLUSION_DUR = 290;
+const CONCLUSION_DUR = 310;
 const MORPH_START = 210;
 
 const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
   localFrame,
   fps,
 }) => {
-  const fadeIn = interpolate(localFrame, [0, 20], [0, 1], {
+  const fadeIn = interpolate(localFrame, [0, 17], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const locBarOp = interpolate(localFrame, [80, 110], [0, 1], {
+  const locBarOp = interpolate(localFrame, [67, 92], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const locBarWidth = interpolate(localFrame, [110, 170], [0, 1], {
+  const locBarWidth = interpolate(localFrame, [92, 142], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
@@ -1125,7 +1124,7 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const textFadeOut = interpolate(localFrame, [MORPH_START, MORPH_START + 30], [1, 0], {
+  const textFadeOut = interpolate(localFrame, [MORPH_START, MORPH_START + 25], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -1161,7 +1160,7 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
       >
         {CONCLUSION_LINES.map((line, i) => {
           const lineSpring = spring({
-            frame: localFrame - 10 - i * 18,
+            frame: localFrame - 8 - i * 15,
             fps,
             config: { damping: 14, stiffness: 100, mass: 0.8 },
             from: 0,
@@ -1245,10 +1244,8 @@ const ConclusionCard: React.FC<{ localFrame: number; fps: number }> = ({
  * MAIN EXPORT
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-const INTRO_END = 510;
-const SPLIT_END = 1100;
-const TOTAL_FRAMES = 1470;
-
+const INTRO_END = 596;
+const SPLIT_END = 1066;
 export const FeatureSpotlight: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1353,26 +1350,6 @@ export const FeatureSpotlight: React.FC = () => {
               )}
             </div>
 
-            {/* Progress rail */}
-            <div
-              style={{
-                marginTop: 18,
-                height: 3,
-                borderRadius: THEME.radius.full,
-                background: "rgba(255,255,255,0.06)",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${(Math.min(frame + 1, TOTAL_FRAMES) / TOTAL_FRAMES) * 100}%`,
-                  height: "100%",
-                  borderRadius: THEME.radius.full,
-                  background: `linear-gradient(90deg, ${THEME.colors.primary}, ${THEME.colors.accent})`,
-                  boxShadow: THEME.shadows.glowSm,
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>

@@ -262,7 +262,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PainPoint"
         component={PainPoint}
-        durationInFrames={460}
+        durationInFrames={382}
         fps={fps}
         width={width}
         height={height}
@@ -270,7 +270,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="IterativeDev"
         component={IterativeDev}
-        durationInFrames={1470}
+        durationInFrames={1135}
         fps={fps}
         width={width}
         height={height}
@@ -286,7 +286,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="FeatureSpotlight"
         component={FeatureSpotlight}
-        durationInFrames={1470}
+        durationInFrames={1420}
         fps={fps}
         width={width}
         height={height}
@@ -294,7 +294,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="PerfChart"
         component={PerfChart}
-        durationInFrames={770}
+        durationInFrames={675}
         fps={fps}
         width={width}
         height={height}
@@ -302,7 +302,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="CompileTimeSafety"
         component={CompileTimeSafety}
-        durationInFrames={1430}
+        durationInFrames={1301}
         fps={fps}
         width={width}
         height={height}
@@ -310,7 +310,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="HeterogeneousCompute"
         component={HeterogeneousCompute}
-        durationInFrames={1120}
+        durationInFrames={998}
         fps={fps}
         width={width}
         height={height}
@@ -318,7 +318,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="AINative"
         component={AINative}
-        durationInFrames={3880}
+        durationInFrames={3760}
         fps={fps}
         width={width}
         height={height}
@@ -326,7 +326,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="OutroCTA"
         component={OutroCTA}
-        durationInFrames={300}
+        durationInFrames={215}
         fps={fps}
         width={width}
         height={height}

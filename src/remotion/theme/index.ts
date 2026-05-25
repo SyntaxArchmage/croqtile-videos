@@ -32,7 +32,7 @@ export const THEME = {
   // ── 字体 ────────────────────────────────────────────────────────────────
   fonts: {
     // 正文 + UI 文字
-    sans:           "'Inter', 'PingFang SC', 'Noto Sans SC', sans-serif",
+    sans:           "'Inter', 'Noto Sans CJK SC', 'PingFang SC', 'Noto Sans SC', sans-serif",
     // 代码块
     mono:           "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
   },

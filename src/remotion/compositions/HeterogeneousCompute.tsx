@@ -1,10 +1,10 @@
 /**
  * remotion/compositions/HeterogeneousCompute.tsx
- * Segment 5 — Heterogeneous Computing (1120 frames @ 30fps, ~37s)
+ * Segment 5 — Heterogeneous Computing (998 frames @ 30fps, ~33s)
  *
- * Phase A 0–140f    Write once, run everywhere — source + 4 target cards enter
- * Phase B 140–480f  Compiler flag flash → cycling highlight across backends
- * Phase C 480–1120f Multi-device programming — distributed_matmul + node grid
+ * Phase A 0–125f     One DSL, Multiple Devices — source + 3 target cards enter
+ * Phase B 125–443f   Compiler flag flash → cycling highlight across backends
+ * Phase C 443–997f   Multi-device programming — distributed_matmul + node grid
  */
 import React from "react";
 import {
@@ -20,10 +20,10 @@ import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 import { DeviceShell } from "../components/DeviceShell";
 
-const DURATION = 1120;
-const PHASE_A_END = 140;
-const PHASE_B_END = 480;
-const PHASE_C_START = 480;
+const DURATION = 998;
+const PHASE_A_END = 125;
+const PHASE_B_END = 443;
+const PHASE_C_START = 443;
 const FADE = 24;
 
 const BODY_MAX = 496;
@@ -33,10 +33,8 @@ const LABEL_SIZE = THEME.fontSize.lg;
 const MONO_SM = THEME.fontSize.sm;
 const CARD_TITLE = THEME.fontSize.base;
 
-const CYAN = "#22D3EE";
 const AMBER = "#FB923C";
 const PINK = "#F472B6";
-const CYAN_GLOW = "rgba(34,211,238,0.22)";
 const AMBER_GLOW = "rgba(251,146,60,0.22)";
 const PINK_GLOW = "rgba(244,114,182,0.22)";
 const MINT_BORDER = THEME.colors.primaryGlow;
@@ -56,16 +54,9 @@ const TARGETS = [
     glow: THEME.colors.primaryGlow,
   },
   {
-    name: "NVIDIA A100",
-    subtitle: "Ampere SM80",
-    flag: "-t cute -arch=sm_80",
-    border: CYAN,
-    glow: CYAN_GLOW,
-  },
-  {
-    name: "AMD MI300",
-    subtitle: "AMDGPU ISA",
-    flag: "-t gfx942",
+    name: "AMD RX 6900 XT",
+    subtitle: "RDNA2",
+    flag: "-t hip -arch=gfx1030",
     border: AMBER,
     glow: AMBER_GLOW,
   },
@@ -110,7 +101,7 @@ function clampFade(
   return Math.min(inOp, outOp);
 }
 
-const SLOT_BOUNDS = [0, 90, 170, 250, 340] as const;
+const SLOT_BOUNDS = [0, 100, 200, 305] as const;
 
 const flagWeight = (j: number, cycleFrame: number): number => {
   const start = SLOT_BOUNDS[j];
@@ -264,9 +255,9 @@ const PhaseAB: React.FC = () => {
     ? SLOT_BOUNDS.findIndex((_, i) => i < TARGETS.length && cycleFrame < SLOT_BOUNDS[i + 1]) 
     : -1;
 
-  const cardTops = [16, 76, 136, 196];
+  const cardTops = [16, 96, 176];
 
-  const bottomLabelOp = interpolate(frame, [96, 144], [0, 1], {
+  const bottomLabelOp = interpolate(frame, [85, 128], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -327,7 +318,7 @@ const PhaseAB: React.FC = () => {
                 position: "relative",
                 minHeight: THEME.fontSize.xl + 12,
                 marginBottom: 4,
-                opacity: interpolate(frame, [60, 100], [0, 1], {
+                opacity: interpolate(frame, [53, 89], [0, 1], {
                   extrapolateLeft: "clamp",
                   extrapolateRight: "clamp",
                 }),
@@ -415,7 +406,7 @@ const PhaseAB: React.FC = () => {
           <div style={{ position: "relative", minHeight: 0 }}>
             <BranchArrows
               cardTops={cardTops}
-              opacity={interpolate(frame, [16, 56], [0, 1], {
+              opacity={interpolate(frame, [14, 50], [0, 1], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
               })}
@@ -532,7 +523,7 @@ const PhaseAB: React.FC = () => {
             lineHeight: 1.5,
           }}
         >
-          Same source → every backend via compiler IR lowering
+          CroqTile program → different targets — the compiler lowers CroqTile IR to each backend's native ISA
         </div>
       </div>
     </AbsoluteFill>
@@ -768,7 +759,7 @@ const PhaseC: React.FC = () => {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {BULLETS.map((text, i) => {
               const bulletEnter = spring({
-                frame: local - 180 - i * 20,
+                frame: local - 160 - i * 18,
                 fps,
                 config: { damping: 18, stiffness: 110, mass: 0.8 },
                 from: 0,
@@ -822,7 +813,7 @@ export const HeterogeneousCompute: React.FC = () => {
   return (
     <PageContainer
       tag="Segment 05"
-      title="Write once, run everywhere"
+      title="One DSL, Multiple Devices"
       subtitle="One CroqTile source — every backend, every scale"
     >
       <div
@@ -841,10 +832,10 @@ export const HeterogeneousCompute: React.FC = () => {
         </AbsoluteFill>
 
         <div style={{ position: "relative", zIndex: 1, flex: 1, minHeight: 0 }}>
-          <Sequence from={0} durationInFrames={PHASE_B_END} layout="none">
+          <Sequence from={0} durationInFrames={443} layout="none">
             <PhaseAB />
           </Sequence>
-          <Sequence from={PHASE_C_START - 24} durationInFrames={DURATION - PHASE_C_START + 24} layout="none">
+          <Sequence from={421} durationInFrames={576} layout="none">
             <PhaseC />
           </Sequence>
         </div>

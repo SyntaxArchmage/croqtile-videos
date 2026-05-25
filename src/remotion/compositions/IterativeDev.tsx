@@ -1,23 +1,21 @@
 /**
  * remotion/compositions/IterativeDev.tsx
  * 段 1 — 迭代开发的痛苦 + CroqTile 揭晓
- * 1470 帧 @30fps (~49.0s)
+ * 1136 帧 @30fps (~37.9s)
  *
  * 配音对齐 (相对帧号):
- *   0–163f      seg1-01 "不仅仅是因为复杂…"
- *   166–554f    seg1-02 "多轮编写——编译调试——性能剖析——参数调优"
- *   557–845f    seg1-03 "编程能力 + 硬件知识 + 性能优化经验"
- *   848–991f    seg1-04 "这些门槛大大限制了开发效率"
- *   994–1373f   seg1-05 "所以我们造了CroqTile"
- *   1373–1393f  淡出
- *   1393–1470f  片段 padding（总时长对齐 FullVideo）
+ *   4–148f      seg1-01 "不仅仅是因为复杂…"
+ *   156–470f    seg1-02 "多轮编写——编译调试——性能剖析——参数调优"
+ *   478–708f    seg1-03 "编程能力 + 硬件知识 + 性能优化经验"
+ *   716–850f    seg1-04 "这些门槛大大限制了开发效率"
+ *   858–1132f   seg1-05 "所以我们造了CroqTile"
  *
  * 画面设计 (严格对齐每句话):
- *   Phase 1 (0–163f):    代码片段 + "不只是复杂" — 引出问题
- *   Phase 2 (166–554f):  环形迭代流程图 + 错误闪烁 + 性能曲线 — 核心迭代痛苦
- *   Phase 3 (557–845f):  三组门槛关键词逐个浮现 — 门槛展示
- *   Phase 4 (848–991f):  三能力汇聚 → Development Efficiency — 结论
- *   Phase 5 (994–1393f): CroqTile logo 揭晓
+ *   Phase 1 (0–152f):    代码片段 + "不只是复杂" — 引出问题
+ *   Phase 2 (156–474f):  环形迭代流程图 + 错误闪烁 + 性能曲线 — 核心迭代痛苦
+ *   Phase 3 (478–712f):  三组门槛关键词逐个浮现 — 门槛展示
+ *   Phase 4 (716–854f):  三能力汇聚 → Development Efficiency — 结论
+ *   Phase 5 (858–1136f): CroqTile logo 揭晓
  */
 import React from "react";
 import {
@@ -34,12 +32,12 @@ import {
 import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 
-const TOTAL_FRAMES = 1470;
+const TOTAL_FRAMES = 1135;
 
 const CX = 960;
 const CY = 440;
 
-/* ── Phase 1: Code snippet + "not just complexity" (0–163f) ── */
+/* ── Phase 1: Code snippet + "not just complexity" (0–152f) ── */
 const CODE_LINES_P1 = [
   "// immaTensorCoreGemm.cu — NVIDIA CUDA Samples",
   "// Integer GEMM using Warp Matrix Multiply (WMMA)",
@@ -250,13 +248,13 @@ const CodeIntro: React.FC = () => {
   const VISIBLE_WINDOW = 16;
   const totalLines = CODE_LINES_P1.length;
   const typedLines = Math.floor(
-    interpolate(frame, [3, 30], [0, VISIBLE_WINDOW], {
+    interpolate(frame, [3, 28], [0, VISIBLE_WINDOW], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     })
   );
   const scrollOffset = Math.floor(
-    interpolate(frame, [30, 100], [0, totalLines - VISIBLE_WINDOW], {
+    interpolate(frame, [28, 93], [0, totalLines - VISIBLE_WINDOW], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
       easing: Easing.inOut(Easing.cubic),
@@ -265,54 +263,54 @@ const CodeIntro: React.FC = () => {
   const visibleStart = scrollOffset;
   const visibleEnd = Math.min(visibleStart + typedLines, totalLines);
 
-  const codeScale = interpolate(frame, [102, 135], [1, 0.35], {
+  const codeScale = interpolate(frame, [94, 125], [1, 0.35], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
-  const codeMoveY = interpolate(frame, [102, 135], [0, -120], {
+  const codeMoveY = interpolate(frame, [94, 125], [0, -120], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
 
-  const locCounterOpacity = interpolate(frame, [30, 38], [0, 1], {
+  const locCounterOpacity = interpolate(frame, [28, 35], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   const runningLoc = Math.round(
-    interpolate(frame, [30, 100], [1, TOTAL_LOC], {
+    interpolate(frame, [28, 93], [1, TOTAL_LOC], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
       easing: Easing.out(Easing.quad),
     })
   );
-  const locLabelOpacity = interpolate(frame, [98, 105], [0, 1], {
+  const locLabelOpacity = interpolate(frame, [91, 97], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const locSize = interpolate(frame, [30, 100, 102, 135], [36, 48, 48, 150], {
+  const locSize = interpolate(frame, [28, 93, 94, 125], [36, 48, 48, 150], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const locMoveToCenter = interpolate(frame, [102, 135], [0, 1], {
+  const locMoveToCenter = interpolate(frame, [94, 125], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
 
-  const xScale = interpolate(frame, [133, 148], [0, 1], {
+  const xScale = interpolate(frame, [123, 137], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.back(2.5)),
   });
-  const xRotate = interpolate(frame, [133, 148], [90, 0], {
+  const xRotate = interpolate(frame, [123, 137], [90, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.out(Easing.cubic),
   });
 
-  const fadeOut = interpolate(frame, [155, 163], [1, 0], {
+  const fadeOut = interpolate(frame, [144, 151], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -423,7 +421,7 @@ const CodeIntro: React.FC = () => {
   );
 };
 
-/* ── Phase 2: Iterative cycle ring (166–554f) ── */
+/* ── Phase 2: Iterative cycle ring (156–474f) ── */
 const STAGES = [
   { label: "Code", icon: "{ }", color: "#60A5FA" },
   { label: "Debug", icon: "!!", color: "#F87171" },
@@ -468,29 +466,29 @@ const PERF_DATA = [
 const IterationCycle: React.FC = () => {
   const frame = useCurrentFrame();
 
-  const fadeIn = interpolate(frame, [0, 30], [0, 1], {
+  const fadeIn = interpolate(frame, [0, 25], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const fadeOut = interpolate(frame, [360, 388], [1, 0], {
+  const fadeOut = interpolate(frame, [294, 317], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const rotation = interpolate(frame, [50, 388], [0, 1080], {
+  const rotation = interpolate(frame, [41, 317], [0, 1080], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.bezier(0.2, 0.05, 0.3, 1),
   });
 
   const iterationCount = Math.floor(
-    interpolate(frame, [50, 360], [1, 12], {
+    interpolate(frame, [41, 294], [1, 12], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     })
   );
 
-  const showFlashes = frame > 50 && frame < 388;
+  const showFlashes = frame > 41 && frame < 317;
 
   const ringRadius = 200;
   const nodePositions = STAGES.map((_, i) => {
@@ -498,11 +496,11 @@ const IterationCycle: React.FC = () => {
     return { x: RING_CX + Math.cos(angle) * ringRadius, y: RING_CY + Math.sin(angle) * ringRadius };
   });
 
-  const chartLeft = 900;
+  const chartLeft = 1000;
   const chartTop = 135;
-  const chartW = 690;
+  const chartW = 600;
   const chartH = 550;
-  const chartOpacity = interpolate(frame, [30, 60], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const chartOpacity = interpolate(frame, [25, 49], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   const visiblePoints = Math.min(iterationCount, PERF_DATA.length);
   const pathPoints = PERF_DATA.slice(0, visiblePoints).map((v, i) => {
@@ -549,7 +547,7 @@ const IterationCycle: React.FC = () => {
       {/* Stage nodes */}
       {STAGES.map((stage, i) => {
         const pos = nodePositions[i];
-        const nodeEntry = interpolate(frame, [8 + i * 8, 28 + i * 8], [0, 1], {
+        const nodeEntry = interpolate(frame, [7 + i * 7, 23 + i * 7], [0, 1], {
           extrapolateLeft: "clamp",
           extrapolateRight: "clamp",
         });
@@ -671,7 +669,7 @@ const IterationCycle: React.FC = () => {
               position: "absolute",
               left: nodePositions[0].x - 180 + ci * 25,
               top: nodePositions[0].y - 90 - ci * 28,
-              opacity: flashItemOpacity(frame, ci, 50),
+              opacity: flashItemOpacity(frame, ci, 41),
               fontSize: 18, fontFamily: THEME.fonts.mono, color: "#9CDCFE",
               whiteSpace: "nowrap",
               background: "rgba(30,30,30,0.8)", borderRadius: 6, padding: "3px 10px",
@@ -684,7 +682,7 @@ const IterationCycle: React.FC = () => {
               position: "absolute",
               left: nodePositions[1].x + 55,
               top: nodePositions[1].y - 35 + di * 32,
-              opacity: flashItemOpacity(frame, di, 60),
+              opacity: flashItemOpacity(frame, di, 49),
               fontSize: 18, fontFamily: THEME.fonts.mono, color: THEME.colors.danger,
               whiteSpace: "nowrap",
               background: "rgba(248,113,113,0.06)", border: "1px solid rgba(248,113,113,0.2)",
@@ -698,7 +696,7 @@ const IterationCycle: React.FC = () => {
               position: "absolute",
               left: nodePositions[2].x - 70 + pi * 25,
               top: nodePositions[2].y + 55 + pi * 30,
-              opacity: flashItemOpacity(frame, pi, 70),
+              opacity: flashItemOpacity(frame, pi, 57),
               fontSize: 22, fontFamily: THEME.fonts.mono, color: THEME.colors.accentWarm,
               fontWeight: 600, whiteSpace: "nowrap",
             }}>
@@ -710,7 +708,7 @@ const IterationCycle: React.FC = () => {
               position: "absolute",
               left: Math.max(10, nodePositions[3].x - 190),
               top: nodePositions[3].y - 30 + ti * 32,
-              opacity: flashItemOpacity(frame, ti, 80),
+              opacity: flashItemOpacity(frame, ti, 65),
               fontSize: 18, fontFamily: THEME.fonts.mono, color: THEME.colors.primary,
               whiteSpace: "nowrap",
               background: "rgba(110,231,183,0.06)", borderRadius: 6, padding: "3px 10px",
@@ -724,33 +722,57 @@ const IterationCycle: React.FC = () => {
   );
 };
 
-/* ── Phase 3: Three barrier keywords (557–845f, relative: 0–288f) ── */
-const BarrierKeywords: React.FC = () => {
+/* ── Phase 3+4: Barrier keywords appear → converge → "Development Efficiency"
+ *   Single seamless component spanning 478–854f (relative: 0–376f)
+ *   0–170f:    three keywords enter one by one
+ *   170–234f:  keywords hold (visible, no flicker)
+ *   238–285f:  keywords converge to screen center and fade out
+ *   275–320f:  "Development Efficiency" scales in at same center
+ *   320–350f:  subtext appears
+ *   350–376f:  entire phase fades out
+ * ── */
+const CONVERGE_CX = CX;
+const CONVERGE_CY = 520;
+
+const BarriersAndConverge: React.FC = () => {
   const frame = useCurrentFrame();
 
   const barriers = [
-    {
-      label: "Programming Skills",
-      icon: "</>",
-      x: 200, y: 250,
-      entryStart: 0, entryEnd: 40,
-    },
-    {
-      label: "Hardware Knowledge",
-      icon: "GPU",
-      x: 1200, y: 250,
-      entryStart: 80, entryEnd: 120,
-    },
-    {
-      label: "Optimization Experience",
-      icon: "perf",
-      x: CX - 220, y: 520,
-      entryStart: 170, entryEnd: 210,
-    },
+    { label: "Programming Skills", icon: "</>", startX: 440, startY: 330, entryStart: 0, entryEnd: 32 },
+    { label: "Hardware Knowledge", icon: "GPU", startX: 1480, startY: 330, entryStart: 65, entryEnd: 97 },
+    { label: "Optimization Experience", icon: "perf", startX: CONVERGE_CX, startY: 680, entryStart: 138, entryEnd: 170 },
   ];
 
+  const convergeStart = 238;
+  const convergeEnd = 285;
+  const convergeProgress = interpolate(frame, [convergeStart, convergeEnd], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.inOut(Easing.cubic),
+  });
+
+  const greenStart = 270;
+  const greenScale = interpolate(frame, [greenStart, greenStart + 25], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.back(1.2)),
+  });
+
+  const arrowOpacity = interpolate(frame, [320, 345], [0, 0.8], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const fadeOut = interpolate(frame, [350, 376], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const pulseGlow = Math.sin(frame * 0.12) * 0.3 + 0.7;
+
   return (
-    <div style={{ position: "absolute", inset: 0, zIndex: 6 }}>
+    <div style={{ position: "absolute", inset: 0, opacity: fadeOut, zIndex: 6 }}>
+      {/* Three barrier keywords — enter, hold, then converge to center */}
       {barriers.map((b, i) => {
         const entryProgress = interpolate(frame, [b.entryStart, b.entryEnd], [0, 1], {
           extrapolateLeft: "clamp",
@@ -761,20 +783,30 @@ const BarrierKeywords: React.FC = () => {
           extrapolateRight: "clamp",
           easing: Easing.out(Easing.back(1.5)),
         });
-        const glowPulse = 0.2 + Math.sin((frame - b.entryEnd) * 0.08) * 0.1;
+
+        const x = interpolate(convergeProgress, [0, 1], [b.startX, CONVERGE_CX]);
+        const y = interpolate(convergeProgress, [0, 1], [b.startY, CONVERGE_CY]);
+
+        const kwOpacity = frame < convergeStart
+          ? entryProgress
+          : interpolate(convergeProgress, [0.6, 1], [1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
 
         return (
           <div
             key={i}
             style={{
               position: "absolute",
-              left: b.x,
-              top: b.y,
-              opacity: entryProgress,
-              transform: `scale(${scale})`,
+              left: x,
+              top: y,
+              transform: `translate(-50%, -50%) scale(${scale})`,
+              opacity: kwOpacity,
               display: "flex",
               alignItems: "center",
               gap: 14,
+              whiteSpace: "nowrap",
             }}
           >
             <span style={{
@@ -788,7 +820,6 @@ const BarrierKeywords: React.FC = () => {
                 fontWeight: 700,
                 fontFamily: THEME.fonts.sans,
                 color: THEME.colors.accentWarm,
-                textShadow: `0 0 ${20 + glowPulse * 40}px rgba(251,191,36,${glowPulse})`,
               }}
             >
               {b.label}
@@ -796,97 +827,16 @@ const BarrierKeywords: React.FC = () => {
           </div>
         );
       })}
-    </div>
-  );
-};
 
-/* ── Phase 4: Barriers converge (848–991f, relative: 0–143f) ── */
-const BarriersConverge: React.FC = () => {
-  const frame = useCurrentFrame();
-
-  const convergeProgress = interpolate(frame, [0, 50], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.inOut(Easing.cubic),
-  });
-
-  const barriersScale = interpolate(frame, [40, 70], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.out(Easing.back(1.2)),
-  });
-
-  const pulseGlow = Math.sin(frame * 0.12) * 0.3 + 0.7;
-
-  const arrowOpacity = interpolate(frame, [70, 90], [0, 0.8], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  const fadeOut = interpolate(frame, [120, 143], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  const keywords = [
-    { label: "Programming Skills", icon: "</>", startX: 200, startY: 250 },
-    { label: "Hardware Knowledge", icon: "GPU", startX: 1200, startY: 250 },
-    { label: "Optimization Experience", icon: "perf", startX: CX - 220, startY: 520 },
-  ];
-
-  return (
-    <div style={{ position: "absolute", inset: 0, opacity: fadeOut, zIndex: 7 }}>
-      {/* Converging keywords */}
-      {keywords.map((kw, i) => {
-        const x = interpolate(convergeProgress, [0, 1], [kw.startX, CX - 100]);
-        const y = interpolate(convergeProgress, [0, 1], [kw.startY, CY - 60 + i * 5]);
-        const kwOpacity = interpolate(convergeProgress, [0.6, 1], [1, 0], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        });
-
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: x,
-              top: y,
-              opacity: kwOpacity,
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-            }}
-          >
-            <span style={{
-              fontSize: 28, fontFamily: THEME.fonts.mono, color: THEME.colors.primary,
-              background: "rgba(110,231,183,0.12)", border: "2px solid rgba(110,231,183,0.3)",
-              borderRadius: 10, padding: "8px 14px", fontWeight: 700,
-            }}>{kw.icon}</span>
-            <span
-              style={{
-                fontSize: 48,
-                fontWeight: 700,
-                fontFamily: THEME.fonts.sans,
-                color: THEME.colors.accentWarm,
-              }}
-            >
-              {kw.label}
-            </span>
-          </div>
-        );
-      })}
-
-      {/* Development Efficiency text */}
+      {/* "Development Efficiency" green text — appears at exact same center */}
       <div
         style={{
           position: "absolute",
-          left: 0,
-          right: 0,
-          top: CY - 50,
-          textAlign: "center",
-          opacity: barriersScale,
-          transform: `scale(${barriersScale})`,
+          left: CONVERGE_CX,
+          top: CONVERGE_CY,
+          transform: `translate(-50%, -50%) scale(${greenScale})`,
+          opacity: greenScale,
+          whiteSpace: "nowrap",
         }}
       >
         <span
@@ -903,15 +853,15 @@ const BarriersConverge: React.FC = () => {
         </span>
       </div>
 
-      {/* Efficiency arrow */}
+      {/* Subtext */}
       <div
         style={{
           position: "absolute",
-          left: 0,
-          right: 0,
-          top: CY + 50,
-          textAlign: "center",
+          left: CONVERGE_CX,
+          top: CONVERGE_CY + 60,
+          transform: "translate(-50%, 0)",
           opacity: arrowOpacity,
+          whiteSpace: "nowrap",
         }}
       >
         <span
@@ -922,47 +872,50 @@ const BarriersConverge: React.FC = () => {
             letterSpacing: "0.05em",
           }}
         >
-          Programming + Hardware + Optimization = Efficiency
+          Programming + Hardware + Optimization → Efficiency
         </span>
       </div>
     </div>
   );
 };
 
-/* ── Phase 5: CroqTile logo reveal (994–1393f, relative: 0–399f) ── */
+/* ── Phase 5: CroqTile logo reveal (858–1136f, relative: 0–278f) ── */
 const LogoReveal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const bgOpacity = interpolate(frame, [0, 30], [0, 1], {
+  const bgOpacity = interpolate(frame, [0, 21], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
 
   const logoScale = spring({
-    frame: frame - 30,
+    frame: frame - 21,
     fps,
     config: { damping: 14, stiffness: 120, mass: 0.8 },
     from: 0.6,
     to: 1,
   });
-  const logoOpacity = interpolate(frame, [30, 60], [0, 1], {
+  const logoOpacity = interpolate(frame, [21, 42], [0, 1], {
     extrapolateRight: "clamp",
   });
 
-  const glowSize = interpolate(frame, [50, 100, 150, 200], [0, 48, 32, 40], {
+  const glowSize = interpolate(frame, [35, 70, 104, 139], [0, 48, 32, 40], {
     extrapolateRight: "clamp",
   });
 
-  const taglineWords = ["5× Productivity.", "AI-native."];
-  const taglineStart = 66;
-
-  const subtitleOpacity = interpolate(frame, [126, 156], [0, 1], {
+  const tagline = "5× Productivity, designed for the AI era.";
+  const taglineStart = 46;
+  const taglineOpacity = interpolate(frame, [taglineStart, taglineStart + 12], [0, 1], {
     extrapolateRight: "clamp",
-  });
-
-  const endFade = interpolate(frame, [379, 399], [1, 0], {
     extrapolateLeft: "clamp",
+  });
+  const taglineY = interpolate(frame, [taglineStart, taglineStart + 15], [12, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const subtitleOpacity = interpolate(frame, [88, 109], [0, 1], {
     extrapolateRight: "clamp",
   });
 
@@ -975,7 +928,7 @@ const LogoReveal: React.FC = () => {
         justifyContent: "center",
         flexDirection: "column",
         gap: 24,
-        opacity: bgOpacity * endFade,
+        opacity: bgOpacity,
         zIndex: 15,
       }}
     >
@@ -1014,56 +967,23 @@ const LogoReveal: React.FC = () => {
             zIndex: 1,
           }}
         />
-        <span
-          style={{
-            fontSize: THEME.fontSize["4xl"],
-            fontWeight: 800,
-            color: THEME.colors.textPrimary,
-            letterSpacing: "-0.03em",
-            position: "relative",
-            zIndex: 1,
-            marginTop: -10,
-          }}
-        >
-          Croq<span style={{ color: THEME.colors.primary }}>Tile</span>
-        </span>
       </div>
 
       {/* Tagline */}
-      <div
+      <p
         style={{
-          display: "flex",
-          gap: 12,
-          fontSize: THEME.fontSize.xl,
-          fontWeight: 500,
-          color: THEME.colors.textSecondary,
+          margin: 0,
+          textAlign: "center",
+          fontSize: 42,
+          fontWeight: 600,
+          color: THEME.colors.textPrimary,
+          opacity: taglineOpacity,
+          transform: `translateY(${taglineY}px)`,
           zIndex: 1,
         }}
       >
-        {taglineWords.map((word, i) => {
-          const wordStart = taglineStart + i * 15;
-          const opacity = interpolate(frame, [wordStart, wordStart + 10], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          });
-          const y = interpolate(frame, [wordStart, wordStart + 15], [12, 0], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          });
-          return (
-            <span
-              key={word}
-              style={{
-                opacity,
-                transform: `translateY(${y}px)`,
-                color: i === 0 ? THEME.colors.primary : THEME.colors.textPrimary,
-              }}
-            >
-              {word}
-            </span>
-          );
-        })}
-      </div>
+        {tagline}
+      </p>
 
       {/* Subtitle */}
       <p
@@ -1091,28 +1011,23 @@ export const IterativeDev: React.FC = () => {
     >
       <NoiseOverlay opacity={0.03} />
 
-      {/* Phase 1: Code intro (0–163f) */}
-      <Sequence from={0} durationInFrames={164}>
+      {/* Phase 1: Code intro (0–152f) */}
+      <Sequence from={0} durationInFrames={152}>
         <CodeIntro />
       </Sequence>
 
-      {/* Phase 2: Iterative cycle (166–554f) */}
-      <Sequence from={166} durationInFrames={389}>
+      {/* Phase 2: Iterative cycle (156–474f) */}
+      <Sequence from={156} durationInFrames={318}>
         <IterationCycle />
       </Sequence>
 
-      {/* Phase 3: Barrier keywords (557–846f) */}
-      <Sequence from={557} durationInFrames={289}>
-        <BarrierKeywords />
+      {/* Phase 3+4: Barrier keywords → converge → Development Efficiency (478–854f) */}
+      <Sequence from={478} durationInFrames={376}>
+        <BarriersAndConverge />
       </Sequence>
 
-      {/* Phase 4: Skills converge → Development Efficiency (846–993f) */}
-      <Sequence from={846} durationInFrames={148}>
-        <BarriersConverge />
-      </Sequence>
-
-      {/* Phase 5: CroqTile logo reveal (994–1393f) */}
-      <Sequence from={994} durationInFrames={399}>
+      {/* Phase 5: CroqTile logo reveal (858–1136f) */}
+      <Sequence from={858} durationInFrames={278}>
         <LogoReveal />
       </Sequence>
     </AbsoluteFill>

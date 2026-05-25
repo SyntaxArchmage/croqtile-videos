@@ -3,12 +3,12 @@
  * Segment 6 — AI-native features (3:36–5:59 @ 30fps = 4650 frames)
  *
  * Reordered to match script flow (6A→6C→6D→6E→6B→closing):
- * 6A 0–500f     Born for Agentic AI — intro + two pillars
- * 6C 476–1300f  Zero Context Waste — tokens, minimal code changes
- * 6D 1252–2170f Compile Feedback Speed — error catching, fast loop
- * 6E 2120–2960f Harness Tools — profiler + knowledge base
- * 6B 2910–3650f Real Results — convergence benchmarks
- * 6F 3600–3880f Closing — effortless tuning + back cover with slogan
+ * 6A 0–478f     Born for Agentic AI — intro + two pillars
+ * 6C 478–1258f  Zero Context Waste — tokens, minimal code changes
+ * 6D 1258–2127f Compile Feedback Speed — error catching, fast loop
+ * 6E 2127–2912f Harness Tools — profiler + knowledge base
+ * 6B 2912–3612f Real Results — convergence benchmarks
+ * 6F 3612–3755f Closing — effortless tuning + back cover with slogan
  */
 import React from "react";
 import {
@@ -54,12 +54,12 @@ const CHART = {
 const SHELL_HEIGHT = 380;
 
 const SEG = {
-  A: { seqFrom: 0, seqDur: 500, start: 0, end: 500 },
-  C: { seqFrom: 452, seqDur: 848, start: 476, end: 1300 },
-  D: { seqFrom: 1228, seqDur: 942, start: 1252, end: 2170 },
-  E: { seqFrom: 2096, seqDur: 864, start: 2120, end: 2960 },
-  B: { seqFrom: 2886, seqDur: 764, start: 2910, end: 3650 },
-  F: { seqFrom: 3576, seqDur: 304, start: 3600, end: 3880 },
+  A: { seqFrom: 0, seqDur: 478, start: 0, end: 478 },
+  C: { seqFrom: 478, seqDur: 780, start: 478, end: 1258 },
+  D: { seqFrom: 1258, seqDur: 869, start: 1258, end: 2127 },
+  E: { seqFrom: 2127, seqDur: 785, start: 2127, end: 2912 },
+  B: { seqFrom: 2912, seqDur: 700, start: 2912, end: 3612 },
+  F: { seqFrom: 3612, seqDur: 143, start: 3612, end: 3755 },
 } as const;
 
 const SegmentWrap: React.FC<{
@@ -227,7 +227,7 @@ const Sub6A: React.FC = () => {
   const t = Math.max(0, frame);
 
   const badgeOp = spring({
-    frame: t - 8,
+    frame: t - 4,
     fps,
     config: { damping: 16, stiffness: 100 },
     from: 0,
@@ -235,31 +235,31 @@ const Sub6A: React.FC = () => {
   });
 
   const taglineOp = spring({
-    frame: t - 24,
+    frame: t - 20,
     fps,
     config: { damping: 15, stiffness: 90 },
     from: 0,
     to: 1,
   });
 
-  const phase1Fade = interpolate(t, [240, 280], [1, 0], {
+  const phase1Fade = interpolate(t, [246, 266], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const phase2Fade = interpolate(t, [240, 280], [0, 1], {
+  const phase2Fade = interpolate(t, [246, 266], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   const pillarLeft = spring({
-    frame: t - 290,
+    frame: t - 258,
     fps,
     config: { damping: 16, stiffness: 110 },
     from: 0,
     to: 1,
   });
   const pillarRight = spring({
-    frame: t - 340,
+    frame: t - 308,
     fps,
     config: { damping: 16, stiffness: 100 },
     from: 0,
@@ -504,24 +504,24 @@ const Sub6B: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const phase1Op = interpolate(t, [0, 18, 320, 350], [0, 1, 1, 0], {
+  const phase1Op = interpolate(t, [0, 18, 294, 324], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const phase2Op = interpolate(t, [300, 330, 520, 550], [0, 1, 1, 0], {
+  const phase2Op = interpolate(t, [274, 304, 494, 524], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const phase3Op = interpolate(t, [500, 530, 730, 764], [0, 1, 1, 1], {
+  const phase3Op = interpolate(t, [474, 504, 670, 700], [0, 1, 1, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
 
   const chartReveal = spring({
-    frame: t - 14,
+    frame: t - 4,
     fps,
     config: { damping: 16, stiffness: 95 },
     from: 0,
@@ -589,7 +589,7 @@ const Sub6B: React.FC = () => {
 
   const blockscaleSprings = blockscaleRows.map((_, i) =>
     spring({
-      frame: t - 318 - i * 16,
+      frame: t - 292 - i * 16,
       fps,
       config: { damping: 16, stiffness: 120 },
       from: 0,
@@ -602,19 +602,19 @@ const Sub6B: React.FC = () => {
       value: "84%",
       label: "win rate across 95 shapes",
       color: THEME.colors.primary,
-      delay: 538,
+      delay: 512,
     },
     {
       value: "+16.7%",
       label: "average speedup over cuSPARSELt",
       color: THEME.colors.accentWarm,
-      delay: 578,
+      delay: 552,
     },
     {
       value: "95",
       label: "sparse GEMM shapes tested",
       color: THEME.colors.accent,
-      delay: 618,
+      delay: 592,
     },
   ];
 
@@ -666,7 +666,7 @@ const Sub6B: React.FC = () => {
   });
 
   const blockscaleLabelSpring = spring({
-    frame: t - 390,
+    frame: t - 364,
     fps,
     config: { damping: 16, stiffness: 90 },
     from: 0,
@@ -1064,23 +1064,23 @@ const Sub6C: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const phase1Op = interpolate(t, [0, 18, 520, 560], [0, 1, 1, 0], {
+  const phase1Op = interpolate(t, [0, 18, 255, 275], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const phase2Op = interpolate(t, [520, 560, 800, 848], [0, 1, 1, 1], {
+  const phase2Op = interpolate(t, [275, 295, 760, 780], [0, 1, 1, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
 
-  const title1Op = interpolate(t, [520, 560], [1, 0], {
+  const title1Op = interpolate(t, [255, 275], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const title2Op = interpolate(t, [520, 560], [0, 1], {
+  const title2Op = interpolate(t, [255, 275], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
@@ -1096,7 +1096,7 @@ const Sub6C: React.FC = () => {
 
   const tokenSprings = tokenRows.map((_, i) =>
     spring({
-      frame: t - 24 - i * 18,
+      frame: t - 4 - i * 18,
       fps,
       config: { damping: 16, stiffness: 110 },
       from: 0,
@@ -1105,7 +1105,7 @@ const Sub6C: React.FC = () => {
   );
 
   const calloutSpring = spring({
-    frame: t - 316,
+    frame: t - 290,
     fps,
     config: { damping: 17, stiffness: 95 },
     from: 0,
@@ -1123,7 +1123,7 @@ const Sub6C: React.FC = () => {
 
   const rowSprings = changeSiteRows.map((_, i) =>
     spring({
-      frame: t - 565 - i * 22,
+      frame: t - 524 - i * 22,
       fps,
       config: { damping: 16, stiffness: 105 },
       from: 0,
@@ -1132,7 +1132,7 @@ const Sub6C: React.FC = () => {
   );
 
   const tableHeaderSpring = spring({
-    frame: t - 565,
+    frame: t - 524,
     fps,
     config: { damping: 17, stiffness: 100 },
     from: 0,
@@ -1140,7 +1140,7 @@ const Sub6C: React.FC = () => {
   });
 
   const summarySpring = spring({
-    frame: t - 565 - changeSiteRows.length * 22 - 8,
+    frame: t - 524 - changeSiteRows.length * 22 - 8,
     fps,
     config: { damping: 16, stiffness: 100 },
     from: 0,
@@ -1528,23 +1528,23 @@ const Sub6D: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  const phase1Op = interpolate(t, [0, 18, 520, 560], [0, 1, 1, 0], {
+  const phase1Op = interpolate(t, [0, 18, 494, 514], [0, 1, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const phase2Op = interpolate(t, [520, 560, 900, 942], [0, 1, 1, 1], {
+  const phase2Op = interpolate(t, [514, 534, 849, 869], [0, 1, 1, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
 
-  const title1Op = interpolate(t, [520, 560], [1, 0], {
+  const title1Op = interpolate(t, [494, 514], [1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
   });
-  const title2Op = interpolate(t, [520, 560], [0, 1], {
+  const title2Op = interpolate(t, [494, 514], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.inOut(Easing.cubic),
@@ -1553,60 +1553,60 @@ const Sub6D: React.FC = () => {
   const shellH = 340;
 
   const tradPanelSpring = spring({
-    frame: t - 12,
+    frame: t - 4,
     fps,
     config: { damping: 16, stiffness: 105 },
     from: 0,
     to: 1,
   });
-  const tradLine1 = spring({ frame: t - 20, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
-  const tradCompile = spring({ frame: t - 45, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
-  const tradSuccess = spring({ frame: t - 72, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
-  const tradLine2 = spring({ frame: t - 95, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
-  const tradRunning = spring({ frame: t - 120, fps, config: { damping: 18, stiffness: 90 }, from: 0, to: 1 });
-  const tradGpuWait = interpolate(t, [120, 180], [0, 1], {
+  const tradLine1 = spring({ frame: t - 12, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
+  const tradCompile = spring({ frame: t - 37, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradSuccess = spring({ frame: t - 64, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradLine2 = spring({ frame: t - 87, fps, config: { damping: 18, stiffness: 95 }, from: 0, to: 1 });
+  const tradRunning = spring({ frame: t - 112, fps, config: { damping: 18, stiffness: 90 }, from: 0, to: 1 });
+  const tradGpuWait = interpolate(t, [112, 172], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const tradError = spring({ frame: t - 175, fps, config: { damping: 14, stiffness: 120 }, from: 0, to: 1 });
-  const tradDebugTime = spring({ frame: t - 210, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
+  const tradError = spring({ frame: t - 167, fps, config: { damping: 14, stiffness: 120 }, from: 0, to: 1 });
+  const tradDebugTime = spring({ frame: t - 202, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
   const errorPulse = 0.55 + 0.45 * Math.sin(t * 0.35);
 
   const croqSlide = spring({
-    frame: t - 300,
+    frame: t - 271,
     fps,
     config: { damping: 16, stiffness: 100 },
     from: 0,
     to: 1,
   });
-  const croqLine1 = spring({ frame: t - 318, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
-  const croqError = spring({ frame: t - 340, fps, config: { damping: 16, stiffness: 110 }, from: 0, to: 1 });
-  const croqFixTime = spring({ frame: t - 400, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
-  const croqSubtitle = spring({ frame: t - 430, fps, config: { damping: 17, stiffness: 90 }, from: 0, to: 1 });
+  const croqLine1 = spring({ frame: t - 289, fps, config: { damping: 18, stiffness: 100 }, from: 0, to: 1 });
+  const croqError = spring({ frame: t - 311, fps, config: { damping: 16, stiffness: 110 }, from: 0, to: 1 });
+  const croqFixTime = spring({ frame: t - 371, fps, config: { damping: 17, stiffness: 95 }, from: 0, to: 1 });
+  const croqSubtitle = spring({ frame: t - 401, fps, config: { damping: 17, stiffness: 90 }, from: 0, to: 1 });
 
   const loopReveal = spring({
-    frame: t - 570,
+    frame: t - 540,
     fps,
     config: { damping: 17, stiffness: 95 },
     from: 0,
     to: 1,
   });
   const croqLoopSpring = spring({
-    frame: t - 590,
+    frame: t - 560,
     fps,
     config: { damping: 16, stiffness: 88 },
     from: 0,
     to: 1,
   });
   const tradLoopSpring = spring({
-    frame: t - 620,
+    frame: t - 590,
     fps,
     config: { damping: 17, stiffness: 80 },
     from: 0,
     to: 1,
   });
   const magnitudeSpring = spring({
-    frame: t - 700,
+    frame: t - 670,
     fps,
     config: { damping: 15, stiffness: 100 },
     from: 0,
@@ -1614,10 +1614,10 @@ const Sub6D: React.FC = () => {
   });
 
   const passAt1Rows = [
-    { label: "CroqTile", value: 96.4, color: THEME.colors.primary, glow: true, delay: 750 },
-    { label: "Triton", value: 92.6, color: THEME.colors.accent, glow: false, delay: 775 },
-    { label: "CUDA", value: 88.6, color: THEME.colors.danger, glow: false, delay: 800 },
-    { label: "Helion", value: 76.8, color: THEME.colors.textMuted, glow: false, delay: 825 },
+    { label: "CroqTile", value: 96.4, color: THEME.colors.primary, glow: true, delay: 720 },
+    { label: "Triton", value: 92.6, color: THEME.colors.accent, glow: false, delay: 745 },
+    { label: "CUDA", value: 88.6, color: THEME.colors.danger, glow: false, delay: 770 },
+    { label: "Helion", value: 76.8, color: THEME.colors.textMuted, glow: false, delay: 795 },
   ];
 
   const passSprings = passAt1Rows.map((row) =>
@@ -2147,23 +2147,23 @@ const Sub6E: React.FC = () => {
   const { fps } = useVideoConfig();
   const t = frame;
 
-  /** Stack floats: aligned to voiceover cues seg6-09(48), seg6-10(273), seg6-11(581) */
+  /** Stack floats: aligned to voiceover cues seg6-09(4), seg6-10(229), seg6-11(538) */
   const l1 = spring({
-    frame: t - 30,
+    frame: t - 4,
     fps,
     config: { damping: 17, stiffness: 102 },
     from: 0,
     to: 1,
   });
   const l2 = spring({
-    frame: t - 260,
+    frame: t - 216,
     fps,
     config: { damping: 17, stiffness: 98 },
     from: 0,
     to: 1,
   });
   const l3 = spring({
-    frame: t - 565,
+    frame: t - 522,
     fps,
     config: { damping: 17, stiffness: 94 },
     from: 0,
@@ -2324,9 +2324,9 @@ const Sub6F: React.FC = () => {
 
   const glowPulse = 0.4 + 0.6 * Math.sin(t * 0.12);
 
-  const sloganSpring = spring({ frame: t - 12, fps, config: { damping: 16, stiffness: 90 }, from: 0, to: 1 });
-  const qrSpring = spring({ frame: t - 60, fps, config: { damping: 17, stiffness: 88 }, from: 0, to: 1 });
-  const linkSpring = spring({ frame: t - 100, fps, config: { damping: 18, stiffness: 84 }, from: 0, to: 1 });
+  const sloganSpring = spring({ frame: t - 4, fps, config: { damping: 16, stiffness: 90 }, from: 0, to: 1 });
+  const qrSpring = spring({ frame: t - 24, fps, config: { damping: 17, stiffness: 88 }, from: 0, to: 1 });
+  const linkSpring = spring({ frame: t - 64, fps, config: { damping: 18, stiffness: 84 }, from: 0, to: 1 });
 
   return (
     <SegmentWrap duration={SEG.F.seqDur}>

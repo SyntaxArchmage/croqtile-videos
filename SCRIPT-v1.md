@@ -294,18 +294,18 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 
 *(seg4-02)* 传统的调优过程经常出现运行时报错——这类 bug 只在 GPU 上实际跑的时候才暴露，定位一个 DMA 越界或 shape 不匹配往往要花上数小时甚至数天。
 
-*(seg4-03)* 而 CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。这使得 CroqTile 具备了独一无二的编译期静态检查能力。
+*(seg4-03)* 而 CroqTile 是当前市场上唯一设计了独立编译模块的新一代计算核编程语言。这使得 CroqTile 具备了更为强劲的代码检查能力。
 
-*(seg4-04)* DMA 越界、shape 不匹配、同步错误——这些传统内核开发中最难追踪的 runtime bug，CroqTile 编译器在编译期就能优雅地拦截。
+*(seg4-04)* DMA 越界、shape 不匹配、同步错误——这些传统内核开发中最难追踪的 runtime bug，CroqTile 编译器通常在编译期就能优雅地拦截。
 
 **[英]**
 *(seg4-01)* Beyond usability, the debugging experience is a major factor in kernel development efficiency.
 
 *(seg4-02)* Traditional tuning cycles are plagued by runtime errors — bugs that only surface when the GPU actually runs. Tracking down a single DMA overflow or shape mismatch can take hours, even days.
 
-*(seg4-03)* CroqTile is the only next-generation kernel language on the market with a purpose-built standalone compiler. This gives CroqTile unparalleled compile-time static analysis.
+*(seg4-03)* CroqTile is the only next-generation kernel language on the market with a purpose-built standalone compiler. This gives CroqTile superior code analysis capabilities.
 
-*(seg4-04)* DMA overflows, shape mismatches, sync errors — the hardest runtime bugs to track in traditional kernel development are caught elegantly by the CroqTile compiler at compile time.
+*(seg4-04)* DMA overflows, shape mismatches, sync errors — the hardest runtime bugs to track in traditional kernel development are typically caught elegantly by the CroqTile compiler at compile time.
 
 ---
 
@@ -323,7 +323,7 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 
 | Cue ID | 帧范围（Seg内） | 时长 | 内容 |
 |--------|----------------|------|------|
-| seg5-01 | 0–280f | ~9s | 同一源码 → 多后端（H800/A100/MI300/DSA） |
+| seg5-01 | 0–280f | ~9s | 同一源码 → 多后端（H800/RX 6900 XT/DSA） |
 | seg5-02 | 280–560f | ~9s | 改一个 flag，同 kernel 跑不同硬件 |
 | seg5-03 | 560–890f | ~11s | 多设备：parallel-by mpi，编译器自动 dispatch |
 
@@ -331,8 +331,8 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 
 | 段落 | 帧范围 | 时长 | 对应语音 | 内容 |
 |------|--------|------|----------|------|
-| Phase A | 0–280f | ~9s | seg5-01 | CroqTile 源码居中，右侧分支箭头指向 4 个目标设备卡片 |
-| Phase B | 280–560f | ~9s | seg5-02 | 编译 flag 动画切换（`-t cute -arch=sm_90a` → `-t gfx942` → `-t dsa_x`） |
+| Phase A | 0–280f | ~9s | seg5-01 | CroqTile 源码居中，右侧分支箭头指向 3 个目标设备卡片 |
+| Phase B | 280–560f | ~9s | seg5-02 | 编译 flag 动画切换（`-t cute -arch=sm_90a` → `-t hip -arch=gfx1030` → `-t dsa_x`） |
 | Phase C | 560–890f | ~11s | seg5-03 | distributed_matmul 代码 + 节点分区图（2×2 grid） |
 
 ---
@@ -341,18 +341,17 @@ tma.copy lhs.subspan(WARP_M, TILE_K * 2).at(bm, iv_k) => lhs_s;
 
 **Phase A (0–280f, ~9s) — Write Once, Run Everywhere**
 屏幕左侧出现 CroqTile matmul 内核代码（约 12 行，mint 色调的 DeviceShell）。
-右侧从中间发散出 4 条带箭头的连线，每条连线末端是一个目标设备卡片，依次弹入（spring 动画）：
+右侧从中间发散出 3 条带箭头的连线，每条连线末端是一个目标设备卡片，依次弹入（spring 动画）：
 - NVIDIA H800/H100（mint 绿边框）：`-t cute -arch=sm_90a` → Hopper SM90a (PTX + SASS)
-- NVIDIA A100（cyan 边框）：`-t cute -arch=sm_80` → Ampere SM80
-- AMD MI300（orange 边框）：`-t gfx942` → AMDGPU ISA
+- AMD RX 6900 XT（orange 边框）：`-t hip -arch=gfx1030` → AMDGPU RDNA2
 - Custom DSA（pink 边框）：`-t dsa_x` → Pluggable backend
 
 每条连线上标注对应的编译 flag（mono 字体、小号）。底部居中标注：
-`Same source → different targets — the compiler lowers CroqTile IR to each backend's native ISA`
+`CroqTile program → different targets — the compiler lowers CroqTile IR to each backend's native ISA`
 
 **Phase B (280–560f, ~9s) — 一个 Flag 切换目标**
-左侧代码不变。右侧 4 个设备卡片依次高亮（当前活跃的卡片边框变亮、带 glow），
-其余变灰。对应的编译 flag 在代码上方一行以 crossfade 动画切换。
+左侧代码不变。右侧 3 个设备卡片依次高亮（当前活跃的卡片边框变亮、带 glow），
+其余变灰。对应的编译 flag 在代码上方一行以 crossfade 动画切换（`-t cute -arch=sm_90a` → `-t hip -arch=gfx1030` → `-t dsa_x`）。
 暗示：源码完全不动，只有编译目标在变化。
 
 **Phase C (560–890f, ~11s) — 多设备编程**
@@ -365,16 +364,16 @@ Phase A/B 淡出。屏幕左右分栏：
   - Data partitioning → `parallel-by mpi` splits work across ranks
 
 **[中]**
-*(seg5-01)* 同一份 CroqTile 源码，编译器自动降级到不同后端的原生 ISA——NVIDIA H800、A100、AMD MI300，甚至自定义加速器。不需要为每种硬件重写代码。
+*(seg5-01)* 同一份 CroqTile 源码，编译器自动降级到不同后端的原生 ISA——NVIDIA H800、AMD RX 6900 XT，甚至自定义加速器。不需要为每种硬件重写代码。
 
-*(seg5-02)* 只需要改一个编译 flag，同一个 kernel 就能跑在完全不同的硬件上。代码不改一行。
+*(seg5-02)* 只需要改一个编译 flag，同一个 kernel 就能跑在完全不同的硬件上运行，几乎无需改动代码。
 
 *(seg5-03)* 多设备编程也一样简单：在 kernel 外层加一层 `parallel-by mpi`，编译器自动生成数据分区、host dispatch 和跨节点通信。几行样板代码就能把单 GPU kernel 扩展到多节点集群。
 
 **[英]**
-*(seg5-01)* One CroqTile source, and the compiler lowers it to each backend's native ISA — NVIDIA H800, A100, AMD MI300, even custom DSAs. No code rewrite for each target.
+*(seg5-01)* One CroqTile source, and the compiler lowers it to each backend's native ISA — NVIDIA H800, AMD RX 6900 XT, even custom DSAs. No code rewrite for each target.
 
-*(seg5-02)* Just change one compiler flag and the same kernel runs on entirely different hardware. Not a single line of code changes.
+*(seg5-02)* Just change one compiler flag and the same kernel runs on entirely different hardware, with virtually no code changes.
 
 *(seg5-03)* Multi-device programming is just as simple: wrap the kernel in a `parallel-by mpi` layer, and the compiler generates data partitioning, host dispatch, and cross-node communication. A few lines of boilerplate scale a single-GPU kernel to a multi-node cluster.
 

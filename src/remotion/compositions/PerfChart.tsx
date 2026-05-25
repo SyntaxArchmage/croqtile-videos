@@ -11,12 +11,12 @@ import { THEME } from "../theme";
 import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 
-const TOTAL_FRAMES = 770;
+const TOTAL_FRAMES = 675;
 
-const PHASE_A_END = 249;
-const PHASE_B_START = 250;
-const PHASE_B_END = 499;
-const PHASE_C_START = 500;
+const PHASE_A_END = 227;
+const PHASE_B_START = 228;
+const PHASE_B_END = 456;
+const PHASE_C_START = 457;
 
 /** Bars extending roughly beyond absolute ~700 overlap subtitles — reserve band */
 const SAFE_BOTTOM_PADDING = 360;
@@ -42,25 +42,25 @@ const LOC_ROWS: {
   {
     label: "TileLang",
     loc: 70,
-    color: THEME.colors.textSecondary,
+    color: "#a78bfa",
     mintGlow: false,
   },
   {
     label: "Triton",
     loc: 80,
-    color: THEME.colors.textSecondary,
+    color: "#38bdf8",
     mintGlow: false,
   },
   {
     label: "CUDA + CuTe",
     loc: 182,
-    color: THEME.colors.accentWarm,
+    color: "#64748b",
     mintGlow: false,
   },
   {
     label: "CUTLASS",
     loc: 280,
-    color: THEME.colors.accentWarm,
+    color: "#f59e0b",
     mintGlow: false,
   },
 ];
@@ -126,7 +126,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseAOpacity = interpolate(
     frame,
-    [Math.max(0, PHASE_A_END - 32), PHASE_B_START],
+    [210, 228],
     [1, 0],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -137,7 +137,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseBFadeOut = interpolate(
     frame,
-    [PHASE_B_END - 22, PHASE_B_END + 16],
+    [438, 457],
     [1, 0],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -146,7 +146,7 @@ export const PerfChart: React.FC = () => {
     },
   );
 
-  const phaseBFadeIn = interpolate(frame, [228, 268], [0, 1], {
+  const phaseBFadeIn = interpolate(frame, [218, 258], [0, 1], {
     easing: Easing.bezier(0.4, 0, 0.2, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -156,7 +156,7 @@ export const PerfChart: React.FC = () => {
 
   const phaseCOpacity = interpolate(
     frame,
-    [PHASE_C_START - 24, PHASE_C_START + 18],
+    [438, 460],
     [0, 1],
     {
       easing: Easing.bezier(0.4, 0, 0.2, 1),
@@ -456,13 +456,13 @@ export const PerfChart: React.FC = () => {
                 opacity:
                   interpolate(
                     frame,
-                    [PHASE_B_START + 80, PHASE_B_START + 110],
+                    [PHASE_B_START + 70, PHASE_B_START + 96],
                     [0, 1],
                     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
                   ) * phaseBVisible,
                 transform: `translateY(${interpolate(
                   frame,
-                  [PHASE_B_START + 80, PHASE_B_START + 110],
+                  [PHASE_B_START + 70, PHASE_B_START + 96],
                   [10, 0],
                   { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
                 )}px)`,

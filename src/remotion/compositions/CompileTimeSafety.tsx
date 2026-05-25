@@ -1,6 +1,6 @@
 /**
  * remotion/compositions/CompileTimeSafety.tsx
- * Segment 4 — Compile-Time Safety (1430 frames @ 30fps)
+ * Segment 4 — Compile-Time Safety (1298 frames @ 30fps)
  *
  * 9 subtitle-aligned micro-phases with additive layering.
  * Elements persist and dim; old elements don't vanish completely.
@@ -18,16 +18,14 @@ import { NoiseOverlay } from "../theme/noise";
 import { PageContainer } from "../components/PageContainer";
 import { DeviceShell } from "../components/DeviceShell";
 
-const TOTAL_FRAMES = 1430;
-
-const P2 = 100;
-const P3 = 210;
-const P4 = 370;
-const P5 = 500;
-const P6 = 640;
-const P7 = 810;
-const P8 = 1000;
-const P9 = 1200;
+const P2 = 91;
+const P3 = 191;
+const P4 = 336;
+const P5 = 454;
+const P6 = 593;
+const P7 = 735;
+const P8 = 933;
+const P9 = 1100;
 
 const MINT = THEME.colors.primary;
 const DANGER = THEME.colors.danger;
@@ -85,51 +83,68 @@ export const CompileTimeSafety: React.FC = () => {
   const { fps } = useVideoConfig();
 
   // ── Phases 1-2 (0–P3): Full-screen centered title + factor transition ──
-  const p12Op = cl(frame, 0, 6) * dimAfter(frame, P3 - 10, 0);
+  const p12Op = cl(frame, 0, 5) * dimAfter(frame, P3 - 9, 0);
   const titleSc = spring({ frame: frame - 2, fps, config: { damping: 13, stiffness: 125, mass: 0.55 }, from: 0.88, to: 1 });
-  const shieldRot = interpolate(frame, [0, 40], [-8, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const usabilityOp = cl(frame, 8, 24);
-  const arrowOp = cl(frame, 30, 48);
-  const debugOp = cl(frame, 42, 60);
+  const shieldRot = interpolate(frame, [0, 36], [-8, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const usabilityOp = cl(frame, 7, 22);
+  const arrowOp = cl(frame, 27, 44);
+  const debugOp = cl(frame, 38, 54);
   const debugGlow = 0.82 + 0.18 * Math.sin(frame * 0.2);
-  const p2BarOp = cl(frame, P2, P2 + 18) * dimAfter(frame, P3 - 10, 0);
-  const p2BarW = cl(frame, P2 + 8, P2 + 60);
-  const liftY = interpolate(frame, [P3 - 40, P3 + 10], [0, -60], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const p2BarOp = cl(frame, P2, P2 + 16) * dimAfter(frame, P3 - 9, 0);
+  const p2BarW = cl(frame, P2 + 7, P2 + 54);
+  const liftY = interpolate(frame, [P3 - 36, P3 + 9], [0, -60], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   // ── Phases 3-5: Code + GPU + time ──
   const codeEnter = spring({ frame: frame - P3 - 4, fps, config: { damping: 16, stiffness: 125, mass: 0.65 }, from: 0.92, to: 1 });
-  const codeOp = cl(frame, P3, P3 + 24) * dimAfter(frame, P6, 0);
-  const bugHL = cl(frame, P3 + 28, P3 + 56);
+  const codeOp = cl(frame, P3, P3 + 22) * dimAfter(frame, P6, 0);
+  const bugHL = cl(frame, P3 + 25, P3 + 51);
 
   const gpuX = spring({ frame: frame - P4 - 6, fps, config: { damping: 14, stiffness: 110, mass: 0.7 }, from: 60, to: 0 });
-  const gpuOp = cl(frame, P4, P4 + 18) * dimAfter(frame, P6, 0);
-  const crashOp = cl(frame, P4 + 28, P4 + 46);
-  const shake = frame > P4 + 30 && frame < P4 + 60
-    ? Math.sin((frame - P4) * 1.2) * cl(frame, P4 + 30, P4 + 40) * 3.5 * dimAfter(frame, P4 + 50, 0)
+  const gpuOp = cl(frame, P4, P4 + 16) * dimAfter(frame, P6, 0);
+  const crashOp = cl(frame, P4 + 25, P4 + 42);
+  const shake = frame > P4 + 27 && frame < P4 + 54
+    ? Math.sin((frame - P4) * 1.2) * cl(frame, P4 + 27, P4 + 36) * 3.5 * dimAfter(frame, P4 + 45, 0)
     : 0;
 
-  const timeOp = cl(frame, P5, P5 + 22) * dimAfter(frame, P6, 0);
+  const timeOp = cl(frame, P5, P5 + 20) * dimAfter(frame, P6, 0);
   const clockRot = (frame - P5) * 18;
-  const timeProg = cl(frame, P5, P5 + 80);
+  const timeProg = cl(frame, P5, P5 + 73);
 
   // ── Phases 6-7: CroqTile compiler comparison ──
   const solEnter = spring({ frame: frame - P6 - 4, fps, config: { damping: 16, stiffness: 120, mass: 0.65 }, from: 0.9, to: 1 });
-  const solOp = cl(frame, P6, P6 + 28) * dimAfter(frame, P8, 0.25);
-  const stageOp = (i: number) => cl(frame, P6 + 16 + i * 12, P6 + 32 + i * 12);
-  const pipeGlow = frame >= P7 ? spring({ frame: frame - P7 - 6, fps, config: { damping: 12, stiffness: 140, mass: 0.5 }, from: 0.6, to: 1 }) : 0;
-  const checkOp = (i: number) => cl(frame, P7 + 10 + i * 16, P7 + 30 + i * 16);
-  const dslFade = cl(frame, P6 + 60, P6 + 90);
-  const analysisOp = cl(frame, P7 + 50, P7 + 76);
+  const solOp = cl(frame, P6, P6 + 25) * dimAfter(frame, P8, 0.25);
+  const stageOp = (i: number) => cl(frame, P6 + 15 + i * 11, P6 + 29 + i * 11);
+  const pipeGlow = frame >= P7 ? spring({ frame: frame - P7 - 5, fps, config: { damping: 12, stiffness: 140, mass: 0.5 }, from: 0.6, to: 1 }) : 0;
+  const checkOp = (i: number) => cl(frame, P7 + 9 + i * 15, P7 + 27 + i * 15);
+  const dslFade = cl(frame, P6 + 54, P6 + 82);
+  const analysisOp = cl(frame, P7 + 45, P7 + 69);
+
+  // ── Phase 6-7 popup: code analysis property badges ──
+  const ANALYSIS_PROPS = [
+    { label: "Static + Dynamic + Hybrid", icon: "⚙", accent: MINT },
+    { label: "High Coverage", icon: "◉", accent: "#818CF8" },
+    { label: "Manageable Cost", icon: "⚡", accent: THEME.colors.accentWarm },
+  ];
+  const popupBase = P7 + 58;
+  const popupSc = (i: number) => spring({
+    frame: frame - popupBase - i * 14, fps,
+    config: { damping: 13, stiffness: 130, mass: 0.6 }, from: 0.5, to: 1,
+  });
+  const popupOp = (i: number) => cl(frame, popupBase + i * 14, popupBase + i * 14 + 18) * dimAfter(frame, P8, 0.15);
+  const popupGlow = (i: number) => {
+    const t = frame - popupBase - i * 14;
+    return t > 0 && t < 30 ? interpolate(t, [0, 12, 30], [0, 0.8, 0.3], { extrapolateRight: "clamp" }) : (t >= 30 ? 0.3 : 0);
+  };
 
   // ── Phases 8-9: Bug cards morph ──
-  const cardsOp = cl(frame, P8, P8 + 22);
+  const cardsOp = cl(frame, P8, P8 + 20);
   const cardSc = (i: number) => spring({
-    frame: frame - P8 - 8 - i * 12, fps,
+    frame: frame - P8 - 7 - i * 11, fps,
     config: { damping: 14, stiffness: 160, mass: 0.52 }, from: 0.78, to: 1,
   });
-  const morphT = cl(frame, P9, P9 + 110);
+  const morphT = cl(frame, P9, P9 + 100);
   const morphE = morphT * morphT * (3 - 2 * morphT);
-  const bannerSc = spring({ frame: frame - P9 - 14, fps, config: { damping: 13, stiffness: 115, mass: 0.62 }, from: 0.82, to: 1 });
+  const bannerSc = spring({ frame: frame - P9 - 13, fps, config: { damping: 13, stiffness: 115, mass: 0.62 }, from: 0.82, to: 1 });
 
   return (
     <PageContainer tag="Segment 04" style={{ pointerEvents: "none" }}>
@@ -278,7 +293,7 @@ export const CompileTimeSafety: React.FC = () => {
                     lineHeight: 1.65, color: THEME.colors.textCode,
                   }}>
                     {OOB_CODE.map((line, i) => {
-                      const lo = cl(frame, P3 + 6 + i * 10, P3 + 20 + i * 10);
+                      const lo = cl(frame, P3 + 5 + i * 9, P3 + 18 + i * 9);
                       const bg = line.bug ? `rgba(248,113,113,${(0.06 + 0.28 * bugHL) * (0.92 + 0.08 * Math.sin(frame * 0.3))})` : "transparent";
                       const bd = line.bug ? `1px solid rgba(248,113,113,${0.2 + 0.4 * bugHL})` : "1px solid transparent";
                       return (
@@ -507,6 +522,37 @@ export const CompileTimeSafety: React.FC = () => {
                   }}>
                     COMPILE-TIME STATIC ANALYSIS · ALL PASSES GREEN
                   </div>
+
+                  {/* Pop-up badges: static-dynamic-hybrid / high coverage / manageable cost */}
+                  <div style={{
+                    marginTop: 16, display: "flex", flexDirection: "row",
+                    gap: 14, justifyContent: "center",
+                  }}>
+                    {ANALYSIS_PROPS.map((prop, i) => (
+                      <div key={prop.label} style={{
+                        opacity: popupOp(i),
+                        transform: `scale(${popupSc(i)}) translateY(${(1 - popupOp(i)) * 12}px)`,
+                        transformOrigin: "center bottom",
+                        padding: "12px 22px", borderRadius: THEME.radius.lg,
+                        border: `1.5px solid ${prop.accent}88`,
+                        background: `linear-gradient(170deg, rgba(17,24,39,0.97), rgba(31,41,55,0.95))`,
+                        boxShadow: `${THEME.shadows.card}, 0 0 ${20 * popupGlow(i)}px ${prop.accent}55`,
+                        display: "flex", alignItems: "center", gap: 10,
+                      }}>
+                        <span style={{
+                          fontSize: 22, filter: `brightness(${1 + 0.4 * popupGlow(i)})`,
+                        }}>
+                          {prop.icon}
+                        </span>
+                        <span style={{
+                          fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize.base,
+                          fontWeight: 700, color: prop.accent, letterSpacing: "-0.01em",
+                        }}>
+                          {prop.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -565,7 +611,7 @@ export const CompileTimeSafety: React.FC = () => {
                   border: `2px solid ${MINT}`,
                   background: `linear-gradient(90deg, rgba(110,231,183,0.14), rgba(129,140,248,0.08))`,
                   boxShadow: `${THEME.shadows.glow}, 0 0 40px ${THEME.colors.primaryGlow}`,
-                  opacity: cl(frame, P9 + 8, P9 + 36),
+                  opacity: cl(frame, P9 + 7, P9 + 33),
                 }}>
                   <span style={{
                     fontFamily: THEME.fonts.sans, fontSize: THEME.fontSize["2xl"], fontWeight: 700,
@@ -579,23 +625,6 @@ export const CompileTimeSafety: React.FC = () => {
           </AbsoluteFill>
         </div>
 
-        {/* Progress rail */}
-        <div style={{
-          marginTop: "auto", paddingTop: 10, zIndex: 10,
-          opacity: cl(frame, 8, 26),
-        }}>
-          <div style={{
-            height: 3, borderRadius: THEME.radius.full,
-            background: BORDER_SUBTLE, overflow: "hidden",
-          }}>
-            <div style={{
-              width: `${((frame + 1) / TOTAL_FRAMES) * 100}%`,
-              height: "100%", borderRadius: THEME.radius.full,
-              background: `linear-gradient(90deg, ${MINT}, ${THEME.colors.primaryDark})`,
-              opacity: 0.85,
-            }} />
-          </div>
-        </div>
       </div>
     </PageContainer>
   );

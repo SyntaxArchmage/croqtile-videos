@@ -16,14 +16,14 @@ import { OutroCTA } from "./OutroCTA";
 import { Subtitle, type SubtitleCue } from "../components/Subtitle";
 import { SUBTITLES } from "../data/subtitles";
 
-const SEG0_DURATION = 439;
-const SEG1_DURATION = 1393;
-const SEG2_DURATION = 1390;
-const SEG3_DURATION = 750;
-const SEG4_DURATION = 1430;
-const SEG5_DURATION = 1120;
-const SEG6_DURATION = 3880;
-const SEG7_DURATION = 300;
+const SEG0_DURATION = 382;
+const SEG1_DURATION = 1135;
+const SEG2_DURATION = 1420;
+const SEG3_DURATION = 675;
+const SEG4_DURATION = 1301;
+const SEG5_DURATION = 998;
+const SEG6_DURATION = 3760;
+const SEG7_DURATION = 215;
 
 const SEG0_CUES = ["seg0-01", "seg0-02"];
 const SEG1_CUES = ["seg1-01", "seg1-02", "seg1-03", "seg1-04", "seg1-05"];
@@ -31,61 +31,60 @@ const _SEG2_CUES = ["seg2-01", "seg2-02", "seg2-03"];
 const _SEG3_CUES = ["seg3-01", "seg3-02", "seg3-03"];
 
 const SEG0_VO_FRAMES: [string, number][] = [
-  ["seg0-01", 0],
-  ["seg0-02", 165],
+  ["seg0-01", 4],
+  ["seg0-02", 151],
 ];
 
 const SEG1_VO_FRAMES: [string, number][] = [
-  ["seg1-01", 0],
-  ["seg1-02", 166],
-  ["seg1-03", 557],
-  ["seg1-04", 848],
-  ["seg1-05", 994],
+  ["seg1-01", 4],
+  ["seg1-02", 156],
+  ["seg1-03", 478],
+  ["seg1-04", 716],
+  ["seg1-05", 858],
 ];
 
 const SEG2_VO_FRAMES: [string, number][] = [
-  ["seg2-01", 0],
-  ["seg2-02", 510],
-  ["seg2-03", 1100],
+  ["seg2-01", 4],
+  ["seg2-02", 596],
+  ["seg2-03", 1113],
 ];
 
 const SEG3_VO_FRAMES: [string, number][] = [
-  ["seg3-01", 0],
-  ["seg3-02", 250],
-  ["seg3-03", 500],
+  ["seg3-01", 4],
+  ["seg3-02", 231],
+  ["seg3-03", 460],
 ];
 
 const SEG4_VO_FRAMES: [string, number][] = [
-  ["seg4-01", 20],
-  ["seg4-02", 210],
-  ["seg4-03", 640],
-  ["seg4-04", 1000],
+  ["seg4-01", 4],
+  ["seg4-02", 185],
+  ["seg4-03", 593],
+  ["seg4-04", 933],
 ];
 
 const SEG5_VO_FRAMES: [string, number][] = [
-  ["seg5-01", 10],
-  ["seg5-02", 490],
+  ["seg5-01", 4],
+  ["seg5-02", 447],
 ];
 
 const SEG6_VO_FRAMES: [string, number][] = [
-  ["seg6-01", 20],
-  ["seg6-02", 274],
-  ["seg6-03", 497],
-  ["seg6-04", 768],
-  ["seg6-05", 1017],
-  ["seg6-06", 1276],
-  ["seg6-07", 1542],
-  ["seg6-08", 1785],
-  ["seg6-09", 2144],
-  ["seg6-10", 2369],
-  ["seg6-11", 2677],
-  ["seg6-12", 2927],
-  ["seg6-13", 3626],
-  ["seg6-14", 3768],
+  ["seg6-01", 4],
+  ["seg6-02", 258],
+  ["seg6-03", 482],
+  ["seg6-04", 753],
+  ["seg6-05", 1002],
+  ["seg6-06", 1262],
+  ["seg6-07", 1529],
+  ["seg6-08", 1772],
+  ["seg6-09", 2131],
+  ["seg6-10", 2356],
+  ["seg6-11", 2665],
+  ["seg6-12", 2916],
+  ["seg6-13", 3616],
 ];
 
 const SEG7_VO_FRAMES: [string, number][] = [
-  ["seg7-01", 40],
+  ["seg7-01", 4],
 ];
 
 function sliceSubtitlesEarly(
@@ -105,43 +104,16 @@ const seg0Subs = sliceSubtitlesEarly(0, SEG0_DURATION);
 const seg1Subs = sliceSubtitlesEarly(SEG0_DURATION, SEG1_DURATION);
 const SEG2_TIMELINE_START = SEG0_DURATION + SEG1_DURATION;
 const SEG3_TIMELINE_START = SEG2_TIMELINE_START + SEG2_DURATION;
+const SEG4_TIMELINE_START = SEG3_TIMELINE_START + SEG3_DURATION;
+const SEG5_TIMELINE_START = SEG4_TIMELINE_START + SEG4_DURATION;
+const SEG6_TIMELINE_START = SEG5_TIMELINE_START + SEG5_DURATION;
+const SEG7_TIMELINE_START = SEG6_TIMELINE_START + SEG6_DURATION;
 const seg2Subs = sliceSubtitlesEarly(SEG2_TIMELINE_START, SEG2_DURATION);
 const seg3Subs = sliceSubtitlesEarly(SEG3_TIMELINE_START, SEG3_DURATION);
-
-const seg4Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= 3972 && sub.startFrame < 3972 + SEG4_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - 3972,
-  endFrame: sub.endFrame - 3972,
-}));
-
-const SEG5_TIMELINE_START = 5402;
-const seg5Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= SEG5_TIMELINE_START && sub.startFrame < SEG5_TIMELINE_START + SEG5_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - SEG5_TIMELINE_START,
-  endFrame: sub.endFrame - SEG5_TIMELINE_START,
-}));
-
-const SEG6_TIMELINE_START = 6720;
-const seg6Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= SEG6_TIMELINE_START && sub.startFrame < SEG6_TIMELINE_START + SEG6_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - SEG6_TIMELINE_START,
-  endFrame: sub.endFrame - SEG6_TIMELINE_START,
-}));
-
-const SEG7_TIMELINE_START = 11172;
-const seg7Subs = SUBTITLES.filter(
-  (sub) => sub.startFrame >= SEG7_TIMELINE_START && sub.startFrame < SEG7_TIMELINE_START + SEG7_DURATION,
-).map((sub) => ({
-  ...sub,
-  startFrame: sub.startFrame - SEG7_TIMELINE_START,
-  endFrame: sub.endFrame - SEG7_TIMELINE_START,
-}));
+const seg4Subs = sliceSubtitlesEarly(SEG4_TIMELINE_START, SEG4_DURATION);
+const seg5Subs = sliceSubtitlesEarly(SEG5_TIMELINE_START, SEG5_DURATION);
+const seg6Subs = sliceSubtitlesEarly(SEG6_TIMELINE_START, SEG6_DURATION);
+const seg7Subs = sliceSubtitlesEarly(SEG7_TIMELINE_START, SEG7_DURATION);
 
 interface SegPreviewProps {
   lang: "cn" | "en";
